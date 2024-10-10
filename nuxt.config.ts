@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   vite: {
     build: {
       rollupOptions: {
-        external: ["~/components/plugins/webfontloader.js"],
+        external: ["/components/plugins/webfontloader.js"],
       },
     },
   },
