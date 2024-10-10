@@ -198,7 +198,7 @@ class Cover {
             });
 
             loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
-            loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
+            // loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
             loadedImg.setCoords();
 
             setTimeout(() => {

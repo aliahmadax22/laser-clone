@@ -41,6 +41,10 @@ export const selectFont = (
         fontFamily: font,
       });
 
+      fabricCanvas?.fire("object:modified", {
+        target: activeObj,
+      });
+
       fabricCanvas?.requestRenderAll();
     }
   } else if (modeType === "card") {
@@ -53,6 +57,10 @@ export const selectFont = (
         fontFamily: font,
       });
 
+      canvas?.fire("object:modified", {
+        target: activeObj,
+      });
+
       canvas?.requestRenderAll();
     }
   } else {
@@ -62,6 +70,10 @@ export const selectFont = (
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontFamily: font,
+      });
+
+      fabricCanvas?.fire("object:modified", {
+        target: activeObj,
       });
 
       fabricCanvas?.requestRenderAll();
@@ -90,6 +102,10 @@ export const selectFontStyle = (
         fontStyle: font,
       });
 
+      fabricCanvas?.fire("object:modified", {
+        target: activeObj,
+      });
+
       fabricCanvas?.requestRenderAll();
     }
   } else if (modeType === "card") {
@@ -102,6 +118,10 @@ export const selectFontStyle = (
         fontStyle: font,
       });
 
+      canvas?.fire("object:modified", {
+        target: activeObj,
+      });
+
       canvas?.requestRenderAll();
     }
   } else {
@@ -111,6 +131,10 @@ export const selectFontStyle = (
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontStyle: font,
+      });
+
+      fabricCanvas?.fire("object:modified", {
+        target: activeObj,
       });
 
       fabricCanvas?.requestRenderAll();
@@ -143,6 +167,10 @@ export const handleFontSize = (
         fontSize: fontSize,
       });
 
+      fabricCanvas?.fire("object:modified", {
+        target: activeObj,
+      });
+
       fabricCanvas?.requestRenderAll();
     }
   } else if (modeType === "card") {
@@ -156,6 +184,10 @@ export const handleFontSize = (
         fontSize: fontSize,
       });
 
+    canvas?.fire("object:modified", {
+      target: activeObj!,
+    });
+
     canvas?.requestRenderAll();
   } else {
     const fabricCanvas = activeCover.canvas;
@@ -166,6 +198,10 @@ export const handleFontSize = (
       activeObj.set({
         fontSize: fontSize,
       });
+
+    fabricCanvas?.fire("object:modified", {
+      target: activeObj!,
+    });
 
     fabricCanvas?.requestRenderAll();
   }
