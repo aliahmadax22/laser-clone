@@ -141,8 +141,8 @@ const initializeCanvas = (
   });
 
   fabricCanvas.on("mouse:up", (e) => {
-    if (modeTypeRef.value === "cover") {
-      const pointer = fabricCanvas?.getViewportPoint(e.e);
+    if (modeTypeRef.value === "cover" && fabricCanvas) {
+      const pointer = fabricCanvas.getViewportPoint(e.e);
       const midX = fabricCanvas && fabricCanvas.width / 2;
       if (pointer && midX) {
         pageSideRef.value =
@@ -265,7 +265,7 @@ const initializeCanvas = (
     bleedMarginInPixels
   );
 
-  lines?.map((line) => {
+  lines.map((line) => {
     fabricCanvas && fabricCanvas.add(line);
     fabricCanvas && fabricCanvas.bringObjectToFront(line);
   });

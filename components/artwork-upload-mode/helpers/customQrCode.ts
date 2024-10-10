@@ -56,7 +56,9 @@ class CustomQrCode extends Group {
       //  addToCanvas(this, this.currentCanvasRef, this.inlinePages, this.side, this.modeType)
       if (this.modeType === "page") {
         const activeCanvas = this.currentCanvasRef.find((cnv) => {
-          return cnv.page?.pageID === this.activePageID;
+          if (cnv.page) {
+            return cnv.page.pageID === this.activePageID;
+          }
         });
 
         addToCanvas(

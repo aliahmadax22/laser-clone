@@ -184,7 +184,7 @@ export function pageHandler(
 
       list &&
         list.forEach((child) => {
-          containerRef?.removeChild(child);
+          containerRef.removeChild(child);
         });
 
       const width_px = (actualSize.width_mm / 25.4) * actualSize.dpi;
@@ -239,7 +239,7 @@ export function pageHandler(
         page.loading = true;
         JSONLoading.value = true;
 
-        await page?.canvas.loadFromJSON(pagesData[index].pageJSON).then(() => {
+        await page.canvas.loadFromJSON(pagesData[index].pageJSON).then(() => {
           page.canvas && page.canvas.requestRenderAll();
           page.loading = false;
           JSONLoading.value = false;
@@ -257,12 +257,16 @@ export function pageHandler(
       }, 0);
     } else {
       // CLEARS ALL THE PREVIOUS CHILD ELEMENTS
-      if (reactivePages.value && reactivePages.value.length > 0) {
-        const list = containerRef?.querySelectorAll(".containerCanvases");
+      if (
+        reactivePages.value &&
+        reactivePages.value.length > 0 &&
+        containerRef
+      ) {
+        const list = containerRef.querySelectorAll(".containerCanvases");
 
         list &&
           list.forEach((child) => {
-            containerRef?.removeChild(child);
+            containerRef.removeChild(child);
           });
       }
 
@@ -594,6 +598,10 @@ export function pageHandler(
 
   const loadFromJson = async (action: string) => {
     const latestIndex = historyIndex.value + 1;
+    const currentHistoryObject =
+      pagesHistory.value[historyIndex.value].activeObject;
+    const latestHistoryObject =
+      pagesHistory.value[historyIndex.value + 1].activeObject;
 
     if (action === "undo") {
       for (let i = historyIndex.value; i >= 0; i--) {
@@ -605,29 +613,31 @@ export function pageHandler(
             return page.pageNumber === pagesHistory.value[i].pageNumber;
           });
 
-          const canvas = desiredPage?.canvas;
+          if (desiredPage) {
+            const canvas = desiredPage.canvas;
 
-          JSONLoading.value = true;
+            JSONLoading.value = true;
 
-          // Wait for the canvas to load and render before continuing
-          if (canvas)
-            await canvas.loadFromJSON(
-              historyIndex.value <= 1
-                ? pagesHistory.value[historyIndex.value].json
-                : pagesHistory.value[i].json
-            );
-          canvas && canvas.requestRenderAll();
-          JSONLoading.value = false;
+            // Wait for the canvas to load and render before continuing
+            if (canvas)
+              await canvas.loadFromJSON(
+                historyIndex.value <= 1
+                  ? pagesHistory.value[historyIndex.value].json
+                  : pagesHistory.value[i].json
+              );
+            canvas && canvas.requestRenderAll();
+            JSONLoading.value = false;
 
-          loadPage(desiredPage as inlinePageWithoutRefs);
+            loadPage(desiredPage as inlinePageWithoutRefs);
+          }
 
           break; // Exit the outer loop after the first match is processed
         } else if (
           pagesHistory.value[historyIndex.value - 1].activeObject === null &&
-          pagesHistory.value[historyIndex.value].activeObject?.lineType !==
-            "perforation" &&
-          pagesHistory.value[historyIndex.value + 1].activeObject?.lineType !==
-            "perforation"
+          currentHistoryObject &&
+          currentHistoryObject.lineType !== "perforation" &&
+          latestHistoryObject &&
+          latestHistoryObject.lineType !== "perforation"
         ) {
           historyIndex.value--;
 
@@ -638,18 +648,20 @@ export function pageHandler(
             );
           });
 
-          const canvas = desiredPage?.canvas;
+          if (desiredPage) {
+            const canvas = desiredPage.canvas;
 
-          JSONLoading.value = true;
+            JSONLoading.value = true;
 
-          // Wait for the canvas to load and render before continuing
-          await canvas?.loadFromJSON(
-            pagesHistory.value[historyIndex.value].json
-          );
-          canvas && canvas.requestRenderAll();
-          JSONLoading.value = false;
+            // Wait for the canvas to load and render before continuing
+            await canvas.loadFromJSON(
+              pagesHistory.value[historyIndex.value].json
+            );
+            canvas && canvas.requestRenderAll();
+            JSONLoading.value = false;
 
-          loadPage(desiredPage as inlinePageWithoutRefs);
+            loadPage(desiredPage as inlinePageWithoutRefs);
+          }
 
           break;
         }
@@ -669,27 +681,37 @@ export function pageHandler(
 
       JSONLoading.value = true;
 
-      await desiredPage?.canvas.loadFromJSON(historyToLoad.json).then(() => {
-        desiredPage.canvas && desiredPage.canvas.requestRenderAll();
-        JSONLoading.value = false;
-      });
+      if (desiredPage)
+        await desiredPage.canvas.loadFromJSON(historyToLoad.json).then(() => {
+          desiredPage.canvas && desiredPage.canvas.requestRenderAll();
+          JSONLoading.value = false;
+        });
     }
   };
 
   const undoPagesHistory = async () => {
+    const currentHistoryObject =
+      pagesHistory.value[historyIndex.value].activeObject;
+    const latestHistoryObject =
+      pagesHistory.value[historyIndex.value + 1].activeObject;
+    const latestHistoryActionType =
+      pagesHistory.value[historyIndex.value + 1].actionType;
+    const twoUndosObject =
+      pagesHistory.value[historyIndex.value - 2].activeObject;
+
     if (pagesHistory.value && historyIndex.value > 0) {
       historyIndex.value--;
 
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
       if (
-        pagesHistory.value[historyIndex.value].activeObject?.lineType ===
-        "perforation"
+        currentHistoryObject &&
+        currentHistoryObject.lineType === "perforation"
       ) {
         // IF COND 1 IS true AND PERFORATION LINE IS PRESENT IN LATEST INDEX AND THAT LINE IS MODIFIED
         if (
-          pagesHistory.value[historyIndex.value + 1].activeObject?.lineType ===
-            "perforation" &&
-          pagesHistory.value[historyIndex.value + 1]?.actionType === "modified"
+          latestHistoryObject &&
+          latestHistoryObject.lineType === "perforation" &&
+          latestHistoryActionType === "modified"
         ) {
           for (let i = historyIndex.value - 1; i >= 0; i--) {
             if (
@@ -700,30 +722,27 @@ export function pageHandler(
                 return page.pageNumber === pagesHistory.value[i].pageNumber;
               });
 
-              const canvas = desiredPage?.canvas;
+              if (desiredPage) {
+                const canvas = desiredPage.canvas;
 
-              JSONLoading.value = true;
+                JSONLoading.value = true;
 
-              if (canvas) await canvas.loadFromJSON(pagesHistory.value[i].json);
-              canvas && canvas.requestRenderAll();
-              JSONLoading.value = false;
+                if (canvas)
+                  await canvas.loadFromJSON(pagesHistory.value[i].json);
+                canvas && canvas.requestRenderAll();
+                JSONLoading.value = false;
+              }
 
               break;
             }
           }
 
           historyIndex.value--;
-        } else if (
-          pagesHistory.value[historyIndex.value - 1].activeObject?.lineType ===
-          "perforation"
-        ) {
+        } else if (currentHistoryObject.lineType === "perforation") {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
           // IF COND 1 PHASE 2 IS true, PHASE 3: IF PERFORATION LINE IS PRESENT 3 INDEXES BELOW LATEST OR NOT
-          if (
-            pagesHistory.value[historyIndex.value - 2].activeObject
-              ?.lineType === "perforation"
-          ) {
+          if (twoUndosObject && twoUndosObject.lineType === "perforation") {
             const desiredPage = reactivePages.value.find((page) => {
               return (
                 page.pageNumber ===
@@ -731,24 +750,26 @@ export function pageHandler(
               );
             });
 
-            const canvas = desiredPage?.canvas;
+            if (desiredPage) {
+              const canvas = desiredPage.canvas;
 
-            JSONLoading.value = true;
+              JSONLoading.value = true;
 
-            // Wait for the canvas to load and render before continuing
-            await canvas?.loadFromJSON(
-              pagesHistory.value[historyIndex.value - 2].json
-            );
-            canvas && canvas.requestRenderAll();
-            JSONLoading.value = false;
-            historyIndex.value--;
+              // Wait for the canvas to load and render before continuing
+              await canvas.loadFromJSON(
+                pagesHistory.value[historyIndex.value - 2].json
+              );
+              canvas && canvas.requestRenderAll();
+              JSONLoading.value = false;
+              historyIndex.value--;
+            }
           } else {
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
             if (
               pagesHistory.value[historyIndex.value - 3].activeObject ===
                 null &&
-              pagesHistory.value[historyIndex.value + 1].activeObject
-                ?.lineType === "perforation"
+              latestHistoryObject &&
+              latestHistoryObject.lineType === "perforation"
             ) {
               const indexToStartFrom = pagesHistory.value.indexOf(
                 pagesHistory.value[historyIndex.value]
@@ -763,14 +784,16 @@ export function pageHandler(
                     return page.pageNumber === pagesHistory.value[i].pageNumber;
                   });
 
-                  const canvas = desiredPage?.canvas;
+                  if (desiredPage) {
+                    const canvas = desiredPage.canvas;
 
-                  JSONLoading.value = true;
+                    JSONLoading.value = true;
 
-                  // Wait for the canvas to load and render before continuing
-                  await canvas?.loadFromJSON(pagesHistory.value[i].json);
-                  canvas && canvas.requestRenderAll();
-                  JSONLoading.value = false;
+                    // Wait for the canvas to load and render before continuing
+                    await canvas.loadFromJSON(pagesHistory.value[i].json);
+                    canvas && canvas.requestRenderAll();
+                    JSONLoading.value = false;
+                  }
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
@@ -784,14 +807,16 @@ export function pageHandler(
                         );
                       });
 
-                      const canvas = desiredPage?.canvas;
+                      if (desiredPage) {
+                        const canvas = desiredPage.canvas;
 
-                      JSONLoading.value = true;
+                        JSONLoading.value = true;
 
-                      // Wait for the canvas to load and render before breaking
-                      await canvas?.loadFromJSON(pagesHistory.value[j].json);
-                      canvas && canvas.requestRenderAll();
-                      JSONLoading.value = false;
+                        // Wait for the canvas to load and render before breaking
+                        await canvas.loadFromJSON(pagesHistory.value[j].json);
+                        canvas && canvas.requestRenderAll();
+                        JSONLoading.value = false;
+                      }
 
                       break; // Exit the inner loop after loading from the JSON
                     }
@@ -817,15 +842,17 @@ export function pageHandler(
                   return page.pageNumber === pagesHistory.value[i].pageNumber;
                 });
 
-                const canvas = desiredPage?.canvas;
+                if (desiredPage) {
+                  const canvas = desiredPage.canvas;
 
-                JSONLoading.value = true;
+                  JSONLoading.value = true;
 
-                // Wait for the canvas to load and render before continuing
-                if (canvas)
-                  await canvas.loadFromJSON(pagesHistory.value[i].json);
-                canvas && canvas.requestRenderAll();
-                JSONLoading.value = false;
+                  // Wait for the canvas to load and render before continuing
+                  if (canvas)
+                    await canvas.loadFromJSON(pagesHistory.value[i].json);
+                  canvas && canvas.requestRenderAll();
+                  JSONLoading.value = false;
+                }
 
                 break; // Exit the outer loop after the first match is processed
               }
@@ -838,8 +865,8 @@ export function pageHandler(
             );
 
             if (
-              pagesHistory.value[historyIndex.value + 1].activeObject
-                ?.lineType === "perforation"
+              latestHistoryObject &&
+              latestHistoryObject.lineType === "perforation"
             ) {
               for (let i = indexToStartFrom - 1; i >= 0; i--) {
                 if (
@@ -850,15 +877,17 @@ export function pageHandler(
                     return page.pageNumber === pagesHistory.value[i].pageNumber;
                   });
 
-                  const canvas = desiredPage?.canvas;
+                  if (desiredPage) {
+                    const canvas = desiredPage.canvas;
 
-                  JSONLoading.value = true;
+                    JSONLoading.value = true;
 
-                  // Wait for the canvas to load and render before continuing
-                  if (canvas)
-                    await canvas.loadFromJSON(pagesHistory.value[i].json);
-                  canvas && canvas.requestRenderAll();
-                  JSONLoading.value = false;
+                    // Wait for the canvas to load and render before continuing
+                    if (canvas)
+                      await canvas.loadFromJSON(pagesHistory.value[i].json);
+                    canvas && canvas.requestRenderAll();
+                    JSONLoading.value = false;
+                  }
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
@@ -872,14 +901,16 @@ export function pageHandler(
                         );
                       });
 
-                      const canvas = desiredPage?.canvas;
+                      if (desiredPage) {
+                        const canvas = desiredPage.canvas;
 
-                      JSONLoading.value = true;
+                        JSONLoading.value = true;
 
-                      // Wait for the canvas to load and render before breaking
-                      await canvas?.loadFromJSON(pagesHistory.value[j].json);
-                      canvas && canvas.requestRenderAll();
-                      JSONLoading.value = false;
+                        // Wait for the canvas to load and render before breaking
+                        await canvas.loadFromJSON(pagesHistory.value[j].json);
+                        canvas && canvas.requestRenderAll();
+                        JSONLoading.value = false;
+                      }
 
                       break; // Exit the inner loop after loading from the JSON
                     }
@@ -897,13 +928,12 @@ export function pageHandler(
         if (
           pagesHistory.value[historyIndex.value - 1] &&
           pagesHistory.value[historyIndex.value - 1].activeObject !== null &&
-          pagesHistory.value[historyIndex.value - 1].activeObject?.lineType ===
-            "perforation"
+          currentHistoryObject &&
+          currentHistoryObject.lineType === "perforation"
         ) {
           if (
             !pagesHistory.value[historyIndex.value - 2].activeObject ||
-            pagesHistory.value[historyIndex.value - 2].activeObject
-              ?.lineType !== "perforation"
+            (twoUndosObject && twoUndosObject.lineType !== "perforation")
           ) {
             const desiredPage = reactivePages.value.find((page) => {
               return (
@@ -912,18 +942,20 @@ export function pageHandler(
               );
             });
 
-            const canvas = desiredPage?.canvas;
+            if (desiredPage) {
+              const canvas = desiredPage.canvas;
 
-            JSONLoading.value = true;
+              JSONLoading.value = true;
 
-            // Wait for the canvas to load and render before continuing
-            await canvas?.loadFromJSON(
-              pagesHistory.value[historyIndex.value].json
-            );
-            canvas && canvas.requestRenderAll();
-            JSONLoading.value = false;
-            historyIndex.value--;
-            historyIndex.value--;
+              // Wait for the canvas to load and render before continuing
+              await canvas.loadFromJSON(
+                pagesHistory.value[historyIndex.value].json
+              );
+              canvas && canvas.requestRenderAll();
+              JSONLoading.value = false;
+              historyIndex.value--;
+              historyIndex.value--;
+            }
           }
         }
       }
@@ -944,6 +976,12 @@ export function pageHandler(
 
   //Redo - still notworking
   const redoPagesHistory = async () => {
+    const currentHistoryObject =
+      pagesHistory.value[historyIndex.value].activeObject;
+
+    const twoRedosObject =
+      pagesHistory.value[historyIndex.value + 2].activeObject;
+
     if (
       pagesHistory.value &&
       historyIndex.value < pagesHistory.value.length - 1
@@ -953,13 +991,13 @@ export function pageHandler(
       await loadFromJson("redo");
 
       if (
-        pagesHistory.value[historyIndex.value].activeObject?.lineType ===
-        "perforation"
+        currentHistoryObject &&
+        currentHistoryObject.lineType === "perforation"
       ) {
         if (
           !pagesHistory.value[historyIndex.value + 1].activeObject &&
-          pagesHistory.value[historyIndex.value + 2].activeObject?.lineType ===
-            "perforation"
+          twoRedosObject &&
+          twoRedosObject.lineType === "perforation"
         ) {
           historyIndex.value++;
           historyIndex.value++;
@@ -973,13 +1011,15 @@ export function pageHandler(
             );
           });
 
-          const canvas = desiredPage?.canvas;
+          if (desiredPage) {
+            const canvas = desiredPage.canvas;
 
-          // Wait for the canvas to load and render before breaking
-          await canvas?.loadFromJSON(
-            pagesHistory.value[historyIndex.value].json
-          );
-          canvas && canvas.requestRenderAll();
+            // Wait for the canvas to load and render before breaking
+            await canvas.loadFromJSON(
+              pagesHistory.value[historyIndex.value].json
+            );
+            canvas && canvas.requestRenderAll();
+          }
         } else {
           historyIndex.value++;
 
@@ -992,14 +1032,16 @@ export function pageHandler(
             );
           });
 
-          const canvas = desiredPage?.canvas;
+          if (desiredPage) {
+            const canvas = desiredPage.canvas;
 
-          // Wait for the canvas to load and render before breaking
-          await canvas?.loadFromJSON(
-            pagesHistory.value[historyIndex.value].json
-          );
-          canvas && canvas.requestRenderAll();
-          JSONLoading.value = false;
+            // Wait for the canvas to load and render before breaking
+            await canvas.loadFromJSON(
+              pagesHistory.value[historyIndex.value].json
+            );
+            canvas && canvas.requestRenderAll();
+            JSONLoading.value = false;
+          }
         }
       }
     }

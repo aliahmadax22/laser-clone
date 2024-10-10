@@ -1,4 +1,4 @@
-import type {FabricObject, Canvas } from 'fabric';
+import type { FabricObject, Canvas } from "fabric";
 export class LayerObjectHelper {
   private canvas: Canvas;
 
@@ -7,26 +7,24 @@ export class LayerObjectHelper {
   }
 
   public sendToBack = (activeObject: FabricObject) => {
-      this.canvas.sendObjectToBack(activeObject);
-      this.canvas?.renderAll();
+    this.canvas.sendObjectToBack(activeObject);
+    this.canvas.renderAll();
   };
 
   public bringToFront = (activeObject: FabricObject) => {
-      this.canvas.bringObjectToFront(activeObject);
-      this.canvas?.renderAll();
+    this.canvas.bringObjectToFront(activeObject);
+    this.canvas.renderAll();
   };
 
   public sendBackwards = (activeObject: FabricObject) => {
-      this.canvas.sendObjectBackwards(activeObject);
-      this.canvas?.renderAll();
+    this.canvas.sendObjectBackwards(activeObject);
+    this.canvas.renderAll();
   };
 
   public bringForward = (activeObject: FabricObject) => {
-      this.canvas.bringObjectForward(activeObject);
-      this.canvas?.renderAll();
+    this.canvas.bringObjectForward(activeObject);
+    this.canvas.renderAll();
   };
-
 }
-
 
 export default LayerObjectHelper;

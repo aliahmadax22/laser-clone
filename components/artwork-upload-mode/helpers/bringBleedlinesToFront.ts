@@ -20,25 +20,27 @@ interface CustomLineOptions extends FabricObject {
 }
 
 export const bringBleedlinesToFront = (canvas: Canvas) => {
-  canvas?.getObjects().map((obj) => {
-    const object = obj as CustomLineOptions;
+  if (canvas)
+    canvas.getObjects().map((obj) => {
+      const object = obj as CustomLineOptions;
 
-    if (object?.lineType === "bleedline") {
-      canvas.bringObjectToFront(object);
-      canvas.requestRenderAll();
-    }
-  });
+      if (object && object.lineType === "bleedline") {
+        canvas.bringObjectToFront(object);
+        canvas.requestRenderAll();
+      }
+    });
 };
 
 export const toggleBleedlines = (canvas: Canvas, showLines: boolean) => {
-  canvas?.getObjects().map((obj) => {
-    const object = obj as CustomLineOptions;
+  if (canvas)
+    canvas.getObjects().map((obj) => {
+      const object = obj as CustomLineOptions;
 
-    if (object?.lineType === "bleedline") {
-      object.set({
-        opacity: showLines === true ? 1 : 0,
-      });
-      canvas.requestRenderAll();
-    }
-  });
+      if (object.lineType === "bleedline") {
+        object.set({
+          opacity: showLines === true ? 1 : 0,
+        });
+        canvas.requestRenderAll();
+      }
+    });
 };

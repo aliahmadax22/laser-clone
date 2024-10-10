@@ -108,29 +108,43 @@ export class BleedLinesHelper {
 
   public showBleedLines() {
     if (this.fabricHelper) {
-      this.fabricHelper.findObjectById("top-line")?.set("visible", true);
-      this.fabricHelper.findObjectById("bottom-line")?.set("visible", true);
-      this.fabricHelper.findObjectById("left-line")?.set("visible", true);
-      this.fabricHelper.findObjectById("right-line")?.set("visible", true);
+      const topLine = this.fabricHelper.findObjectById("top-line");
+      const bottomLine = this.fabricHelper.findObjectById("bottom-line");
+      const leftLine = this.fabricHelper.findObjectById("left-line");
+      const rightLine = this.fabricHelper.findObjectById("right-line");
+
+      if (topLine && bottomLine && leftLine && rightLine) {
+        topLine.set("visible", true);
+        bottomLine.set("visible", true);
+        leftLine.set("visible", true);
+        rightLine.set("visible", true);
+      }
       this.canvas.renderAll();
     }
   }
 
   public hideBleedLines() {
     if (this.fabricHelper) {
-      this.fabricHelper.findObjectById("top-line")?.set("visible", false);
-      this.fabricHelper.findObjectById("bottom-line")?.set("visible", false);
-      this.fabricHelper.findObjectById("left-line")?.set("visible", false);
-      this.fabricHelper.findObjectById("right-line")?.set("visible", false);
+      const topLine = this.fabricHelper.findObjectById("top-line");
+      const bottomLine = this.fabricHelper.findObjectById("bottom-line");
+      const leftLine = this.fabricHelper.findObjectById("left-line");
+      const rightLine = this.fabricHelper.findObjectById("right-line");
+
+      if (topLine && bottomLine && leftLine && rightLine) {
+        topLine.set("visible", false);
+        bottomLine.set("visible", false);
+        leftLine.set("visible", false);
+        rightLine.set("visible", false);
+      }
       this.canvas.renderAll();
     }
   }
 
   public toggleBleedLines() {
     if (this.fabricHelper) {
-      const isVisible = this.fabricHelper
-        .findObjectById("top-line")
-        ?.get("visible");
+      const topLine = this.fabricHelper.findObjectById("top-line");
+
+      const isVisible = topLine && topLine.get("visible");
       if (isVisible) {
         this.hideBleedLines();
         this.canvas.fire("object:removed");

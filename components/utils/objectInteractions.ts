@@ -36,30 +36,32 @@ export const scaleToFit = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const objectToScale = fabricCanvas?.getActiveObject();
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const objectToScale = fabricCanvas.getActiveObject();
 
-    const zoom = fabricCanvas?.getZoom();
+      const zoom = fabricCanvas.getZoom();
 
-    if (objectToScale && fabricCanvas && zoom) {
-      objectModifier.scaleToFit(
-        objectToScale,
-        fabricCanvas.width / zoom,
-        fabricCanvas.height / zoom
-      );
+      if (objectToScale && fabricCanvas && zoom) {
+        objectModifier.scaleToFit(
+          objectToScale,
+          fabricCanvas.width / zoom,
+          fabricCanvas.height / zoom
+        );
 
-      fabricCanvas.fire("object:modified", {
-        target: objectToScale,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: objectToScale,
+        });
 
-      fabricCanvas.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const objectToScale = canvas?.getActiveObject();
-    const zoom = canvas?.getZoom();
+    const objectToScale = canvas.getActiveObject();
+    const zoom = canvas.getZoom();
 
     if (objectToScale && canvas && zoom) {
       objectModifier.scaleToFit(
@@ -76,8 +78,8 @@ export const scaleToFit = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const objectToScale = fabricCanvas?.getActiveObject();
-    const zoom = fabricCanvas?.getZoom();
+    const objectToScale = fabricCanvas.getActiveObject();
+    const zoom = fabricCanvas.getZoom();
 
     if (objectToScale && fabricCanvas && zoom) {
       objectModifier.scaleToFit(
@@ -110,29 +112,31 @@ export const scaleToCover = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const objectToScale = fabricCanvas?.getActiveObject();
-    const zoom = fabricCanvas?.getZoom();
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const objectToScale = fabricCanvas.getActiveObject();
+      const zoom = fabricCanvas.getZoom();
 
-    if (objectToScale && fabricCanvas && zoom) {
-      objectModifier.scaleToCover(
-        objectToScale,
-        fabricCanvas?.width / zoom,
-        fabricCanvas?.height / zoom
-      );
+      if (objectToScale && fabricCanvas && zoom) {
+        objectModifier.scaleToCover(
+          objectToScale,
+          fabricCanvas.width / zoom,
+          fabricCanvas.height / zoom
+        );
 
-      fabricCanvas.fire("object:modified", {
-        target: objectToScale,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: objectToScale,
+        });
 
-      fabricCanvas.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const objectToScale = canvas?.getActiveObject();
-    const zoom = canvas?.getZoom();
+    const objectToScale = canvas.getActiveObject();
+    const zoom = canvas.getZoom();
 
     if (objectToScale && canvas && zoom) {
       objectModifier.scaleToCover(
@@ -150,8 +154,8 @@ export const scaleToCover = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const objectToScale = fabricCanvas?.getActiveObject();
-    const zoom = fabricCanvas?.getZoom();
+    const objectToScale = fabricCanvas.getActiveObject();
+    const zoom = fabricCanvas.getZoom();
 
     if (objectToScale && fabricCanvas && zoom) {
       objectModifier.scaleToCover(
@@ -184,21 +188,23 @@ export const rotateCW = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const objectToRotate = fabricCanvas?.getActiveObject();
-    if (objectToRotate && fabricCanvas) {
-      objectModifier.rotateCW(objectToRotate);
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const objectToRotate = fabricCanvas.getActiveObject();
+      if (objectToRotate && fabricCanvas) {
+        objectModifier.rotateCW(objectToRotate);
 
-      fabricCanvas.fire("object:modified", {
-        target: objectToRotate,
-      });
-      fabricCanvas.requestRenderAll();
+        fabricCanvas.fire("object:modified", {
+          target: objectToRotate,
+        });
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const objectToRotate = canvas?.getActiveObject();
+    const objectToRotate = canvas.getActiveObject();
     if (objectToRotate && canvas) {
       objectModifier.rotateCW(objectToRotate);
 
@@ -211,7 +217,7 @@ export const rotateCW = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const objectToRotate = fabricCanvas?.getActiveObject();
+    const objectToRotate = fabricCanvas.getActiveObject();
     if (objectToRotate && fabricCanvas) {
       objectModifier.rotateCW(objectToRotate);
 
@@ -239,24 +245,26 @@ export const rotateACW = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const objectToRotate = fabricCanvas?.getActiveObject();
-    if (objectToRotate) {
-      if (objectToRotate && fabricCanvas) {
-        objectModifier.rotateACW(objectToRotate);
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const objectToRotate = fabricCanvas.getActiveObject();
+      if (objectToRotate) {
+        if (objectToRotate && fabricCanvas) {
+          objectModifier.rotateACW(objectToRotate);
 
-        fabricCanvas.fire("object:modified", {
-          target: objectToRotate,
-        });
+          fabricCanvas.fire("object:modified", {
+            target: objectToRotate,
+          });
 
-        fabricCanvas?.requestRenderAll();
+          fabricCanvas.requestRenderAll();
+        }
       }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const objectToRotate = canvas?.getActiveObject();
+    const objectToRotate = canvas.getActiveObject();
     if (objectToRotate) {
       if (objectToRotate && canvas) {
         objectModifier.rotateACW(objectToRotate);
@@ -265,13 +273,13 @@ export const rotateACW = (
           target: objectToRotate,
         });
 
-        canvas?.requestRenderAll();
+        canvas.requestRenderAll();
       }
     }
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const objectToRotate = fabricCanvas?.getActiveObject();
+    const objectToRotate = fabricCanvas.getActiveObject();
     if (objectToRotate) {
       if (objectToRotate && fabricCanvas) {
         objectModifier.rotateACW(objectToRotate);
@@ -280,7 +288,7 @@ export const rotateACW = (
           target: objectToRotate,
         });
 
-        fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
       }
     }
   }
@@ -300,22 +308,24 @@ export const sendToBack = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
-    if (activeObject && fabricCanvas) {
-      fabricCanvas.sendObjectToBack(activeObject);
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject && fabricCanvas) {
+        fabricCanvas.sendObjectToBack(activeObject);
 
-      fabricCanvas.fire("object:modified", {
-        target: activeObject,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObject,
+        });
 
-      fabricCanvas.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
     if (activeObject && canvas) {
       canvas.sendObjectToBack(activeObject);
 
@@ -328,7 +338,7 @@ export const sendToBack = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
     if (activeObject && fabricCanvas) {
       fabricCanvas.sendObjectToBack(activeObject);
 
@@ -355,22 +365,24 @@ export const bringToFront = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
-    if (activeObject) {
-      fabricCanvas?.bringObjectToFront(activeObject);
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject) {
+        fabricCanvas.bringObjectToFront(activeObject);
 
-      fabricCanvas?.fire("object:modified", {
-        target: activeObject,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObject,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
     if (activeObject) {
       canvas.bringObjectToFront(activeObject);
 
@@ -383,15 +395,15 @@ export const bringToFront = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
     if (activeObject) {
-      fabricCanvas?.bringObjectToFront(activeObject);
+      fabricCanvas.bringObjectToFront(activeObject);
 
       fabricCanvas.fire("object:modified", {
         target: activeObject,
       });
 
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -410,22 +422,24 @@ export const sendBackwards = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
-    if (activeObject) {
-      fabricCanvas?.sendObjectBackwards(activeObject);
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject) {
+        fabricCanvas.sendObjectBackwards(activeObject);
 
-      fabricCanvas?.fire("object:modified", {
-        target: activeObject,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObject,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
     if (activeObject) {
       canvas.sendObjectBackwards(activeObject);
 
@@ -438,15 +452,15 @@ export const sendBackwards = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
     if (activeObject) {
-      fabricCanvas?.sendObjectBackwards(activeObject);
+      fabricCanvas.sendObjectBackwards(activeObject);
 
       fabricCanvas.fire("object:modified", {
         target: activeObject,
       });
 
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -465,21 +479,23 @@ export const bringForward = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
-    if (activeObject) {
-      fabricCanvas?.bringObjectForward(activeObject);
-      fabricCanvas?.fire("object:modified", {
-        target: activeObject,
-      });
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject) {
+        fabricCanvas.bringObjectForward(activeObject);
+        fabricCanvas.fire("object:modified", {
+          target: activeObject,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
     if (activeObject) {
       canvas.bringObjectForward(activeObject);
       canvas.fire("object:modified", {
@@ -491,15 +507,15 @@ export const bringForward = (
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
     if (activeObject) {
-      fabricCanvas?.bringObjectForward(activeObject);
+      fabricCanvas.bringObjectForward(activeObject);
 
       fabricCanvas.fire("object:modified", {
         target: activeObject,
       });
 
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -518,28 +534,30 @@ export const deleteActiveObject = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
-    if (activeObject) {
-      fabricCanvas?.remove(activeObject);
-      fabricCanvas?.requestRenderAll();
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject) {
+        fabricCanvas.remove(activeObject);
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
     if (activeObject) {
-      canvas?.remove(activeObject);
-      canvas?.requestRenderAll();
+      canvas.remove(activeObject);
+      canvas.requestRenderAll();
     }
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
     if (activeObject) {
-      fabricCanvas?.remove(activeObject);
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.remove(activeObject);
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -562,47 +580,49 @@ export const changeColor = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObject = fabricCanvas?.getActiveObject();
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObject = fabricCanvas.getActiveObject();
 
-    if (activeObject) {
-      objectModifier?.changeColor(activeObject, color.value);
+      if (activeObject) {
+        objectModifier.changeColor(activeObject, color.value);
+      }
+
+      if (fabricCanvas && activeObject)
+        fabricCanvas.fire("object:modified", {
+          target: activeObject,
+        });
+
+      fabricCanvas.requestRenderAll();
     }
-
-    if (fabricCanvas && activeObject)
-      fabricCanvas.fire("object:modified", {
-        target: activeObject,
-      });
-
-    fabricCanvas?.requestRenderAll();
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObject = canvas?.getActiveObject();
+    const activeObject = canvas.getActiveObject();
 
     if (activeObject) {
-      objectModifier?.changeColor(activeObject, color.value);
+      objectModifier.changeColor(activeObject, color.value);
     }
 
     if (canvas && activeObject)
       canvas.fire("object:modified", {
         target: activeObject,
       });
-    canvas?.requestRenderAll();
+    canvas.requestRenderAll();
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObject = fabricCanvas?.getActiveObject();
+    const activeObject = fabricCanvas.getActiveObject();
 
     if (activeObject) {
-      objectModifier?.changeColor(activeObject, color.value);
+      objectModifier.changeColor(activeObject, color.value);
     }
 
     if (fabricCanvas && activeObject)
       fabricCanvas.fire("object:modified", {
         target: activeObject,
       });
-    fabricCanvas?.requestRenderAll();
+    fabricCanvas.requestRenderAll();
   }
 };

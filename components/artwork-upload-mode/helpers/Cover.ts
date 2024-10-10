@@ -202,7 +202,8 @@ class Cover {
             loadedImg.setCoords();
 
             setTimeout(() => {
-              jsonObject = this.canvas?.toObject(propertiesToInclude);
+              if (this.canvas)
+                jsonObject = this.canvas.toObject(propertiesToInclude);
               emptyJSON = JSON.stringify(jsonObject);
             }, 0);
 
@@ -250,19 +251,21 @@ class Cover {
           }
         }
 
-        const canvasObjects = this.canvas?.getObjects();
+        if (this.canvas) {
+          const canvasObjects = this.canvas.getObjects();
 
-        if (
-          canvasObjects &&
-          canvasObjects.length <= 3 &&
-          this.loading.value === false
-        ) {
-          this.coverHistory.value.push({
-            coverSide: this.coverSide,
-            activeObject: null,
-            json: JSON.parse(emptyJSON),
-          });
-          currentActionIndex.value++;
+          if (
+            canvasObjects &&
+            canvasObjects.length <= 3 &&
+            this.loading.value === false
+          ) {
+            this.coverHistory.value.push({
+              coverSide: this.coverSide,
+              activeObject: null,
+              json: JSON.parse(emptyJSON),
+            });
+            currentActionIndex.value++;
+          }
         }
 
         const obj = e.target as CustomLineOptions;
@@ -329,11 +332,12 @@ class Cover {
         }
 
         this.loading.value = false;
-        this.coverHistory.value.push({
-          coverSide: this.coverSide,
-          activeObject: activeObject,
-          json: this.canvas?.toObject(),
-        });
+        if (this.canvas)
+          this.coverHistory.value.push({
+            coverSide: this.coverSide,
+            activeObject: activeObject,
+            json: this.canvas.toObject(),
+          });
 
         if (this.coverSide === "Left") {
           this.LeftThumbnail.value = this.canvas.toDataURL();

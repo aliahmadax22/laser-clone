@@ -104,7 +104,7 @@ class Card {
       let emptyJSON = "";
 
       setTimeout(() => {
-        jsonObject = this.canvas?.toObject(propertiesToInclude);
+        if (this.canvas) jsonObject = this.canvas.toObject(propertiesToInclude);
         emptyJSON = JSON.stringify(jsonObject);
       }, 0);
 
@@ -122,7 +122,7 @@ class Card {
           }
         }
 
-        const canvasObjects = this.canvas?.getObjects();
+        const canvasObjects = this.canvas && this.canvas.getObjects();
         const obj = e.target as CustomLineOptions;
 
         if (obj && obj.lineType && obj.lineType === "bleedline") {
@@ -184,19 +184,25 @@ class Card {
                   }
                 });
 
-              if (this.canvas && zoom && object.linePosition === "vertical") {
-                mirroredLine?.set({
+              if (
+                this.canvas &&
+                zoom &&
+                object.linePosition === "vertical" &&
+                mirroredLine
+              ) {
+                mirroredLine.set({
                   left: this.canvas.width / zoom - e.target.left,
                   top: this.canvas.height / zoom - e.target.top,
                 });
               } else {
-                mirroredLine?.set({
-                  left: object.left,
-                  top: object.top,
-                });
+                if (mirroredLine)
+                  mirroredLine.set({
+                    left: object.left,
+                    top: object.top,
+                  });
               }
 
-              mirroredLine?.setCoords();
+              mirroredLine && mirroredLine.setCoords();
 
               this.backThumbnail.value = cardsData.value[1].canvas.toDataURL();
               cardsData.value[1].canvas.requestRenderAll();
@@ -209,19 +215,24 @@ class Card {
                   }
                 });
 
-              if (this.canvas && zoom && object.linePosition === "vertical") {
-                mirroredLine?.set({
+              if (
+                this.canvas &&
+                zoom &&
+                object.linePosition === "vertical" &&
+                mirroredLine
+              ) {
+                mirroredLine.set({
                   left: this.canvas.width / zoom - e.target.left,
                   top: this.canvas.height / zoom - e.target.top,
                 });
-              } else {
-                mirroredLine?.set({
+              } else if (mirroredLine) {
+                mirroredLine.set({
                   left: object.left,
                   top: object.top,
                 });
               }
 
-              mirroredLine?.setCoords();
+              mirroredLine && mirroredLine.setCoords();
 
               this.frontThumbnail.value = cardsData.value[0].canvas.toDataURL();
               cardsData.value[0].canvas.requestRenderAll();
@@ -307,11 +318,12 @@ class Card {
         }
 
         this.loading.value = false;
-        this.cardHistory.value.push({
-          cardSide: this.cardSide,
-          activeObject: activeObject,
-          json: this.canvas?.toObject(propertiesToInclude),
-        });
+        if (this.canvas)
+          this.cardHistory.value.push({
+            cardSide: this.cardSide,
+            activeObject: activeObject,
+            json: this.canvas.toObject(propertiesToInclude),
+          });
 
         if (activeObject.lineType === "perforation" && action === "modified") {
           const mirroedCardSide = this.cardSide === "Front" ? "Back" : "Front";
@@ -324,12 +336,13 @@ class Card {
             return obj.id === activeObject.id;
           });
 
-          this.cardHistory.value.push({
-            cardSide: card.cardSide,
-            activeObject: modifiedLine as FabricObject,
-            actionType: "modified",
-            json: card.canvas?.toObject(propertiesToInclude),
-          });
+          if (card.canvas)
+            this.cardHistory.value.push({
+              cardSide: card.cardSide,
+              activeObject: modifiedLine as FabricObject,
+              actionType: "modified",
+              json: card.canvas.toObject(propertiesToInclude),
+            });
 
           this.currentActionIndex.value++;
         }

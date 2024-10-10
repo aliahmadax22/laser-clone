@@ -136,14 +136,14 @@ export const cardsHandler = function (
     if (cardFront.canvas)
       canvasDimensionsRef.value = {
         width: cardFront.canvas.width,
-        height: cardFront.canvas?.height,
+        height: cardFront.canvas.height,
       };
 
     if (localCardsData) {
       cardsData.value.map(async (card, index) => {
         jsonLoadingRef.value = true;
 
-        await card?.canvas
+        await card.canvas
           .loadFromJSON(localCardsData[index].cardJSON)
           .then(() => {
             card.canvas && card.canvas.requestRenderAll();
@@ -163,7 +163,7 @@ export const cardsHandler = function (
             20
           );
 
-          lines?.map((line) => {
+          lines.map((line) => {
             card.canvas.add(line);
             card.canvas.bringObjectToFront(line);
           });
@@ -181,6 +181,10 @@ export const cardsHandler = function (
 
   const loadFromJson = async (action: string) => {
     const latestIndex = cardHistoryIndex.value + 1;
+    const currentHistoryObject =
+      cardHistory.value[cardHistoryIndex.value].activeObject;
+    const latestHistoryObject =
+      cardHistory.value[cardHistoryIndex.value + 1].activeObject;
 
     if (action === "undo") {
       for (let i = cardHistoryIndex.value; i >= 0; i--) {
@@ -205,17 +209,21 @@ export const cardsHandler = function (
           );
           canvas && canvas.requestRenderAll();
           jsonLoadingRef.value = false;
+          const desiredHistoryObject = cardHistory.value[i].activeObject;
 
-          if (cardHistory.value[i].activeObject?.lineType !== "perforation")
+          if (
+            desiredHistoryObject &&
+            desiredHistoryObject.lineType !== "perforation"
+          )
             activeCardRef.value = cardHistory.value[i].cardSide;
 
           break; // Exit the outer loop after the first match is processed
         } else if (
           cardHistory.value[cardHistoryIndex.value - 1].activeObject === null &&
-          cardHistory.value[cardHistoryIndex.value].activeObject?.lineType !==
-            "perforation" &&
-          cardHistory.value[cardHistoryIndex.value + 1].activeObject
-            ?.lineType !== "perforation"
+          currentHistoryObject &&
+          currentHistoryObject.lineType !== "perforation" &&
+          latestHistoryObject &&
+          latestHistoryObject.lineType !== "perforation"
         ) {
           cardHistoryIndex.value--;
           const canvas =
@@ -232,10 +240,9 @@ export const cardsHandler = function (
           canvas && canvas.requestRenderAll();
           jsonLoadingRef.value = false;
 
-          if (
-            cardHistory.value[cardHistoryIndex.value].activeObject?.lineType !==
-            "perforation"
-          )
+          const desiredHistory = cardHistory.value[cardHistoryIndex.value];
+          const desiredObject = desiredHistory.activeObject;
+          if (desiredObject && desiredObject.lineType !== "perforation")
             activeCardRef.value =
               cardHistory.value[cardHistoryIndex.value].cardSide;
 
@@ -250,24 +257,22 @@ export const cardsHandler = function (
       });
 
       const upperHistory = cardHistory.value[cardHistoryIndex.value + 1];
+      const upperHistoryObject = upperHistory.activeObject;
 
-      if (upperHistory?.activeObject?.lineType === "perforation") {
+      if (upperHistoryObject && upperHistoryObject.lineType === "perforation") {
         activeCardRef.value = upperHistory.cardSide;
       } else {
         if (desiredCard) activeCardRef.value = desiredCard.cardSide;
       }
 
-      if (desiredCard) desiredCard.loading = true;
       jsonLoadingRef.value = true;
 
-      desiredCard?.canvas.clear();
+      if (desiredCard)
+        await desiredCard.canvas.loadFromJSON(historyToLoad.json).then(() => {
+          desiredCard.canvas && desiredCard.canvas.requestRenderAll();
 
-      await desiredCard?.canvas.loadFromJSON(historyToLoad.json).then(() => {
-        desiredCard.canvas && desiredCard.canvas.requestRenderAll();
-
-        if (desiredCard) desiredCard.loading = false;
-        jsonLoadingRef.value = false;
-      });
+          jsonLoadingRef.value = false;
+        });
     }
   };
 
@@ -275,17 +280,31 @@ export const cardsHandler = function (
     if (cardHistory.value && cardHistoryIndex.value > 0) {
       cardHistoryIndex.value--;
 
+      const currentHistoryObject =
+        cardHistory.value[cardHistoryIndex.value].activeObject;
+
+      const latestHistoryObject =
+        cardHistory.value[cardHistoryIndex.value + 1].activeObject;
+
+      const latestHistoryActionType =
+        cardHistory.value[cardHistoryIndex.value + 1].actionType;
+
+      const nextUndoObject =
+        cardHistory.value[cardHistoryIndex.value - 1].activeObject;
+
+      const twoUndosObject =
+        cardHistory.value[cardHistoryIndex.value - 2].activeObject;
+
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
       if (
-        cardHistory.value[cardHistoryIndex.value].activeObject?.lineType ===
-        "perforation"
+        currentHistoryObject &&
+        currentHistoryObject.lineType === "perforation"
       ) {
         // IF COND 1 IS true AND PERFORATION LINE IS PRESENT IN LATEST INDEX AND THAT LINE IS MODIFIED
         if (
-          cardHistory.value[cardHistoryIndex.value + 1].activeObject
-            ?.lineType === "perforation" &&
-          cardHistory.value[cardHistoryIndex.value + 1]?.actionType ===
-            "modified"
+          latestHistoryObject &&
+          latestHistoryObject.lineType === "perforation" &&
+          latestHistoryActionType === "modified"
         ) {
           for (let i = cardHistoryIndex.value - 1; i >= 0; i--) {
             if (
@@ -309,16 +328,13 @@ export const cardsHandler = function (
 
           cardHistoryIndex.value--;
         } else if (
-          cardHistory.value[cardHistoryIndex.value - 1].activeObject
-            ?.lineType === "perforation"
+          nextUndoObject &&
+          nextUndoObject.lineType === "perforation"
         ) {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
           // IF COND 1 PHASE 2 IS true, PHASE 3: IF PERFORATION LINE IS PRESENT 3 INDEXES BELOW LATEST OR NOT
-          if (
-            cardHistory.value[cardHistoryIndex.value - 2].activeObject
-              ?.lineType === "perforation"
-          ) {
+          if (twoUndosObject && twoUndosObject.lineType === "perforation") {
             const canvas =
               cardHistory.value[cardHistoryIndex.value - 2].cardSide === "Front"
                 ? cardsData.value[0].canvas
@@ -338,8 +354,8 @@ export const cardsHandler = function (
             if (
               cardHistory.value[cardHistoryIndex.value - 3].activeObject ===
                 null &&
-              cardHistory.value[cardHistoryIndex.value + 1].activeObject
-                ?.lineType === "perforation"
+              latestHistoryObject &&
+              latestHistoryObject.lineType === "perforation"
             ) {
               const indexToStartFrom = cardHistory.value.indexOf(
                 cardHistory.value[cardHistoryIndex.value]
@@ -424,8 +440,8 @@ export const cardsHandler = function (
             );
 
             if (
-              cardHistory.value[cardHistoryIndex.value + 1].activeObject
-                ?.lineType === "perforation"
+              latestHistoryObject &&
+              latestHistoryObject.lineType === "perforation"
             ) {
               for (let i = indexToStartFrom - 1; i >= 0; i--) {
                 if (
@@ -478,13 +494,12 @@ export const cardsHandler = function (
         if (
           cardHistory.value[cardHistoryIndex.value - 1] &&
           cardHistory.value[cardHistoryIndex.value - 1].activeObject !== null &&
-          cardHistory.value[cardHistoryIndex.value - 1].activeObject
-            ?.lineType === "perforation"
+          nextUndoObject &&
+          nextUndoObject.lineType === "perforation"
         ) {
           if (
             !cardHistory.value[cardHistoryIndex.value - 2].activeObject ||
-            cardHistory.value[cardHistoryIndex.value - 2].activeObject
-              ?.lineType !== "perforation"
+            (twoUndosObject && twoUndosObject.lineType !== "perforation")
           ) {
             const canvas =
               cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
@@ -511,29 +526,19 @@ export const cardsHandler = function (
       const currentJson = cardHistory.value[cardHistoryIndex.value]
         .json as jsonObject;
 
-      if (
-        // upcomingJson.objects.length < 7 &&
-        currentJson.objects.length < 7 &&
-        upperJson.objects.length < 7
-      ) {
+      if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         cardHistoryIndex.value++;
       } else {
-        loadFromJson(
-          // cardHistory.value[cardHistoryIndex.value - 2]?.activeObject
-          //   ?.lineType !== "perforation" &&
-          //   cardHistory.value[cardHistoryIndex.value - 2]?.activeObject !==
-          //     null &&
-          //   cardHistoryIndex.value - 2 > 1
-          //   ? "perforation"
-          //   :
-          "undo"
-        );
+        loadFromJson("undo");
       }
     }
   };
 
-  //Redo - still notworking
   const reDoCardHistory = async () => {
+    const currentHistoryObject =
+      cardHistory.value[cardHistoryIndex.value].activeObject;
+    const twoRedosObject =
+      cardHistory.value[cardHistoryIndex.value + 2].activeObject;
     if (
       cardHistory.value &&
       cardHistoryIndex.value < cardHistory.value.length - 1
@@ -543,13 +548,13 @@ export const cardsHandler = function (
       await loadFromJson("redo");
 
       if (
-        cardHistory.value[cardHistoryIndex.value].activeObject?.lineType ===
-        "perforation"
+        currentHistoryObject &&
+        currentHistoryObject.lineType === "perforation"
       ) {
         if (
           !cardHistory.value[cardHistoryIndex.value + 1].activeObject &&
-          cardHistory.value[cardHistoryIndex.value + 2].activeObject
-            ?.lineType === "perforation"
+          twoRedosObject &&
+          twoRedosObject.lineType === "perforation"
         ) {
           cardHistoryIndex.value++;
           cardHistoryIndex.value++;

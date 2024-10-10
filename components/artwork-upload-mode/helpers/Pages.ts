@@ -128,9 +128,7 @@ class Page {
 
           setTimeout(() => {
             jsonObject =
-              this.allCanvasesRef.value.canvas[1]?.toObject(
-                propertiesToInclude
-              );
+              this.allCanvasesRef.value.canvas[1].toObject(propertiesToInclude);
             emptyJSON = JSON.stringify(jsonObject);
           }, 0);
 
@@ -174,52 +172,59 @@ class Page {
           }
         }, 0);
 
-        const canvasObjects = this.canvas?.getObjects();
+        if (this.canvas) {
+          const canvasObjects = this.canvas.getObjects();
 
-        const obj = e.target as CustomLineOptions;
+          const obj = e.target as CustomLineOptions;
 
-        if (
-          canvasObjects &&
-          canvasObjects.length <= 3 &&
-          canvasObjects[2]?.type !== "rect" &&
-          this.loading.value === false &&
-          emptyJSON
-        ) {
-          this.history.value.push({
-            pageNumber: this.pageNumber,
-            activeObject: null,
-            json: JSON.parse(emptyJSON),
-          });
-          currentActionIndex.value++;
-        }
+          if (
+            canvasObjects &&
+            canvasObjects.length <= 3 &&
+            canvasObjects[2].type !== "rect" &&
+            this.loading.value === false &&
+            emptyJSON
+          ) {
+            this.history.value.push({
+              pageNumber: this.pageNumber,
+              activeObject: null,
+              json: JSON.parse(emptyJSON),
+            });
+            currentActionIndex.value++;
+          }
 
-        if (
-          e.target.id !== "frame" &&
-          e.target.id !== "firstPageCover" &&
-          e.target.id !== "cover"
-        ) {
-          saveState(obj);
+          if (
+            e.target.id !== "frame" &&
+            e.target.id !== "firstPageCover" &&
+            e.target.id !== "cover"
+          ) {
+            saveState(obj);
+          }
         }
       });
 
       this.canvas.on("object:modified", (e) => {
         const obj = e.target as CustomLineOptions;
         if (obj.lineType === "perforation") {
-          if (this.pageNumber % 2 === 0) {
-            const zoom = this.canvas?.getZoom();
+          if (this.pageNumber % 2 === 0 && this.canvas) {
+            const zoom = this.canvas.getZoom();
             const nextCanvas =
               this.allCanvasesRef.value.canvas[this.pageNumber];
             const otherLine = nextCanvas
               .getObjects()
               .find((obj) => obj.id === e.target.id);
 
-            if (this.canvas && zoom && obj.linePosition === "vertical") {
-              otherLine?.set({
+            if (
+              this.canvas &&
+              zoom &&
+              obj.linePosition === "vertical" &&
+              otherLine
+            ) {
+              otherLine.set({
                 left: this.canvas.width / zoom - e.target.left,
                 top: this.canvas.height / zoom - e.target.top,
               });
-            } else {
-              otherLine?.set({
+            } else if (otherLine) {
+              otherLine.set({
                 left: obj.left,
                 top: obj.top,
               });
@@ -229,21 +234,26 @@ class Page {
               nextCanvas.toDataURL();
 
             nextCanvas.requestRenderAll();
-          } else {
-            const zoom = this.canvas?.getZoom();
+          } else if (this.canvas) {
+            const zoom = this.canvas.getZoom();
             const previousCanvas =
               this.allCanvasesRef.value.canvas[this.pageNumber - 2];
             const otherLine = previousCanvas
               .getObjects()
               .find((obj) => obj.id === e.target.id);
 
-            if (this.canvas && zoom && obj.linePosition === "vertical") {
-              otherLine?.set({
+            if (
+              this.canvas &&
+              zoom &&
+              obj.linePosition === "vertical" &&
+              otherLine
+            ) {
+              otherLine.set({
                 left: this.canvas.width / zoom - e.target.left,
                 top: this.canvas.height / zoom - e.target.top,
               });
-            } else {
-              otherLine?.set({
+            } else if (otherLine) {
+              otherLine.set({
                 left: obj.left,
                 top: obj.top,
               });
@@ -285,13 +295,13 @@ class Page {
           saveState(obj);
         }
 
-        if (obj.lineType === "perforation") {
-          const mirrorLine = this.canvas?.getObjects().find((object) => {
+        if (obj.lineType === "perforation" && this.canvas) {
+          const mirrorLine = this.canvas.getObjects().find((object) => {
             return obj.id === object.id;
           });
 
-          mirrorLine && this.canvas?.remove(mirrorLine);
-          this.canvas?.requestRenderAll();
+          mirrorLine && this.canvas.remove(mirrorLine);
+          this.canvas.requestRenderAll();
         }
       });
 
@@ -323,11 +333,12 @@ class Page {
         }
 
         this.loading.value = false;
-        this.history.value.push({
-          pageNumber: this.pageNumber,
-          activeObject: activeObject,
-          json: this.canvas?.toObject(propertiesToInclude),
-        });
+        if (this.canvas)
+          this.history.value.push({
+            pageNumber: this.pageNumber,
+            activeObject: activeObject,
+            json: this.canvas.toObject(propertiesToInclude),
+          });
 
         if (activeObject.lineType === "perforation" && action === "modified") {
           const mirroedPageNumber =
@@ -346,7 +357,7 @@ class Page {
             pageNumber: mirroedPageNumber,
             activeObject: modifiedLine as FabricObject,
             actionType: "modified",
-            json: mirroredCanvas?.toObject(propertiesToInclude),
+            json: mirroredCanvas.toObject(propertiesToInclude),
           });
 
           this.currentActionIndex.value++;

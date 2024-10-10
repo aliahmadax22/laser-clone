@@ -190,21 +190,23 @@ export const addCustomText = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
 
-    const text = new CustomTextbox(
-      fabricCanvas as Canvas,
-      "My Text",
-      pageSideRef
-    );
+      const text = new CustomTextbox(
+        fabricCanvas as Canvas,
+        "My Text",
+        pageSideRef
+      );
 
-    addToCanvas(
-      text,
-      activeCanvas as inlinePage,
-      fabricCanvas as Canvas,
-      inlinePages,
-      modeType
-    );
+      addToCanvas(
+        text,
+        activeCanvas as inlinePage,
+        fabricCanvas as Canvas,
+        inlinePages,
+        modeType
+      );
+    }
   } else {
     if (modeType === "card" && cardSide === "Front") {
       const text = new CustomTextbox(
@@ -289,9 +291,9 @@ export const addSVGText = async (
       obj.set({
         left:
           pageSideRef === "right"
-            ? canvas?.width / 2 / zoom + 150
+            ? canvas.width / 2 / zoom + 150
             : pageSideRef === "middle"
-            ? canvas?.width / 2 / zoom - (obj.width / 2) * 0.1
+            ? canvas.width / 2 / zoom - (obj.width / 2) * 0.1
             : 150,
         top: 50,
         scaleX: 0.2,
@@ -311,7 +313,7 @@ export const addSVGText = async (
 
       const zoom = fabricCanvas.getZoom();
       obj.set({
-        left: fabricCanvas?.width / 2 / zoom - (obj.width / 2) * 0.1,
+        left: fabricCanvas.width / 2 / zoom - (obj.width / 2) * 0.1,
 
         top: 50,
         scaleX: 0.1,
@@ -410,7 +412,7 @@ export const addPerforationLineHorizontal = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
+    const fabricCanvas = activeCanvas && activeCanvas.canvas;
 
     if (activeCanvas && activeCanvas.pageNumber % 2 === 0) {
       const frontLine = new CustomLine(fabricCanvas as Canvas, "horizontal");
@@ -477,7 +479,7 @@ export const addPerforationLineVertical = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
+    const fabricCanvas = activeCanvas && activeCanvas.canvas;
 
     if (activeCanvas && activeCanvas.pageNumber % 2 === 0) {
       const frontLine = new CustomLine(fabricCanvas as Canvas, "vertical");
@@ -559,7 +561,7 @@ export const generateQRCode = async (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
+    const fabricCanvas = activeCanvas && activeCanvas.canvas;
 
     if (fabricCanvas) {
       new CustomQrCode(

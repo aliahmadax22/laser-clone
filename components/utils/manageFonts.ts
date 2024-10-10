@@ -34,49 +34,51 @@ export const selectFont = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObj = fabricCanvas?.getActiveObject();
-    if (activeObj && activeObj.type === "textbox") {
-      activeObj.set({
-        fontFamily: font,
-      });
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObj = fabricCanvas.getActiveObject();
+      if (activeObj && activeObj.type === "textbox") {
+        activeObj.set({
+          fontFamily: font,
+        });
 
-      fabricCanvas?.fire("object:modified", {
-        target: activeObj,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObj,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObj = canvas?.getActiveObject();
+    const activeObj = canvas.getActiveObject();
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontFamily: font,
       });
 
-      canvas?.fire("object:modified", {
+      canvas.fire("object:modified", {
         target: activeObj,
       });
 
-      canvas?.requestRenderAll();
+      canvas.requestRenderAll();
     }
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObj = fabricCanvas?.getActiveObject();
+    const activeObj = fabricCanvas.getActiveObject();
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontFamily: font,
       });
 
-      fabricCanvas?.fire("object:modified", {
+      fabricCanvas.fire("object:modified", {
         target: activeObj,
       });
 
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -95,49 +97,51 @@ export const selectFontStyle = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObj = fabricCanvas?.getActiveObject();
-    if (activeObj && activeObj.type === "textbox") {
-      activeObj.set({
-        fontStyle: font,
-      });
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObj = fabricCanvas.getActiveObject();
+      if (activeObj && activeObj.type === "textbox") {
+        activeObj.set({
+          fontStyle: font,
+        });
 
-      fabricCanvas?.fire("object:modified", {
-        target: activeObj,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObj,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObj = canvas?.getActiveObject();
+    const activeObj = canvas.getActiveObject();
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontStyle: font,
       });
 
-      canvas?.fire("object:modified", {
+      canvas.fire("object:modified", {
         target: activeObj,
       });
 
-      canvas?.requestRenderAll();
+      canvas.requestRenderAll();
     }
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObj = fabricCanvas?.getActiveObject();
+    const activeObj = fabricCanvas.getActiveObject();
     if (activeObj && activeObj.type === "textbox") {
       activeObj.set({
         fontStyle: font,
       });
 
-      fabricCanvas?.fire("object:modified", {
+      fabricCanvas.fire("object:modified", {
         target: activeObj,
       });
 
-      fabricCanvas?.requestRenderAll();
+      fabricCanvas.requestRenderAll();
     }
   }
 };
@@ -159,50 +163,52 @@ export const handleFontSize = (
       return cnv.pageID === activePageID;
     });
 
-    const fabricCanvas = activeCanvas?.canvas;
-    const activeObj = fabricCanvas?.getActiveObject();
+    if (activeCanvas) {
+      const fabricCanvas = activeCanvas.canvas;
+      const activeObj = fabricCanvas.getActiveObject();
 
-    if (activeObj && activeObj.type === "textbox") {
-      activeObj.set({
-        fontSize: fontSize,
-      });
+      if (activeObj && activeObj.type === "textbox") {
+        activeObj.set({
+          fontSize: fontSize,
+        });
 
-      fabricCanvas?.fire("object:modified", {
-        target: activeObj,
-      });
+        fabricCanvas.fire("object:modified", {
+          target: activeObj,
+        });
 
-      fabricCanvas?.requestRenderAll();
+        fabricCanvas.requestRenderAll();
+      }
     }
   } else if (modeType === "card") {
     const canvas =
       cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
-    const activeObj = canvas?.getActiveObject();
+    const activeObj = canvas.getActiveObject();
 
     if (activeObj && activeObj.type === "textbox")
       activeObj.set({
         fontSize: fontSize,
       });
 
-    canvas?.fire("object:modified", {
+    canvas.fire("object:modified", {
       target: activeObj!,
     });
 
-    canvas?.requestRenderAll();
+    canvas.requestRenderAll();
   } else {
     const fabricCanvas = activeCover.canvas;
 
-    const activeObj = fabricCanvas?.getActiveObject();
+    const activeObj = fabricCanvas.getActiveObject();
 
     if (activeObj && activeObj.type === "textbox")
       activeObj.set({
         fontSize: fontSize,
       });
 
-    fabricCanvas?.fire("object:modified", {
+    fabricCanvas.fire("object:modified", {
       target: activeObj!,
     });
 
-    fabricCanvas?.requestRenderAll();
+    fabricCanvas.requestRenderAll();
   }
 };

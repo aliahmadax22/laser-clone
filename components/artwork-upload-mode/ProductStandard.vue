@@ -1319,7 +1319,6 @@ onMounted(() => {
         const dynamicIndexNumer2 = dynamicValue2 && dynamicValue2 - 1;
 
         const container = containerRef.value;
-        // const children = container?.children;
         if (container && container.children) {
           const childrenArray = Array.from(container.children);
 
@@ -1495,15 +1494,17 @@ const swapPage = async () => {
     return cnv.pageID === activePageID.value;
   });
 
-  const fabricCanvas = activeCanvas?.canvas;
+  if (activeCanvas) {
+    const fabricCanvas = activeCanvas.canvas;
 
-  fabricCanvas &&
-    fabricCanvas.getObjects().forEach((obj) => {
-      if (fabricCanvas && obj.id && obj.id === "firstPageCover") {
-        fabricCanvas.remove(obj);
-        fabricCanvas.requestRenderAll();
-      }
-    });
+    fabricCanvas &&
+      fabricCanvas.getObjects().forEach((obj) => {
+        if (fabricCanvas && obj.id && obj.id === "firstPageCover") {
+          fabricCanvas.remove(obj);
+          fabricCanvas.requestRenderAll();
+        }
+      });
+  }
 
   if (
     state.pageSwapFrom &&
@@ -1589,7 +1590,7 @@ const swapPage = async () => {
       canvasesFrom[1].requestRenderAll();
     });
 
-    fabricCanvas?.renderAll();
+    if (fabricCanvas) fabricCanvas.renderAll();
   } else {
     state.error = "Choose any other pages";
   }
@@ -1607,7 +1608,7 @@ const handleZoom = (e: Event) => {
 
   if (state.modeType === "page") {
     if (state.currentCNV && state.canvasSize) {
-      const width = state.canvasSize?.width;
+      const width = state.canvasSize.width;
       const height = width;
 
       state.currentCNV.map((activePages) => {
@@ -1627,7 +1628,7 @@ const handleZoom = (e: Event) => {
     });
 
     if (activeCard && state.canvasSize) {
-      const width = state.canvasSize?.width;
+      const width = state.canvasSize.width;
       const height = width;
 
       activeCard.canvas.setDimensions({
@@ -1641,25 +1642,27 @@ const handleZoom = (e: Event) => {
     }
   } else {
     coverDataRef.value.map((cover) => {
-      const width = state.canvasSize?.width;
-      const height = width;
+      if (state.canvasSize && cover.canvas) {
+        const width = state.canvasSize.width;
+        const height = width;
 
-      if (width && height && cover) {
-        if (cover.coverSide === "Middle") {
-          cover.canvas?.setDimensions({
-            width: (width / 3 / 100) * newValue,
-            height: (height / 100) * newValue,
-          });
-        } else {
-          cover.canvas?.setDimensions({
-            width: (width / 100) * newValue,
-            height: (height / 100) * newValue,
-          });
+        if (width && height && cover) {
+          if (cover.coverSide === "Middle") {
+            cover.canvas.setDimensions({
+              width: (width / 3 / 100) * newValue,
+              height: (height / 100) * newValue,
+            });
+          } else {
+            cover.canvas.setDimensions({
+              width: (width / 100) * newValue,
+              height: (height / 100) * newValue,
+            });
+          }
         }
-      }
 
-      cover.canvas?.setZoom(zoom);
-      cover.canvas?.renderAll();
+        cover.canvas.setZoom(zoom);
+        cover.canvas.renderAll();
+      }
     });
   }
 };
@@ -1706,20 +1709,20 @@ const toggleBleedLines = () => {
 
 const updateLineCoordinatesLeft = (e: Event) => {
   const value = e.target as HTMLInputElement;
-  LineHelper?.set({
+  LineHelper.set({
     left: value,
   });
 
-  fabricCanvas?.requestRenderAll();
+  if (fabricCanvas) fabricCanvas.requestRenderAll();
 };
 
 const updateLineCoordinatesTop = (e: Event) => {
   const value = e.target as HTMLInputElement;
-  LineHelper?.set({
+  LineHelper.set({
     top: value,
   });
 
-  fabricCanvas?.requestRenderAll();
+  if (fabricCanvas) fabricCanvas.requestRenderAll();
 };
 
 watch(activeObjectRef, (newValue) => {
@@ -1760,13 +1763,13 @@ watch(selectedLine, (newVal) => {
 watch(
   () => lineProps.value.top,
   () => {
-    perforationLinesHelper?.updateLineCoordinates();
+    perforationLinesHelper.updateLineCoordinates();
   }
 );
 watch(
   () => lineProps.value.left,
   () => {
-    perforationLinesHelper?.updateLineCoordinates();
+    perforationLinesHelper.updateLineCoordinates();
   }
 );
 </script>

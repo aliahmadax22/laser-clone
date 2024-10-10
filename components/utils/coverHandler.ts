@@ -165,20 +165,21 @@ export const coverHandler = function (
     if (coverLeft.canvas)
       canvasDimensionsRef.value = {
         width: coverLeft.canvas.width,
-        height: coverLeft.canvas?.height,
+        height: coverLeft.canvas.height,
       };
 
     if (localCoverData) {
       coversData.value.map(async (cover, index) => {
         jsonLoadingRef.value = true;
 
-        await cover?.canvas
-          .loadFromJSON(localCoverData[index].coverJSON)
-          .then(() => {
-            cover.canvas && cover.canvas.requestRenderAll();
+        if (cover)
+          await cover.canvas
+            .loadFromJSON(localCoverData[index].coverJSON)
+            .then(() => {
+              cover.canvas && cover.canvas.requestRenderAll();
 
-            jsonLoadingRef.value = false;
-          });
+              jsonLoadingRef.value = false;
+            });
       });
     }
 
@@ -191,29 +192,33 @@ export const coverHandler = function (
 
   const loadFromJson = async (action: string) => {
     const latestIndex = coverHistoryIndex.value + 1;
+    const currentHistoryObject =
+      coverHistory.value[coverHistoryIndex.value].activeObject;
 
     if (action === "undo") {
       for (let i = coverHistoryIndex.value; i >= 0; i--) {
         if (
-          coverHistory.value[i]?.coverSide ===
-          coverHistory.value[latestIndex]?.coverSide
+          coverHistory.value[i].coverSide ===
+          coverHistory.value[latestIndex].coverSide
         ) {
           const desiredCover = coversData.value.find((c) => {
             return c.coverSide === coverHistory.value[i].coverSide;
           });
 
-          const canvas = desiredCover?.canvas;
+          if (desiredCover) {
+            const canvas = desiredCover.canvas;
 
-          jsonLoadingRef.value = true;
+            jsonLoadingRef.value = true;
 
-          if (canvas)
-            await canvas.loadFromJSON(
-              coverHistoryIndex.value <= 1
-                ? coverHistory.value[coverHistoryIndex.value].json
-                : coverHistory.value[i].json
-            );
-          canvas && canvas.requestRenderAll();
-          jsonLoadingRef.value = false;
+            if (canvas)
+              await canvas.loadFromJSON(
+                coverHistoryIndex.value <= 1
+                  ? coverHistory.value[coverHistoryIndex.value].json
+                  : coverHistory.value[i].json
+              );
+            canvas && canvas.requestRenderAll();
+            jsonLoadingRef.value = false;
+          }
 
           activeCoverRef.value = coverHistory.value[i].coverSide;
 
@@ -230,19 +235,21 @@ export const coverHandler = function (
             );
           });
 
-          const canvas = desiredCover?.canvas;
-          jsonLoadingRef.value = true;
+          if (desiredCover) {
+            const canvas = desiredCover.canvas;
+            jsonLoadingRef.value = true;
 
-          // Wait for the canvas to load and render before continuing
-          await canvas?.loadFromJSON(
-            coverHistory.value[coverHistoryIndex.value].json
-          );
-          canvas && canvas.requestRenderAll();
-          jsonLoadingRef.value = false;
+            // Wait for the canvas to load and render before continuing
+            await canvas.loadFromJSON(
+              coverHistory.value[coverHistoryIndex.value].json
+            );
+            canvas && canvas.requestRenderAll();
+            jsonLoadingRef.value = false;
+          }
 
           if (
-            coverHistory.value[coverHistoryIndex.value].activeObject
-              ?.lineType !== "perforation"
+            currentHistoryObject &&
+            currentHistoryObject.lineType !== "perforation"
           )
             activeCoverRef.value =
               coverHistory.value[coverHistoryIndex.value].coverSide;
@@ -253,47 +260,23 @@ export const coverHandler = function (
     } else {
       const historyToLoad = coverHistory.value[coverHistoryIndex.value];
 
-      const desiredCard = coversData.value.find((p) => {
+      const desiredCover = coversData.value.find((p) => {
         return p.coverSide === historyToLoad.coverSide;
       });
 
-      if (desiredCard) activeCoverRef.value = desiredCard.coverSide;
-
       jsonLoadingRef.value = true;
 
-      desiredCard?.canvas.clear();
-
-      await desiredCard?.canvas.loadFromJSON(historyToLoad.json).then(() => {
-        desiredCard.canvas && desiredCard.canvas.requestRenderAll();
-        jsonLoadingRef.value = false;
-      });
+      if (desiredCover)
+        await desiredCover.canvas.loadFromJSON(historyToLoad.json).then(() => {
+          jsonLoadingRef.value = false;
+        });
     }
-
-    // const historyToLoad = coverHistory.value[coverHistoryIndex.value];
-
-    // const desiredCover = coversData.value.find((p) => {
-    //   return p.coverSide === historyToLoad.coverSide;
-    // });
-
-    // activeCoverRef.value = desiredCover.coverSide;
-
-    // jsonLoadingRef.value = true;
-
-    // desiredCover?.canvas.clear();
-
-    // await desiredCover?.canvas.loadFromJSON(historyToLoad.json).then(() => {
-    //   desiredCover.canvas && desiredCover.canvas.requestRenderAll();
-
-    //   jsonLoadingRef.value = false;
-    // });
   };
 
   const undoCoverHistory = async () => {
     if (coverHistory.value && coverHistoryIndex.value > 0) {
       coverHistoryIndex.value--;
 
-      // const upcomingJson = coverHistory.value[coverHistoryIndex.value - 1]
-      //   .json as jsonObject;
       const upperJson = coverHistory.value[coverHistoryIndex.value + 1]
         .json as jsonObject;
 
