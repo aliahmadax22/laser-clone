@@ -3,18 +3,13 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ["~/assets/app.scss"],
 
-  plugins: [{ src: "~/components/plugins/webfontloader.ts", mode: "client" }],
+  plugins: [{ src: "~/components/plugins/webfontloader.js", mode: "client" }],
 
-  // build: {
-  //   extend(config, { isDev, isClient }) {
-  //     if (!config.resolve.extensions.includes(".ts")) {
-  //       config.resolve.extensions.push(".ts");
-  //     }
-  //   },
-  //   rollupOptions: {
-  //     external: ["webFontLoader"],
-  //   },
-  // },
+  build: {
+    rollupOptions: {
+      external: ["webFontLoader"],
+    },
+  },
 
   modules: [
     "@nuxt/eslint",
