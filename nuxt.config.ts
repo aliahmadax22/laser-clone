@@ -3,15 +3,15 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ["~/assets/app.scss"],
 
-  plugins: [{ src: "~/components/plugins/webfontloader.js", mode: "client" }],
+  // plugins: [{ src: "~/components/plugins/webfontloader.js", mode: "client" }],
 
-  vite: {
-    build: {
-      rollupOptions: {
-        external: ["~/components/plugins/webfontloader.js"],
-      },
-    },
-  },
+  // vite: {
+  //   build: {
+  //     rollupOptions: {
+  //       external: ["~/components/plugins/webfontloader.js"],
+  //     },
+  //   },
+  // },
 
   modules: [
     "@nuxt/eslint",
