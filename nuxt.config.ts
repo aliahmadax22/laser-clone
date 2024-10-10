@@ -12,7 +12,7 @@ export default defineNuxtConfig({
       }
     },
     rollupOptions: {
-      external: ["~/components/plugins/webfontloader.ts"],
+      external: ["~/components/plugins/webfontloader.js"],
     },
   },
 
