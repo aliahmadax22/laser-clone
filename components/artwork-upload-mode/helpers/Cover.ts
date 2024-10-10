@@ -197,8 +197,8 @@ class Cover {
               hasControls: false,
             });
 
-            // loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
-            loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
+            loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
+            // loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
             loadedImg.setCoords();
 
             setTimeout(() => {
@@ -210,9 +210,12 @@ class Cover {
               overlayImage: loadedImg,
             });
 
-            this.LeftThumbnail.value = this.canvas!.toDataURL();
-            this.RightThumbnail.value = this.canvas!.toDataURL();
-            this.MiddleThumbnail.value = this.canvas!.toDataURL();
+            setTimeout(() => {
+              this.LeftThumbnail.value = this.canvas!.toDataURL();
+              this.RightThumbnail.value = this.canvas!.toDataURL();
+              this.MiddleThumbnail.value =
+                coverData.value[1].canvas.toDataURL();
+            }, 0);
 
             this.canvas.renderAll();
           }
