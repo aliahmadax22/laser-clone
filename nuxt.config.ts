@@ -5,9 +5,11 @@ export default defineNuxtConfig({
 
   plugins: [{ src: "~/components/plugins/webfontloader.js", mode: "client" }],
 
-  build: {
-    rollupOptions: {
-      external: ["~/components/plugins/webfontloader.js"],
+  vite: {
+    build: {
+      rollupOptions: {
+        external: ["~/components/plugins/webfontloader.js"],
+      },
     },
   },
 
