@@ -1,0 +1,19 @@
+// Import Bootstrap
+$primary: #009696;
+$secondary: #f7a200;
+$light: #f4f4f4;
+$info: #d9eff0;
+$warning: #ee7535;
+$success: #61aa70;
+$gray-900: #5f5f5f;
+$gray-300: #f2f2f2;
+$gray-400: #e5e5e5;
+$gray-500: #c0c0c0;
+$gray-600: #b5b5b5;
+$gray-800: #333333;
+$border-color: #b5b5b5;
+$table-color: $gray-900;
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";

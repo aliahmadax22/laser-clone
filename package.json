@@ -1,0 +1,63 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "tsc": "vue-tsc --noEmit",
+    "prepare": "husky",
+    "precommit": "lint-staged",
+    "prepush": "npm run tsc"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,vue}": [
+      "eslint . --fix"
+    ]
+  },
+  "dependencies": {
+    "@jamescoyle/svg-icon": "^0.1.1",
+    "@jamescoyle/vue-icon": "^0.1.2",
+    "@mdi/js": "^7.4.47",
+    "@nuxt/eslint": "^0.3.13",
+    "@types/qrcode": "^1.5.5",
+    "@types/qrcode-svg": "^1.1.4",
+    "@types/vue-select": "^3.16.8",
+    "@vueuse/components": "^10.9.0",
+    "@vueuse/core": "^10.9.0",
+    "axios": "^1.6.8",
+    "bootstrap": "^5.3.3",
+    "fabric": "^6.0.2",
+    "lodash": "^4.17.21",
+    "nuxt": "^3.12.1",
+    "pinia": "^2.1.7",
+    "qrcode": "^1.5.3",
+    "qrcode-svg": "^1.1.0",
+    "uuid": "^10.0.0",
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.2",
+    "vue-select": "^4.0.0-beta.6",
+    "vue3-popper": "^1.5.0",
+    "vue3-toastify": "^0.2.1",
+    "webfontloader": "^1.6.28"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@pinia/nuxt": "^0.5.1",
+    "@types/lodash": "^4.17.7",
+    "@types/uuid": "^10.0.0",
+    "@types/webfontloader": "^1.6.38",
+    "autoprefixer": "^10.4.20",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.4",
+    "postcss": "^8.4.41",
+    "sass": "1.77.6",
+    "tailwindcss": "^3.4.10",
+    "vue-tsc": "^2.0.19"
+  }
+}
