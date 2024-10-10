@@ -191,6 +191,12 @@ export const cardsHandler = function (
     console.log("latest ACTION INDEX", latestIndex);
     if (action === "undo") {
       for (let i = cardHistoryIndex.value; i >= 0; i--) {
+        console.log(
+          "looped undo verification",
+          cardHistory.value[i].cardSide ===
+            cardHistory.value[latestIndex].cardSide
+        );
+
         if (
           cardHistory.value[i].cardSide ===
           cardHistory.value[latestIndex].cardSide
@@ -227,8 +233,12 @@ export const cardsHandler = function (
 
           break; // Exit the outer loop after the first match is processed
         } else if (
-          cardHistory.value[cardHistoryIndex.value - 1].activeObject === null
+          cardHistory.value[cardHistoryIndex.value - 1].activeObject === null &&
+          cardHistory.value[cardHistoryIndex.value].activeObject?.lineType !==
+            "perforation"
         ) {
+          console.log("history before current one is null");
+
           cardHistoryIndex.value--;
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
@@ -250,9 +260,9 @@ export const cardsHandler = function (
           )
             activeCardRef.value =
               cardHistory.value[cardHistoryIndex.value].cardSide;
-        }
 
-        break;
+          break;
+        }
       }
     } else {
       const historyToLoad = cardHistory.value[cardHistoryIndex.value];
@@ -324,6 +334,8 @@ export const cardsHandler = function (
               await canvas.loadFromJSON(cardHistory.value[i].json);
               canvas && canvas.requestRenderAll();
               jsonLoadingRef.value = false;
+
+              console.log("loading the history index", i);
 
               break;
             }
