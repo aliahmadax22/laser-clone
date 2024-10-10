@@ -178,7 +178,6 @@ export function pageHandler(
     const dataString = localStorage.getItem("pagesInfo");
     const pagesData: { pageNumber: number; pageID: string; pageJSON: JSON }[] =
       JSON.parse(dataString!);
-    console.log("local data", pagesData);
 
     if (pagesData && containerRef) {
       const list = containerRef.querySelectorAll(".containerCanvases");
@@ -202,31 +201,33 @@ export function pageHandler(
       const canvases: Canvas[] = [];
       const thumbs: string[] = [];
 
-      for (let i = 1; i <= pagesData.length; i++) {
-        pageInstances.push(
-          new Page(
-            actualSize,
-            i,
-            containerRef,
-            pgActiveObj.value as FabricObject | null,
-            allThumbnailsRef as Ref<allThumbnailsRef>,
-            pagesHistory as Ref<pagesHistory[]>,
-            historyIndex,
-            JSONLoading
-          )
-        );
+      if (pageInstances) {
+        for (let i = 1; i <= pagesData.length; i++) {
+          pageInstances.push(
+            new Page(
+              actualSize,
+              i,
+              containerRef,
+              pgActiveObj.value as FabricObject | null,
+              allThumbnailsRef as Ref<allThumbnailsRef>,
+              pagesHistory as Ref<pagesHistory[]>,
+              historyIndex,
+              JSONLoading
+            )
+          );
 
-        reactivePages.value.push({
-          pageNumber: pageInstances[i - 1].pageNumber,
-          pageID: pageInstances[i - 1].pageID,
-          thumbnail: pageInstances[i - 1].canvas!.toDataURL(),
-          canvas: pageInstances[i - 1].canvas!,
-          loading: pageInstances[i - 1].loading.value,
-        });
+          reactivePages.value.push({
+            pageNumber: pageInstances[i - 1].pageNumber,
+            pageID: pageInstances[i - 1].pageID,
+            thumbnail: pageInstances[i - 1].canvas!.toDataURL(),
+            canvas: pageInstances[i - 1].canvas!,
+            loading: pageInstances[i - 1].loading.value,
+          });
 
-        canvases.push(reactivePages.value[i - 1].canvas as Canvas);
+          canvases.push(reactivePages.value[i - 1].canvas as Canvas);
 
-        thumbs.push(reactivePages.value[i - 1].thumbnail);
+          thumbs.push(reactivePages.value[i - 1].thumbnail);
+        }
       }
 
       allThumbnailsRef.value = {
@@ -306,30 +307,32 @@ export function pageHandler(
         JSONLoading
       );
 
-      reactivePages.value = [
-        {
-          pageNumber: 1,
-          pageID: pageInstance1.pageID,
-          thumbnail: pageInstance1.thumbnail.value,
-          canvas: pageInstance1.canvas!,
-          loading: pageInstance1.loading.value,
-        },
-        {
-          pageNumber: 2,
-          pageID: pageInstance2.pageID,
-          thumbnail: pageInstance2.thumbnail.value,
-          canvas: pageInstance2.canvas!,
-          loading: pageInstance2.loading.value,
-        },
-      ];
+      if (pageInstance1.canvas && pageInstance2.canvas)
+        reactivePages.value = [
+          {
+            pageNumber: 1,
+            pageID: pageInstance1.pageID,
+            thumbnail: pageInstance1.thumbnail.value,
+            canvas: pageInstance1.canvas,
+            loading: pageInstance1.loading.value,
+          },
+          {
+            pageNumber: 2,
+            pageID: pageInstance2.pageID,
+            thumbnail: pageInstance2.thumbnail.value,
+            canvas: pageInstance2.canvas,
+            loading: pageInstance2.loading.value,
+          },
+        ];
 
-      allThumbnailsRef.value = {
-        canvas: [pageInstance1.canvas!, pageInstance2.canvas!],
-        thumbnail: [
-          pageInstance1.thumbnail.value,
-          pageInstance2.thumbnail.value,
-        ],
-      };
+      if (pageInstance1.canvas && pageInstance2.canvas)
+        allThumbnailsRef.value = {
+          canvas: [pageInstance1.canvas, pageInstance2.canvas],
+          thumbnail: [
+            pageInstance1.thumbnail.value,
+            pageInstance2.thumbnail.value,
+          ],
+        };
 
       liveCanvases.value = [reactivePages.value[0], reactivePages.value[1]];
 
@@ -354,7 +357,7 @@ export function pageHandler(
           canvas.add(CoverPage);
         }
 
-        canvas!.requestRenderAll();
+        if (canvas) canvas.requestRenderAll();
         setTimeout(() => {
           resizeElement();
         }, 0);
@@ -408,7 +411,7 @@ export function pageHandler(
             }
           });
       } else {
-        console.log("LAST PAGE");
+        // last page
       }
 
       if (liveCanvases.value[0].pageNumber === 1) {
@@ -417,7 +420,7 @@ export function pageHandler(
         });
 
         if (cover && liveCanvases.value[0].canvas._objects.includes(cover)) {
-          console.log("cover is present");
+          // cover is present
         } else {
           const canvas = liveCanvases.value[1].canvas;
           if (canvas) {
@@ -475,28 +478,30 @@ export function pageHandler(
       JSONLoading
     );
 
-    reactivePages.value.push(
-      {
-        pageNumber: pageInstance1.pageNumber,
-        pageID: pageInstance1.pageID,
-        thumbnail: pageInstance1.thumbnail.value,
-        canvas: pageInstance1.canvas!,
-        loading: pageInstance1.loading.value,
-      },
-      {
-        pageNumber: pageInstance2.pageNumber,
-        pageID: pageInstance2.pageID,
-        thumbnail: pageInstance2.thumbnail.value,
-        canvas: pageInstance2.canvas!,
-        loading: pageInstance2.loading.value,
-      }
-    );
-
-    allThumbnailsRef.value &&
-      allThumbnailsRef.value.canvas.push(
-        pageInstance1.canvas!,
-        pageInstance2.canvas!
+    if (pageInstance1.canvas && pageInstance2.canvas)
+      reactivePages.value.push(
+        {
+          pageNumber: pageInstance1.pageNumber,
+          pageID: pageInstance1.pageID,
+          thumbnail: pageInstance1.thumbnail.value,
+          canvas: pageInstance1.canvas,
+          loading: pageInstance1.loading.value,
+        },
+        {
+          pageNumber: pageInstance2.pageNumber,
+          pageID: pageInstance2.pageID,
+          thumbnail: pageInstance2.thumbnail.value,
+          canvas: pageInstance2.canvas,
+          loading: pageInstance2.loading.value,
+        }
       );
+
+    if (pageInstance1.canvas && pageInstance2.canvas)
+      allThumbnailsRef.value &&
+        allThumbnailsRef.value.canvas.push(
+          pageInstance1.canvas,
+          pageInstance2.canvas
+        );
 
     allThumbnailsRef.value &&
       allThumbnailsRef.value.thumbnail.push(
@@ -518,20 +523,22 @@ export function pageHandler(
       prevRight === reactivePages.value.length
     ) {
       const canvas = pageInstance2.canvas;
-      const zoom = canvas!.getZoom();
-      const CoverPage = new Rect({
-        id: "cover",
-        width: canvas!.width / zoom,
-        height: canvas!.height / zoom,
-        fill: "darkgray",
-        selectable: false,
-        hasBorders: false,
-        hasControls: false,
-      });
+      if (canvas) {
+        const zoom = canvas.getZoom();
+        const CoverPage = new Rect({
+          id: "cover",
+          width: canvas.width / zoom,
+          height: canvas.height / zoom,
+          fill: "darkgray",
+          selectable: false,
+          hasBorders: false,
+          hasControls: false,
+        });
 
-      canvas!.add(CoverPage);
-      canvas!.sendObjectToBack(CoverPage);
-      canvas!.requestRenderAll();
+        canvas.add(CoverPage);
+        canvas.sendObjectToBack(CoverPage);
+        canvas.requestRenderAll();
+      }
 
       apID.value = pageInstance2.pageID;
     }
@@ -586,17 +593,10 @@ export function pageHandler(
   };
 
   const loadFromJson = async (action: string) => {
-    console.log("CURRENT ACTION INDEX", historyIndex.value);
-
     const latestIndex = historyIndex.value + 1;
 
     if (action === "undo") {
       for (let i = historyIndex.value; i >= 0; i--) {
-        console.log(
-          "looped undo verification",
-          pagesHistory.value[i].pageNumber ===
-            pagesHistory.value[latestIndex].pageNumber
-        );
         if (
           pagesHistory.value[i].pageNumber ===
           pagesHistory.value[latestIndex].pageNumber
@@ -606,13 +606,6 @@ export function pageHandler(
           });
 
           const canvas = desiredPage?.canvas;
-
-          console.log("DESIRED PAGE DURING JSON LOADING", desiredPage);
-
-          console.log(
-            "index of History that we are loading",
-            pagesHistory.value.indexOf(pagesHistory.value[i])
-          );
 
           JSONLoading.value = true;
 
@@ -636,8 +629,6 @@ export function pageHandler(
           pagesHistory.value[historyIndex.value + 1].activeObject?.lineType !==
             "perforation"
         ) {
-          console.log("history before current one is null");
-
           historyIndex.value--;
 
           const desiredPage = reactivePages.value.find((page) => {
@@ -670,24 +661,17 @@ export function pageHandler(
       //   return f === pagesHistory.value[historyIndex.value];
       // });
 
-      // console.log("pagesHistory to load index", hindex);
-
       const desiredPage = reactivePages.value.find((p) => {
         return p.pageNumber === historyToLoad.pageNumber;
       });
-
-      // console.log("DESIRED PAGE", desiredPage);
 
       loadPage(desiredPage as inlinePageWithoutRefs);
 
       JSONLoading.value = true;
 
-      // console.log("page loading value brfore json loading", desiredPage?.loading);
-
       await desiredPage?.canvas.loadFromJSON(historyToLoad.json).then(() => {
         desiredPage.canvas && desiredPage.canvas.requestRenderAll();
         JSONLoading.value = false;
-        // console.log("page loading value after json loading", desiredPage.loading);
       });
     }
   };
@@ -695,8 +679,6 @@ export function pageHandler(
   const undoPagesHistory = async () => {
     if (pagesHistory.value && historyIndex.value > 0) {
       historyIndex.value--;
-
-      console.log("HISTORY", pagesHistory.value, historyIndex.value);
 
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
       if (
@@ -709,10 +691,6 @@ export function pageHandler(
             "perforation" &&
           pagesHistory.value[historyIndex.value + 1]?.actionType === "modified"
         ) {
-          console.log(
-            "PERFORATION LINE IS PRESENT IN LATEST INDEX AND THAT LINE IS MODIFIED"
-          );
-
           for (let i = historyIndex.value - 1; i >= 0; i--) {
             if (
               pagesHistory.value[i].pageNumber !==
@@ -741,21 +719,11 @@ export function pageHandler(
         ) {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
-          console.log(
-            "line is also present in next undo",
-            pagesHistory.value[historyIndex.value]
-          );
-
           // IF COND 1 PHASE 2 IS true, PHASE 3: IF PERFORATION LINE IS PRESENT 3 INDEXES BELOW LATEST OR NOT
           if (
             pagesHistory.value[historyIndex.value - 2].activeObject
               ?.lineType === "perforation"
           ) {
-            console.log(
-              "another line is also present in double next undo i.e mirror line modification occured",
-              historyIndex.value - 2
-            );
-
             const desiredPage = reactivePages.value.find((page) => {
               return (
                 page.pageNumber ===
@@ -775,11 +743,6 @@ export function pageHandler(
             JSONLoading.value = false;
             historyIndex.value--;
           } else {
-            console.log(
-              "another line is NOTTT present 3 indexes below LATEST index",
-              pagesHistory.value[historyIndex.value - 2]
-            );
-
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
             if (
               pagesHistory.value[historyIndex.value - 3].activeObject ===
@@ -787,10 +750,6 @@ export function pageHandler(
               pagesHistory.value[historyIndex.value + 1].activeObject
                 ?.lineType === "perforation"
             ) {
-              console.log(
-                "OBJECT IS NULL 4 INDEXES BELOW LATEST so RUNNING LOOP"
-              );
-
               const indexToStartFrom = pagesHistory.value.indexOf(
                 pagesHistory.value[historyIndex.value]
               );
@@ -800,12 +759,6 @@ export function pageHandler(
                   pagesHistory.value[i].pageNumber ===
                   pagesHistory.value[indexToStartFrom].pageNumber
                 ) {
-                  console.log("desired history chunk", pagesHistory.value[i]);
-                  console.log(
-                    "index of desired chunk",
-                    pagesHistory.value.indexOf(pagesHistory.value[i])
-                  );
-
                   const desiredPage = reactivePages.value.find((page) => {
                     return page.pageNumber === pagesHistory.value[i].pageNumber;
                   });
@@ -821,26 +774,10 @@ export function pageHandler(
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
-                    console.log(
-                      "j loop condition ",
-                      pagesHistory.value[j].pageNumber !==
-                        pagesHistory.value[indexToStartFrom].pageNumber,
-                      i - 1
-                    );
-
                     if (
                       pagesHistory.value[j].pageNumber !==
                       pagesHistory.value[indexToStartFrom].pageNumber
                     ) {
-                      console.log(
-                        "side not matched j loop",
-                        pagesHistory.value[j]
-                      );
-                      console.log(
-                        "history index in j loop",
-                        pagesHistory.value.indexOf(pagesHistory.value[j])
-                      );
-
                       const desiredPage = reactivePages.value.find((page) => {
                         return (
                           page.pageNumber === pagesHistory.value[j].pageNumber
@@ -868,8 +805,6 @@ export function pageHandler(
           }
           // CONDITION 1 PHASE 3 ENDS
         } else {
-          console.log("LINE IS NOT PRESENT 2 INDEXES BELOW LATEST");
-
           if (
             pagesHistory.value[historyIndex.value + 1].actionType === "modified"
           ) {
@@ -906,19 +841,11 @@ export function pageHandler(
               pagesHistory.value[historyIndex.value + 1].activeObject
                 ?.lineType === "perforation"
             ) {
-              console.log("object of latest index is perforation line ");
-
               for (let i = indexToStartFrom - 1; i >= 0; i--) {
                 if (
                   pagesHistory.value[i].pageNumber ===
                   pagesHistory.value[indexToStartFrom].pageNumber
                 ) {
-                  console.log("desired history chunk", pagesHistory.value[i]);
-                  console.log(
-                    "index of desired chunk",
-                    pagesHistory.value.indexOf(pagesHistory.value[i])
-                  );
-
                   const desiredPage = reactivePages.value.find((page) => {
                     return page.pageNumber === pagesHistory.value[i].pageNumber;
                   });
@@ -935,26 +862,10 @@ export function pageHandler(
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
-                    console.log(
-                      "j loop condition ",
-                      pagesHistory.value[j].pageNumber !==
-                        pagesHistory.value[indexToStartFrom].pageNumber,
-                      i - 1
-                    );
-
                     if (
                       pagesHistory.value[j].pageNumber !==
                       pagesHistory.value[indexToStartFrom].pageNumber
                     ) {
-                      console.log(
-                        "side not matched j loop",
-                        pagesHistory.value[j]
-                      );
-                      console.log(
-                        "history index in j loop",
-                        pagesHistory.value.indexOf(pagesHistory.value[j])
-                      );
-
                       const desiredPage = reactivePages.value.find((page) => {
                         return (
                           page.pageNumber === pagesHistory.value[j].pageNumber
@@ -983,29 +894,17 @@ export function pageHandler(
         }
         // CONDITION 1 PHASE 2 ENDS
       } else if (!pagesHistory.value[historyIndex.value].activeObject) {
-        console.log(
-          "active object is null i.e first ever object in that canvas",
-          pagesHistory.value[historyIndex.value]
-        );
-
         if (
           pagesHistory.value[historyIndex.value - 1] &&
           pagesHistory.value[historyIndex.value - 1].activeObject !== null &&
           pagesHistory.value[historyIndex.value - 1].activeObject?.lineType ===
             "perforation"
         ) {
-          console.log("line present 1 index under", historyIndex.value - 1);
-
           if (
             !pagesHistory.value[historyIndex.value - 2].activeObject ||
             pagesHistory.value[historyIndex.value - 2].activeObject
               ?.lineType !== "perforation"
           ) {
-            console.log(
-              "object is null or no line present 2 indexes under",
-              historyIndex.value - 2
-            );
-
             const desiredPage = reactivePages.value.find((page) => {
               return (
                 page.pageNumber ===
@@ -1037,7 +936,6 @@ export function pageHandler(
 
       if (currentJson.objects.length < 3 && upperJson.objects.length < 3) {
         historyIndex.value++;
-        console.log("length less than 2", historyIndex.value);
       } else {
         loadFromJson("undo");
       }
@@ -1050,8 +948,6 @@ export function pageHandler(
       pagesHistory.value &&
       historyIndex.value < pagesHistory.value.length - 1
     ) {
-      console.log("HISTORY", pagesHistory.value);
-
       historyIndex.value++;
 
       await loadFromJson("redo");
@@ -1069,12 +965,6 @@ export function pageHandler(
           historyIndex.value++;
 
           JSONLoading.value = true;
-
-          console.log(
-            "HISTORY after both lines were added at empty canvases",
-            pagesHistory.value,
-            historyIndex.value
-          );
 
           const desiredPage = reactivePages.value.find((page) => {
             return (
@@ -1094,8 +984,6 @@ export function pageHandler(
           historyIndex.value++;
 
           JSONLoading.value = true;
-
-          console.log("HISTORY", pagesHistory.value, historyIndex.value);
 
           const desiredPage = reactivePages.value.find((page) => {
             return (

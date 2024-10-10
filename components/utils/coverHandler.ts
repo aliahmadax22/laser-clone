@@ -93,8 +93,6 @@ export const coverHandler = function (
       coverJSON: JSON;
     }[] = JSON.parse(dataString!);
 
-    console.log("local data for Cards", localCoverData);
-
     const coverLeft = new Cover(
       actualSize,
       "Left",
@@ -143,25 +141,26 @@ export const coverHandler = function (
       activeCoverRef as Ref<string>
     );
 
-    coversData.value = [
-      {
-        coverSide: coverLeft.coverSide,
-        coverID: coverLeft.coverID,
-        canvas: coverLeft.canvas!,
-      },
+    if (coverLeft.canvas && coverRight.canvas && coverMiddle.canvas)
+      coversData.value = [
+        {
+          coverSide: coverLeft.coverSide,
+          coverID: coverLeft.coverID,
+          canvas: coverLeft.canvas,
+        },
 
-      {
-        coverSide: coverMiddle.coverSide,
-        coverID: coverMiddle.coverID,
-        canvas: coverMiddle.canvas!,
-      },
+        {
+          coverSide: coverMiddle.coverSide,
+          coverID: coverMiddle.coverID,
+          canvas: coverMiddle.canvas,
+        },
 
-      {
-        coverSide: coverRight.coverSide,
-        coverID: coverRight.coverID,
-        canvas: coverRight.canvas!,
-      },
-    ];
+        {
+          coverSide: coverRight.coverSide,
+          coverID: coverRight.coverID,
+          canvas: coverRight.canvas,
+        },
+      ];
 
     if (coverLeft.canvas)
       canvasDimensionsRef.value = {
@@ -191,8 +190,6 @@ export const coverHandler = function (
   };
 
   const loadFromJson = async (action: string) => {
-    console.log("CURRENT ACTION INDEX", coverHistoryIndex.value);
-
     const latestIndex = coverHistoryIndex.value + 1;
 
     if (action === "undo") {
@@ -201,17 +198,11 @@ export const coverHandler = function (
           coverHistory.value[i]?.coverSide ===
           coverHistory.value[latestIndex]?.coverSide
         ) {
-          console.log("desired cover side matches latest cover side");
           const desiredCover = coversData.value.find((c) => {
             return c.coverSide === coverHistory.value[i].coverSide;
           });
 
           const canvas = desiredCover?.canvas;
-
-          console.log(
-            "index of History that we are loading",
-            coverHistory.value.indexOf(coverHistory.value[i])
-          );
 
           jsonLoadingRef.value = true;
 
@@ -230,8 +221,6 @@ export const coverHandler = function (
         } else if (
           coverHistory.value[coverHistoryIndex.value - 1].activeObject === null
         ) {
-          console.log("history before current one is null");
-
           coverHistoryIndex.value--;
 
           const desiredCover = coversData.value.find((c) => {
@@ -268,9 +257,7 @@ export const coverHandler = function (
         return p.coverSide === historyToLoad.coverSide;
       });
 
-      console.log("DESIRED CARD", desiredCard?.coverSide);
-
-      activeCoverRef.value = desiredCard!.coverSide;
+      if (desiredCard) activeCoverRef.value = desiredCard.coverSide;
 
       jsonLoadingRef.value = true;
 
@@ -284,18 +271,13 @@ export const coverHandler = function (
 
     // const historyToLoad = coverHistory.value[coverHistoryIndex.value];
 
-    // console.log("history to load", historyToLoad);
-
     // const desiredCover = coversData.value.find((p) => {
     //   return p.coverSide === historyToLoad.coverSide;
     // });
 
-    // console.log("DESIRED CARD", desiredCover);
-
-    // activeCoverRef.value = desiredCover!.coverSide;
+    // activeCoverRef.value = desiredCover.coverSide;
 
     // jsonLoadingRef.value = true;
-    // // console.log("page loading value brfore json loading", desiredCover?.loading);
 
     // desiredCover?.canvas.clear();
 
@@ -303,15 +285,12 @@ export const coverHandler = function (
     //   desiredCover.canvas && desiredCover.canvas.requestRenderAll();
 
     //   jsonLoadingRef.value = false;
-    //   // console.log("page loading value after json loading", desiredCover.loading);
     // });
   };
 
   const undoCoverHistory = async () => {
     if (coverHistory.value && coverHistoryIndex.value > 0) {
       coverHistoryIndex.value--;
-
-      console.log("HISTORY", coverHistory.value, coverHistoryIndex.value);
 
       // const upcomingJson = coverHistory.value[coverHistoryIndex.value - 1]
       //   .json as jsonObject;
@@ -327,7 +306,6 @@ export const coverHandler = function (
         upperJson.objects.length < 3
       ) {
         coverHistoryIndex.value++;
-        console.log("length less than 7", coverHistoryIndex.value);
       } else {
         if (
           coverHistory.value[coverHistoryIndex.value - 1].activeObject === null
@@ -346,8 +324,6 @@ export const coverHandler = function (
       coverHistory.value &&
       coverHistoryIndex.value < coverHistory.value.length - 1
     ) {
-      console.log("HISTORY", coverHistory.value);
-
       coverHistoryIndex.value++;
 
       await loadFromJson("redo");

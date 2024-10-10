@@ -135,62 +135,66 @@ export class SnapLinesHelper {
 
     //Horizontal Snap Center
     const objectMiddleHorizontal = options.target.left;
-    const verticalLineCenter = this.fabricHelper!.findObjectById(
-      "vertical-line-center"
-    );
-    if (verticalLineCenter) {
-      if (
-        objectMiddleHorizontal > this.canvas.width / 2 / zoom - snapZone &&
-        objectMiddleHorizontal < this.canvas.width / 2 / zoom + snapZone
-      ) {
-        options.target
-          .set({
-            left: this.canvas.width / 2 / zoom,
-            originX: "center",
-          })
-          .setCoords();
-        verticalLineCenter!.set("visible", true);
+    if (this.fabricHelper) {
+      const verticalLineCenter = this.fabricHelper.findObjectById(
+        "vertical-line-center"
+      );
+      if (verticalLineCenter) {
+        if (
+          objectMiddleHorizontal > this.canvas.width / 2 / zoom - snapZone &&
+          objectMiddleHorizontal < this.canvas.width / 2 / zoom + snapZone
+        ) {
+          options.target
+            .set({
+              left: this.canvas.width / 2 / zoom,
+              originX: "center",
+            })
+            .setCoords();
+          verticalLineCenter.set("visible", true);
 
-        this.canvas.bringObjectToFront(verticalLineCenter);
+          this.canvas.bringObjectToFront(verticalLineCenter);
 
-        document.addEventListener("mouseup", () => {
-          if (verticalLineCenter) {
-            verticalLineCenter!.set("visible", false);
-          }
-        });
-      } else {
-        verticalLineCenter!.set("visible", false);
+          document.addEventListener("mouseup", () => {
+            if (verticalLineCenter) {
+              verticalLineCenter.set("visible", false);
+            }
+          });
+        } else {
+          verticalLineCenter.set("visible", false);
+        }
       }
     }
 
     //Vertical Snap Center
     const objectMiddleVertical = options.target.top;
-    const horizontalLineCenter = this.fabricHelper!.findObjectById(
-      "horizontal-line-center"
-    );
-    if (horizontalLineCenter) {
-      if (
-        objectMiddleVertical > this.canvas.height / 2 / zoom - snapZone &&
-        objectMiddleVertical < this.canvas.height / 2 / zoom + snapZone
-      ) {
-        options.target
-          .set({
-            top: this.canvas.height / 2 / zoom,
-            originY: "center",
-          })
-          .setCoords();
+    if (this.fabricHelper) {
+      const horizontalLineCenter = this.fabricHelper.findObjectById(
+        "horizontal-line-center"
+      );
+      if (horizontalLineCenter) {
+        if (
+          objectMiddleVertical > this.canvas.height / 2 / zoom - snapZone &&
+          objectMiddleVertical < this.canvas.height / 2 / zoom + snapZone
+        ) {
+          options.target
+            .set({
+              top: this.canvas.height / 2 / zoom,
+              originY: "center",
+            })
+            .setCoords();
 
-        horizontalLineCenter!.set("visible", true);
+          horizontalLineCenter.set("visible", true);
 
-        this.canvas.bringObjectToFront(horizontalLineCenter);
+          this.canvas.bringObjectToFront(horizontalLineCenter);
 
-        document.addEventListener("mouseup", () => {
-          if (horizontalLineCenter) {
-            horizontalLineCenter!.set("visible", false);
-          }
-        });
-      } else {
-        horizontalLineCenter!.set("visible", false);
+          document.addEventListener("mouseup", () => {
+            if (horizontalLineCenter) {
+              horizontalLineCenter.set("visible", false);
+            }
+          });
+        } else {
+          horizontalLineCenter.set("visible", false);
+        }
       }
     }
 

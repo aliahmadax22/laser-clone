@@ -427,14 +427,16 @@ export const addPerforationLineHorizontal = (
       const frontLine = new CustomLine(fabricCanvas as Canvas, "horizontal");
       const previousCanvas =
         activeCanvas && inlinePages[activeCanvas.pageNumber - 2];
-      const mirroredLine = frontLine.straightLine(previousCanvas!.canvas);
-      mirroredLine.setCoords();
+      if (previousCanvas && previousCanvas.canvas) {
+        const mirroredLine = frontLine.straightLine(previousCanvas.canvas);
+        mirroredLine.setCoords();
 
-      fabricCanvas && fabricCanvas.add(frontLine);
-      fabricCanvas && fabricCanvas.requestRenderAll();
+        fabricCanvas && fabricCanvas.add(frontLine);
+        fabricCanvas && fabricCanvas.requestRenderAll();
 
-      previousCanvas && previousCanvas.canvas.add(mirroredLine);
-      previousCanvas && previousCanvas.canvas.requestRenderAll();
+        previousCanvas && previousCanvas.canvas.add(mirroredLine);
+        previousCanvas && previousCanvas.canvas.requestRenderAll();
+      }
     }
   } else {
     if (cardsDataRef) {
@@ -492,14 +494,16 @@ export const addPerforationLineVertical = (
       const frontLine = new CustomLine(fabricCanvas as Canvas, "vertical");
       const previousCanvas =
         activeCanvas && inlinePages[activeCanvas.pageNumber - 2];
-      const mirroredLine = frontLine.mirrorLine(previousCanvas!.canvas);
-      mirroredLine.setCoords();
+      if (previousCanvas) {
+        const mirroredLine = frontLine.mirrorLine(previousCanvas.canvas);
+        mirroredLine.setCoords();
 
-      fabricCanvas && fabricCanvas.add(frontLine);
-      fabricCanvas && fabricCanvas.requestRenderAll();
+        fabricCanvas && fabricCanvas.add(frontLine);
+        fabricCanvas && fabricCanvas.requestRenderAll();
 
-      previousCanvas && previousCanvas.canvas.add(mirroredLine);
-      previousCanvas && previousCanvas.canvas.requestRenderAll();
+        previousCanvas && previousCanvas.canvas.add(mirroredLine);
+        previousCanvas && previousCanvas.canvas.requestRenderAll();
+      }
     }
   } else {
     if (cardsDataRef) {

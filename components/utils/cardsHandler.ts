@@ -89,8 +89,6 @@ export const cardsHandler = function (
       cardJSON: JSON;
     }[] = JSON.parse(dataString!);
 
-    console.log("local data for Cards", localCardsData);
-
     const cardFront = new Card(
       actualSize,
       "Front",
@@ -118,22 +116,22 @@ export const cardsHandler = function (
       cardBackThumbnail,
       cardsData as Ref<CardDataWithoutRefs[]>
     );
+    if (cardFront.canvas && cardBack.canvas)
+      cardsData.value = [
+        {
+          cardSide: cardFront.cardSide,
+          cardID: cardFront.cardID,
+          canvas: cardFront.canvas,
+          loading: cardFront.loading.value,
+        },
 
-    cardsData.value = [
-      {
-        cardSide: cardFront.cardSide,
-        cardID: cardFront.cardID,
-        canvas: cardFront.canvas!,
-        loading: cardFront.loading.value,
-      },
-
-      {
-        cardSide: cardBack.cardSide,
-        cardID: cardBack.cardID,
-        canvas: cardBack.canvas!,
-        loading: cardBack.loading.value,
-      },
-    ];
+        {
+          cardSide: cardBack.cardSide,
+          cardID: cardBack.cardID,
+          canvas: cardBack.canvas,
+          loading: cardBack.loading.value,
+        },
+      ];
 
     if (cardFront.canvas)
       canvasDimensionsRef.value = {
@@ -182,38 +180,20 @@ export const cardsHandler = function (
   };
 
   const loadFromJson = async (action: string) => {
-    console.log("load from json action", action);
-
-    console.log("CURRENT ACTION INDEX", cardHistoryIndex.value);
-
     const latestIndex = cardHistoryIndex.value + 1;
 
-    console.log("latest ACTION INDEX", latestIndex);
     if (action === "undo") {
       for (let i = cardHistoryIndex.value; i >= 0; i--) {
-        console.log(
-          "looped undo verification",
-          cardHistory.value[i].cardSide ===
-            cardHistory.value[latestIndex].cardSide
-        );
-
         if (
           cardHistory.value[i].cardSide ===
           cardHistory.value[latestIndex].cardSide
         ) {
-          console.log("looped undo occured");
-
           const canvas =
             cardHistory.value[
               cardHistoryIndex.value <= 1 ? cardHistoryIndex.value : i
             ].cardSide === "Front"
               ? cardsData.value[0].canvas
               : cardsData.value[1].canvas;
-
-          console.log(
-            "index of History that we are loading",
-            cardHistory.value.indexOf(cardHistory.value[i])
-          );
 
           jsonLoadingRef.value = true;
 
@@ -229,8 +209,6 @@ export const cardsHandler = function (
           if (cardHistory.value[i].activeObject?.lineType !== "perforation")
             activeCardRef.value = cardHistory.value[i].cardSide;
 
-          console.log("active card side", activeCardRef.value);
-
           break; // Exit the outer loop after the first match is processed
         } else if (
           cardHistory.value[cardHistoryIndex.value - 1].activeObject === null &&
@@ -239,10 +217,6 @@ export const cardsHandler = function (
           cardHistory.value[cardHistoryIndex.value + 1].activeObject
             ?.lineType !== "perforation"
         ) {
-          console.log(
-            "history before current index is null and there are no perforation lines in current and latest indexes"
-          );
-
           cardHistoryIndex.value--;
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
@@ -275,19 +249,16 @@ export const cardsHandler = function (
         return p.cardSide === historyToLoad.cardSide;
       });
 
-      console.log("DESIRED CARD", desiredCard?.cardSide);
-
       const upperHistory = cardHistory.value[cardHistoryIndex.value + 1];
 
       if (upperHistory?.activeObject?.lineType === "perforation") {
         activeCardRef.value = upperHistory.cardSide;
       } else {
-        activeCardRef.value = desiredCard!.cardSide;
+        if (desiredCard) activeCardRef.value = desiredCard.cardSide;
       }
 
       if (desiredCard) desiredCard.loading = true;
       jsonLoadingRef.value = true;
-      // console.log("page loading value brfore json loading", desiredCard?.loading);
 
       desiredCard?.canvas.clear();
 
@@ -296,7 +267,6 @@ export const cardsHandler = function (
 
         if (desiredCard) desiredCard.loading = false;
         jsonLoadingRef.value = false;
-        // console.log("page loading value after json loading", desiredCard.loading);
       });
     }
   };
@@ -304,8 +274,6 @@ export const cardsHandler = function (
   const undoCardHistory = async () => {
     if (cardHistory.value && cardHistoryIndex.value > 0) {
       cardHistoryIndex.value--;
-
-      console.log("HISTORY", cardHistory.value, cardHistoryIndex.value);
 
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
       if (
@@ -319,10 +287,6 @@ export const cardsHandler = function (
           cardHistory.value[cardHistoryIndex.value + 1]?.actionType ===
             "modified"
         ) {
-          console.log(
-            "PERFORATION LINE IS PRESENT IN LATEST INDEX AND THAT LINE IS MODIFIED"
-          );
-
           for (let i = cardHistoryIndex.value - 1; i >= 0; i--) {
             if (
               cardHistory.value[i].cardSide !==
@@ -339,8 +303,6 @@ export const cardsHandler = function (
               canvas && canvas.requestRenderAll();
               jsonLoadingRef.value = false;
 
-              console.log("loading the history index", i);
-
               break;
             }
           }
@@ -352,21 +314,11 @@ export const cardsHandler = function (
         ) {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
-          console.log(
-            "line is also present in next undo",
-            cardHistory.value[cardHistoryIndex.value]
-          );
-
           // IF COND 1 PHASE 2 IS true, PHASE 3: IF PERFORATION LINE IS PRESENT 3 INDEXES BELOW LATEST OR NOT
           if (
             cardHistory.value[cardHistoryIndex.value - 2].activeObject
               ?.lineType === "perforation"
           ) {
-            console.log(
-              "another line is also present in double next undo i.e mirror line modification occured",
-              cardHistoryIndex.value - 2
-            );
-
             const canvas =
               cardHistory.value[cardHistoryIndex.value - 2].cardSide === "Front"
                 ? cardsData.value[0].canvas
@@ -382,11 +334,6 @@ export const cardsHandler = function (
             jsonLoadingRef.value = false;
             cardHistoryIndex.value--;
           } else {
-            console.log(
-              "another line is NOTTT present 3 indexes below LATEST index",
-              cardHistory.value[cardHistoryIndex.value - 2]
-            );
-
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
             if (
               cardHistory.value[cardHistoryIndex.value - 3].activeObject ===
@@ -394,10 +341,6 @@ export const cardsHandler = function (
               cardHistory.value[cardHistoryIndex.value + 1].activeObject
                 ?.lineType === "perforation"
             ) {
-              console.log(
-                "OBJECT IS NULL 4 INDEXES BELOW LATEST so RUNNING LOOP"
-              );
-
               const indexToStartFrom = cardHistory.value.indexOf(
                 cardHistory.value[cardHistoryIndex.value]
               );
@@ -407,12 +350,6 @@ export const cardsHandler = function (
                   cardHistory.value[i].cardSide ===
                   cardHistory.value[indexToStartFrom].cardSide
                 ) {
-                  console.log("desired history chunk", cardHistory.value[i]);
-                  console.log(
-                    "index of desired chunk",
-                    cardHistory.value.indexOf(cardHistory.value[i])
-                  );
-
                   const canvas =
                     cardHistory.value[i].cardSide === "Front"
                       ? cardsData.value[0].canvas
@@ -427,26 +364,10 @@ export const cardsHandler = function (
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
-                    console.log(
-                      "j loop condition ",
-                      cardHistory.value[j].cardSide !==
-                        cardHistory.value[indexToStartFrom].cardSide,
-                      i - 1
-                    );
-
                     if (
                       cardHistory.value[j].cardSide !==
                       cardHistory.value[indexToStartFrom].cardSide
                     ) {
-                      console.log(
-                        "side not matched j loop",
-                        cardHistory.value[j]
-                      );
-                      console.log(
-                        "history index in j loop",
-                        cardHistory.value.indexOf(cardHistory.value[j])
-                      );
-
                       const canvas =
                         cardHistory.value[j].cardSide === "Front"
                           ? cardsData.value[0].canvas
@@ -471,8 +392,6 @@ export const cardsHandler = function (
           }
           // CONDITION 1 PHASE 3 ENDS
         } else {
-          console.log("LINE IS NOT PRESENT 2 INDEXES BELOW LATEST");
-
           if (
             cardHistory.value[cardHistoryIndex.value + 1].actionType ===
             "modified"
@@ -508,10 +427,6 @@ export const cardsHandler = function (
               cardHistory.value[cardHistoryIndex.value + 1].activeObject
                 ?.lineType === "perforation"
             ) {
-              console.log(
-                "object of latest index is perforation line. working on removing the lines "
-              );
-
               for (let i = indexToStartFrom - 1; i >= 0; i--) {
                 if (
                   cardHistory.value[i].cardSide ===
@@ -560,28 +475,17 @@ export const cardsHandler = function (
         }
         // CONDITION 1 PHASE 2 ENDS
       } else if (!cardHistory.value[cardHistoryIndex.value].activeObject) {
-        console.log(
-          "active object is null i.e first ever object in that canvas",
-          cardHistory.value[cardHistoryIndex.value]
-        );
-
         if (
           cardHistory.value[cardHistoryIndex.value - 1] &&
           cardHistory.value[cardHistoryIndex.value - 1].activeObject !== null &&
           cardHistory.value[cardHistoryIndex.value - 1].activeObject
             ?.lineType === "perforation"
         ) {
-          console.log("line present 1 index under", cardHistoryIndex.value - 1);
-
           if (
             !cardHistory.value[cardHistoryIndex.value - 2].activeObject ||
             cardHistory.value[cardHistoryIndex.value - 2].activeObject
               ?.lineType !== "perforation"
           ) {
-            console.log(
-              "object is null or no line present 2 indexes under",
-              cardHistoryIndex.value - 2
-            );
             const canvas =
               cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
                 ? cardsData.value[0].canvas
@@ -613,10 +517,7 @@ export const cardsHandler = function (
         upperJson.objects.length < 7
       ) {
         cardHistoryIndex.value++;
-        console.log("length less than 7", cardHistoryIndex.value);
       } else {
-        console.log("action index during undo", cardHistoryIndex.value);
-
         loadFromJson(
           // cardHistory.value[cardHistoryIndex.value - 2]?.activeObject
           //   ?.lineType !== "perforation" &&
@@ -655,12 +556,6 @@ export const cardsHandler = function (
 
           jsonLoadingRef.value = true;
 
-          console.log(
-            "HISTORY after both lines were added at empty canvases",
-            cardHistory.value,
-            cardHistoryIndex.value
-          );
-
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
               ? cardsData.value[0].canvas
@@ -675,8 +570,6 @@ export const cardsHandler = function (
           cardHistoryIndex.value++;
 
           jsonLoadingRef.value = true;
-
-          console.log("HISTORY", cardHistory.value, cardHistoryIndex.value);
 
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"

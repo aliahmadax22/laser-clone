@@ -324,7 +324,7 @@ const undo = () => {
     currentActionIndex--;
     loadCanvasFromJSON(history[currentActionIndex]);
   } else {
-    console.log("Cannot undo. No previous state.");
+    // NO PREVIOUS STATE
   }
 };
 

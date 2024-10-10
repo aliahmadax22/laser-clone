@@ -106,8 +106,6 @@ class Card {
       setTimeout(() => {
         jsonObject = this.canvas?.toObject(propertiesToInclude);
         emptyJSON = JSON.stringify(jsonObject);
-
-        console.log(JSON.parse(emptyJSON));
       }, 0);
 
       this.canvas.on("mouse:down", (e) => {
@@ -118,9 +116,9 @@ class Card {
       this.canvas.on("object:added", (e) => {
         if (modeType === "card" && this.canvas && e.target) {
           if (this.cardSide === "Front") {
-            this.frontThumbnail.value = this.canvas!.toDataURL();
+            this.frontThumbnail.value = this.canvas.toDataURL();
           } else {
-            this.backThumbnail.value = this.canvas!.toDataURL();
+            this.backThumbnail.value = this.canvas.toDataURL();
           }
         }
 
@@ -167,14 +165,14 @@ class Card {
       this.canvas.on("object:modified", (e) => {
         if (modeType === "card" && this.canvas && e.target) {
           if (this.cardSide === "Front") {
-            this.frontThumbnail.value = this.canvas!.toDataURL();
+            this.frontThumbnail.value = this.canvas.toDataURL();
           } else {
             this.backThumbnail.value = this.canvas.toDataURL();
           }
         }
 
-        if (e.target) {
-          const zoom = this.canvas!.getZoom();
+        if (e.target && this.canvas) {
+          const zoom = this.canvas.getZoom();
           const object = e.target as CustomLineOptions;
           if (object.type === "line") {
             if (this.cardSide === "Front") {
@@ -210,8 +208,6 @@ class Card {
                     return e.target.id === line.id;
                   }
                 });
-
-              console.log("mirrored line present at front card", mirroredLine);
 
               if (this.canvas && zoom && object.linePosition === "vertical") {
                 mirroredLine?.set({
@@ -328,9 +324,6 @@ class Card {
             return obj.id === activeObject.id;
           });
 
-          console.log("actual line", activeObject);
-          console.log("modified line", modifiedLine);
-
           this.cardHistory.value.push({
             cardSide: card.cardSide,
             activeObject: modifiedLine as FabricObject,
@@ -342,18 +335,12 @@ class Card {
         }
 
         if (this.cardSide === "Front") {
-          this.frontThumbnail.value = this.canvas!.toDataURL();
+          this.frontThumbnail.value = this.canvas.toDataURL();
         } else {
-          this.backThumbnail.value = this.canvas!.toDataURL();
+          this.backThumbnail.value = this.canvas.toDataURL();
         }
 
         this.currentActionIndex.value++;
-
-        console.log(
-          "history after changes",
-          this.cardHistory.value,
-          this.currentActionIndex.value
-        );
 
         if (this.cardHistory.value.length > 50) {
           this.cardHistory.value.shift();

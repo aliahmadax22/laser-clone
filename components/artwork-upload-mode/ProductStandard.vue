@@ -1320,26 +1320,28 @@ onMounted(() => {
 
         const container = containerRef.value;
         // const children = container?.children;
-        const childrenArray = Array.from(container!.children);
+        if (container && container.children) {
+          const childrenArray = Array.from(container.children);
 
-        childrenArray.map((child, i) => {
-          if (dynamicIndexNumer1 !== i && dynamicIndexNumer2 !== i) {
-            child.className = "containerCanvases hidden";
-          } else {
-            if (
-              dynamicIndexNumer1 &&
-              dynamicIndexNumer2 &&
-              dynamicIndexNumer1 > dynamicIndexNumer2
-            ) {
-              childrenArray[dynamicIndexNumer1].className =
-                "containerCanvases col-start-1 row-start-1 ";
-              childrenArray[dynamicIndexNumer2].className =
-                "containerCanvases col-start-2 row-start-1 ";
+          childrenArray.map((child, i) => {
+            if (dynamicIndexNumer1 !== i && dynamicIndexNumer2 !== i) {
+              child.className = "containerCanvases hidden";
             } else {
-              child.className = "containerCanvases flex ";
+              if (
+                dynamicIndexNumer1 &&
+                dynamicIndexNumer2 &&
+                dynamicIndexNumer1 > dynamicIndexNumer2
+              ) {
+                childrenArray[dynamicIndexNumer1].className =
+                  "containerCanvases col-start-1 row-start-1 ";
+                childrenArray[dynamicIndexNumer2].className =
+                  "containerCanvases col-start-2 row-start-1 ";
+              } else {
+                child.className = "containerCanvases flex ";
+              }
             }
-          }
-        });
+          });
+        }
       }
     });
   }
@@ -1523,8 +1525,6 @@ const swapPage = async () => {
       if (p) return p.pageNumber === pageNumber;
     });
 
-    console.log("index of page that we will choose to move", inlineIndex);
-
     if (pageNumber && pageNumber % 2 === 0) {
       page1From = inlineIndex;
       page2From = inlineIndex + 1;
@@ -1538,8 +1538,6 @@ const swapPage = async () => {
     const inlineIndexTo = allPages.value.findIndex((p) => {
       return p.pageNumber === pageSwapTo;
     });
-
-    console.log("index of page that we will move towards", inlineIndexTo);
 
     if (pageSwapTo % 2 === 0) {
       page1To = inlineIndexTo;
@@ -1568,12 +1566,6 @@ const swapPage = async () => {
       allPagesCanvasesRef.value.canvas[page1To].toObject(propertiesToInclude),
       allPagesCanvasesRef.value.canvas[page2To].toObject(propertiesToInclude),
     ];
-
-    console.log(
-      "canvases to move from and to",
-      canvasesJsonFrom,
-      canvasesJsonTo
-    );
 
     canvasesTo[0].clear();
     canvasesTo[1].clear();

@@ -132,8 +132,6 @@ class Page {
                 propertiesToInclude
               );
             emptyJSON = JSON.stringify(jsonObject);
-
-            console.log(JSON.parse(emptyJSON));
           }, 0);
 
           if (this.pageNumber === 2) {
@@ -152,7 +150,7 @@ class Page {
 
           if (this.allCanvasesRef.value) {
             this.allCanvasesRef.value.thumbnail[this.pageNumber - 1] =
-              this.canvas!.toDataURL();
+              this.canvas.toDataURL();
           }
 
           this.canvas.renderAll();
@@ -322,11 +320,6 @@ class Page {
             0,
             this.currentActionIndex.value + 1
           );
-
-          console.log(
-            "modification after undo, history changed",
-            this.history.value
-          );
         }
 
         this.loading.value = false;
@@ -349,9 +342,6 @@ class Page {
             return obj.id === activeObject.id;
           });
 
-          console.log("actual line", activeObject);
-          console.log("modified line", modifiedLine);
-
           this.history.value.push({
             pageNumber: mirroedPageNumber,
             activeObject: modifiedLine as FabricObject,
@@ -361,12 +351,6 @@ class Page {
 
           this.currentActionIndex.value++;
         }
-
-        console.log(
-          "pages history after changes",
-          this.history.value,
-          this.currentActionIndex.value
-        );
 
         this.thumbnail.value = this.canvas.toDataURL();
 

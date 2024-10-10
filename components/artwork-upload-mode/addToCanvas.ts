@@ -20,7 +20,7 @@ export const addToCanvas = (
         activeCanvas.pageNumber !== 2 &&
         activeCanvas.pageNumber === inlinePages.length)
     ) {
-      console.log("Object addition prevented.");
+      // object addition prevented
     } else {
       canvas && canvas.add(object);
       object.setCoords();

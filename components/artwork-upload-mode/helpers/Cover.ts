@@ -211,10 +211,12 @@ class Cover {
             });
 
             setTimeout(() => {
-              this.LeftThumbnail.value = this.canvas!.toDataURL();
-              this.RightThumbnail.value = this.canvas!.toDataURL();
-              this.MiddleThumbnail.value =
-                coverData.value[1].canvas.toDataURL();
+              if (this.canvas) {
+                this.LeftThumbnail.value = this.canvas.toDataURL();
+                this.RightThumbnail.value = this.canvas.toDataURL();
+                this.MiddleThumbnail.value =
+                  coverData.value[1].canvas.toDataURL();
+              }
             }, 0);
 
             this.canvas.renderAll();
@@ -233,15 +235,17 @@ class Cover {
         if (this.canvas) {
           if (this.coverSide === "Left") {
             setTimeout(() => {
-              this.LeftThumbnail.value = this.canvas!.toDataURL();
+              this.LeftThumbnail.value = this.canvas && this.canvas.toDataURL();
             }, 0);
           } else if (this.coverSide === "Middle") {
             setTimeout(() => {
-              this.MiddleThumbnail.value = this.canvas!.toDataURL();
+              this.MiddleThumbnail.value =
+                this.canvas && this.canvas.toDataURL();
             }, 0);
           } else {
             setTimeout(() => {
-              this.RightThumbnail.value = this.canvas!.toDataURL();
+              this.RightThumbnail.value =
+                this.canvas && this.canvas.toDataURL();
             }, 0);
           }
         }
@@ -270,11 +274,11 @@ class Cover {
 
       this.canvas.on("object:modified", (e) => {
         if (this.coverSide === "Left") {
-          this.LeftThumbnail.value = this.canvas!.toDataURL();
+          this.LeftThumbnail.value = this.canvas && this.canvas.toDataURL();
         } else if (this.coverSide === "Middle") {
-          this.MiddleThumbnail.value = this.canvas!.toDataURL();
+          this.MiddleThumbnail.value = this.canvas && this.canvas.toDataURL();
         } else {
-          this.RightThumbnail.value = this.canvas!.toDataURL();
+          this.RightThumbnail.value = this.canvas && this.canvas.toDataURL();
         }
 
         const obj = e.target as CustomLineOptions;
@@ -285,11 +289,11 @@ class Cover {
       this.canvas.on("object:removed", (e) => {
         if (modeType === "cover" && this.canvas && e.target) {
           if (this.coverSide === "Left") {
-            this.LeftThumbnail.value = this.canvas!.toDataURL();
+            this.LeftThumbnail.value = this.canvas.toDataURL();
           } else if (this.coverSide === "Middle") {
-            this.MiddleThumbnail.value = this.canvas!.toDataURL();
+            this.MiddleThumbnail.value = this.canvas.toDataURL();
           } else {
-            this.RightThumbnail.value = this.canvas!.toDataURL();
+            this.RightThumbnail.value = this.canvas.toDataURL();
           }
         }
 
@@ -322,14 +326,7 @@ class Cover {
             0,
             this.currentActionIndex.value + 1
           );
-
-          console.log(
-            "modification after undo, coverHistory changed",
-            this.coverHistory.value
-          );
         }
-
-        console.log("SAVE STATE TRIGGERED IN", this.coverSide);
 
         this.loading.value = false;
         this.coverHistory.value.push({
@@ -339,11 +336,11 @@ class Cover {
         });
 
         if (this.coverSide === "Left") {
-          this.LeftThumbnail.value = this.canvas!.toDataURL();
+          this.LeftThumbnail.value = this.canvas.toDataURL();
         } else if (this.coverSide === "Right") {
-          this.RightThumbnail.value = this.canvas!.toDataURL();
+          this.RightThumbnail.value = this.canvas.toDataURL();
         } else {
-          this.MiddleThumbnail.value = this.canvas!.toDataURL();
+          this.MiddleThumbnail.value = this.canvas.toDataURL();
         }
 
         this.currentActionIndex.value++;

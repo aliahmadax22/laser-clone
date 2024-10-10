@@ -107,49 +107,58 @@ export class BleedLinesHelper {
   }
 
   public showBleedLines() {
-    this.fabricHelper!.findObjectById("top-line")?.set("visible", true);
-    this.fabricHelper!.findObjectById("bottom-line")?.set("visible", true);
-    this.fabricHelper!.findObjectById("left-line")?.set("visible", true);
-    this.fabricHelper!.findObjectById("right-line")?.set("visible", true);
-    this.canvas.renderAll();
+    if (this.fabricHelper) {
+      this.fabricHelper.findObjectById("top-line")?.set("visible", true);
+      this.fabricHelper.findObjectById("bottom-line")?.set("visible", true);
+      this.fabricHelper.findObjectById("left-line")?.set("visible", true);
+      this.fabricHelper.findObjectById("right-line")?.set("visible", true);
+      this.canvas.renderAll();
+    }
   }
 
   public hideBleedLines() {
-    this.fabricHelper!.findObjectById("top-line")?.set("visible", false);
-    this.fabricHelper!.findObjectById("bottom-line")?.set("visible", false);
-    this.fabricHelper!.findObjectById("left-line")?.set("visible", false);
-    this.fabricHelper!.findObjectById("right-line")?.set("visible", false);
-    this.canvas.renderAll();
+    if (this.fabricHelper) {
+      this.fabricHelper.findObjectById("top-line")?.set("visible", false);
+      this.fabricHelper.findObjectById("bottom-line")?.set("visible", false);
+      this.fabricHelper.findObjectById("left-line")?.set("visible", false);
+      this.fabricHelper.findObjectById("right-line")?.set("visible", false);
+      this.canvas.renderAll();
+    }
   }
 
   public toggleBleedLines() {
-    const isVisible =
-      this.fabricHelper!.findObjectById("top-line")?.get("visible");
-    if (isVisible) {
-      this.hideBleedLines();
-      this.canvas.fire("object:removed");
-    } else {
-      this.showBleedLines();
-      this.canvas.fire("object:added");
+    if (this.fabricHelper) {
+      const isVisible = this.fabricHelper
+        .findObjectById("top-line")
+        ?.get("visible");
+      if (isVisible) {
+        this.hideBleedLines();
+        this.canvas.fire("object:removed");
+      } else {
+        this.showBleedLines();
+        this.canvas.fire("object:added");
+      }
     }
   }
 
   public setBleedLinesAlwaysOnTop() {
-    const topLine = this.fabricHelper!.findObjectById("top-line");
-    if (topLine) {
-      this.canvas.bringObjectToFront(topLine);
-    }
-    const bottomLine = this.fabricHelper!.findObjectById("bottom-line");
-    if (bottomLine) {
-      this.canvas.bringObjectToFront(bottomLine);
-    }
-    const leftLine = this.fabricHelper!.findObjectById("left-line");
-    if (leftLine) {
-      this.canvas.bringObjectToFront(leftLine);
-    }
-    const rightLine = this.fabricHelper!.findObjectById("right-line");
-    if (rightLine) {
-      this.canvas.bringObjectToFront(rightLine);
+    if (this.fabricHelper) {
+      const topLine = this.fabricHelper.findObjectById("top-line");
+      if (topLine) {
+        this.canvas.bringObjectToFront(topLine);
+      }
+      const bottomLine = this.fabricHelper.findObjectById("bottom-line");
+      if (bottomLine) {
+        this.canvas.bringObjectToFront(bottomLine);
+      }
+      const leftLine = this.fabricHelper.findObjectById("left-line");
+      if (leftLine) {
+        this.canvas.bringObjectToFront(leftLine);
+      }
+      const rightLine = this.fabricHelper.findObjectById("right-line");
+      if (rightLine) {
+        this.canvas.bringObjectToFront(rightLine);
+      }
     }
   }
 }
