@@ -5,16 +5,16 @@ export default defineNuxtConfig({
 
   plugins: [{ src: "~/components/plugins/webfontloader.ts", mode: "client" }],
 
-  build: {
-    extend(config, { isDev, isClient }) {
-      if (!config.resolve.extensions.includes(".ts")) {
-        config.resolve.extensions.push(".ts");
-      }
-    },
-    rollupOptions: {
-      external: ["webFontLoader"],
-    },
-  },
+  // build: {
+  //   extend(config, { isDev, isClient }) {
+  //     if (!config.resolve.extensions.includes(".ts")) {
+  //       config.resolve.extensions.push(".ts");
+  //     }
+  //   },
+  //   rollupOptions: {
+  //     external: ["webFontLoader"],
+  //   },
+  // },
 
   modules: [
     "@nuxt/eslint",
