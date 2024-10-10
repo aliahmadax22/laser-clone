@@ -8,87 +8,6 @@ import {
 } from "fabric";
 import Page from "../artwork-upload-mode/helpers/Pages";
 
-// const test = `{
-//     "version": "6.0.2",
-//     "objects": [
-//         {
-//             "type": "Line",
-//             "version": "6.0.2",
-//             "originX": "left",
-//             "originY": "top",
-//             "left": 354.0807,
-//             "top": -0.25,
-//             "width": 0,
-//             "height": 708.6614,
-//             "fill": "rgb(0,0,0)",
-//             "stroke": "red",
-//             "strokeWidth": 0.5,
-//             "strokeDashArray": null,
-//             "strokeLineCap": "butt",
-//             "strokeDashOffset": 0,
-//             "strokeLineJoin": "miter",
-//             "strokeUniform": false,
-//             "strokeMiterLimit": 4,
-//             "scaleX": 1,
-//             "scaleY": 1,
-//             "angle": 0,
-//             "flipX": false,
-//             "flipY": false,
-//             "opacity": 1,
-//             "shadow": null,
-//             "visible": false,
-//             "backgroundColor": "",
-//             "fillRule": "nonzero",
-//             "paintFirst": "fill",
-//             "globalCompositeOperation": "source-over",
-//             "skewX": 0,
-//             "skewY": 0,
-//             "x1": 0,
-//             "x2": 0,
-//             "y1": -354.33070866141736,
-//             "y2": 354.33070866141736
-//         },
-//         {
-//             "type": "Line",
-//             "version": "6.0.2",
-//             "originX": "left",
-//             "originY": "top",
-//             "left": -0.25,
-//             "top": 354.0807,
-//             "width": 708.6614,
-//             "height": 0,
-//             "fill": "rgb(0,0,0)",
-//             "stroke": "red",
-//             "strokeWidth": 0.5,
-//             "strokeDashArray": null,
-//             "strokeLineCap": "butt",
-//             "strokeDashOffset": 0,
-//             "strokeLineJoin": "miter",
-//             "strokeUniform": false,
-//             "strokeMiterLimit": 4,
-//             "scaleX": 1,
-//             "scaleY": 1,
-//             "angle": 0,
-//             "flipX": false,
-//             "flipY": false,
-//             "opacity": 1,
-//             "shadow": null,
-//             "visible": false,
-//             "backgroundColor": "",
-//             "fillRule": "nonzero",
-//             "paintFirst": "fill",
-//             "globalCompositeOperation": "source-over",
-//             "skewX": 0,
-//             "skewY": 0,
-//             "x1": -354.33070866141736,
-//             "x2": 354.33070866141736,
-//             "y1": 0,
-//             "y2": 0
-//         }
-//     ],
-//     "background": "white"
-// }`;
-
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
   lineType?: string;
@@ -280,13 +199,6 @@ export function pageHandler(
         height: height_px,
       };
 
-      // pagesHistory.value.push({
-      //   pageNumber: 2,
-      //   activeObject: null,
-      //   json: JSON.parse(test),
-      // });
-      // historyIndex.value = 0;
-
       pgCounter.value++;
       const pageInstance1 = new Page(
         actualSize,
@@ -453,11 +365,6 @@ export function pageHandler(
 
   const createNewPage = async () => {
     pgCounter.value++;
-    // pagesHistory.value.push({
-    //   pageNumber: pgCounter.value,
-    //   json: JSON.parse(test),
-    // });
-    // historyIndex.value++;
 
     const pageInstance1 = new Page(
       actualSize,
@@ -668,10 +575,6 @@ export function pageHandler(
       }
     } else {
       const historyToLoad = pagesHistory.value[historyIndex.value];
-
-      // const hindex = pagesHistory.value.findIndex((f) => {
-      //   return f === pagesHistory.value[historyIndex.value];
-      // });
 
       const desiredPage = reactivePages.value.find((p) => {
         return p.pageNumber === historyToLoad.pageNumber;

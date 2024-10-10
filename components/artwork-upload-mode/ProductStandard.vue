@@ -895,7 +895,6 @@ const coverSideRef = ref<string>("");
 let LineHelper: CustomLine;
 let objectModifier: ModifyObjectHelper;
 let perforationLinesHelper: PerforationLinesHelper;
-// const inlinePages: inlinePage[] = [];
 const allPagesCanvasesRef = ref<allPagesCanvasesRef>({
   canvas: [],
   thumbnail: [],
@@ -919,12 +918,6 @@ const activePage = computed(() => (page: inlinePageWithoutRefs) => ({
 const pagesLikeDesign = computed(() => (page: inlinePageWithoutRefs) => ({
   "-ml-[7px] mr-5": page.pageNumber % 2 === 0,
 }));
-
-// const pageCover = computed(() => (page: inlinePageWithoutRefs) => ({
-//   "space-y-2 flex flex-col absolute top-0 left-5": page.pageNumber === 1,
-//   "space-y-2 flex flex-col absolute top-0 left-40 ":
-//     page.pageNumber === allPages.value.length && page.pageNumber !== 2,
-// }));
 
 const cardModeOnly = computed(() => (mode: string) => ({
   "mt-2  hidden": mode === "page" || mode === "cover",
@@ -1074,8 +1067,6 @@ onMounted(() => {
         });
 
         localStorage.removeItem("cardsInfo");
-        // const historyString = JSON.stringify(cardsInfo);
-        // localStorage.setItem("cardsInfo", historyString);
       }
     });
 
@@ -1104,8 +1095,6 @@ onMounted(() => {
     });
 
     fabricCanvas.renderAll();
-
-    // historyEventHelper = new HistoryEventHelper(fabricCanvas);
   }
 });
 
@@ -1284,8 +1273,6 @@ onMounted(() => {
         });
 
         localStorage.removeItem("pagesInfo");
-        // const historyString = JSON.stringify(pagesInfo);
-        // localStorage.setItem("pagesInfo", historyString);
       }
     });
 
@@ -1677,8 +1664,6 @@ const toggleFontStype = () => {
 
 const selectCard = (cardSide: string) => {
   state.cardSide = cardSide;
-  // setCardSide(cardSide);
-  // switchSide();
 };
 
 const selectCover = (coverSide: string) => {

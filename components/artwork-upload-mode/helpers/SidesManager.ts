@@ -37,10 +37,6 @@ export class Sides {
     this.thumbnail = thumbnail;
   }
 
-  // setSideID() {
-  //     this.id
-  //   }
-
   setSideObjects(canvasObjects: CustomLineOptions[]) {
     this.canvasObjects = canvasObjects;
   }
@@ -48,8 +44,4 @@ export class Sides {
   getSideObjects = (): CustomLineOptions[] => {
     return this.canvasObjects;
   };
-
-  // getSideID = (): string | null => {
-  //     return this.id
-  // }
 }

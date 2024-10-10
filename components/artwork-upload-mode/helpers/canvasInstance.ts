@@ -98,8 +98,6 @@ const initializeCanvas = (
   const widthInPixels = widthInInches * productInfo.dpi;
   const heightInPixels = heightInInches * productInfo.dpi;
 
-  // const containerWidth = widthInPixels;
-  // const scale = Math.min(containerWidth / widthInPixels, 1);
   const canvasWidth = widthInPixels;
   const canvasHeight = heightInPixels;
   bleedMarginInPixels = (productInfo.bleed_mm / 25.4) * productInfo.dpi;
@@ -168,8 +166,6 @@ const initializeCanvas = (
   });
 
   fabricCanvas.add(initRect);
-
-  // const midX = canvasWidth / 2;
 
   fabricCanvas.on("object:added", (e) => {
     if (modeTypeRef.value !== "page") {

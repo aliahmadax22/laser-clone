@@ -53,7 +53,6 @@ class CustomQrCode extends Group {
 
       const loadedSVG = await loadSVGFromString(svgString);
 
-      //  addToCanvas(this, this.currentCanvasRef, this.inlinePages, this.side, this.modeType)
       if (this.modeType === "page") {
         const activeCanvas = this.currentCanvasRef.find((cnv) => {
           if (cnv.page) {
@@ -79,21 +78,6 @@ class CustomQrCode extends Group {
           }
         });
 
-        // if (this.side === "right" && this.canvas) {
-        //   this.set({
-        //    left: (this.canvas.width / 2) + 50,
-        //    top: 50,
-        //   })
-
-        //   this.setCoords()
-        // } else if (this.side === "middle" && this.canvas) {
-        //   this.set({
-        //     left: (this.canvas.width / 2),
-        //     top: 50,
-        //    })
-
-        //    this.setCoords()
-        // }
         this.setCoords();
         this.canvas.requestRenderAll();
       }
