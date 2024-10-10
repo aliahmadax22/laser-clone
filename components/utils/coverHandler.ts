@@ -227,6 +227,38 @@ export const coverHandler = function (
           activeCoverRef.value = coverHistory.value[i].coverSide;
 
           break;
+        } else if (
+          coverHistory.value[coverHistoryIndex.value - 1].activeObject === null
+        ) {
+          console.log("history before current one is null");
+
+          coverHistoryIndex.value--;
+
+          const desiredCover = coversData.value.find((c) => {
+            return (
+              c.coverSide ===
+              coverHistory.value[coverHistoryIndex.value].coverSide
+            );
+          });
+
+          const canvas = desiredCover?.canvas;
+          jsonLoadingRef.value = true;
+
+          // Wait for the canvas to load and render before continuing
+          await canvas?.loadFromJSON(
+            coverHistory.value[coverHistoryIndex.value].json
+          );
+          canvas && canvas.requestRenderAll();
+          jsonLoadingRef.value = false;
+
+          if (
+            coverHistory.value[coverHistoryIndex.value].activeObject
+              ?.lineType !== "perforation"
+          )
+            activeCoverRef.value =
+              coverHistory.value[coverHistoryIndex.value].coverSide;
+
+          break;
         }
       }
     } else {

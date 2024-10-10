@@ -592,6 +592,11 @@ export function pageHandler(
 
     if (action === "undo") {
       for (let i = historyIndex.value; i >= 0; i--) {
+        console.log(
+          "looped undo verification",
+          pagesHistory.value[i].pageNumber ===
+            pagesHistory.value[latestIndex].pageNumber
+        );
         if (
           pagesHistory.value[i].pageNumber ===
           pagesHistory.value[latestIndex].pageNumber
@@ -600,9 +605,9 @@ export function pageHandler(
             return page.pageNumber === pagesHistory.value[i].pageNumber;
           });
 
-          console.log("DESIRED PAGE DURING JSON LOADING", desiredPage);
-
           const canvas = desiredPage?.canvas;
+
+          console.log("DESIRED PAGE DURING JSON LOADING", desiredPage);
 
           console.log(
             "index of History that we are loading",
@@ -624,6 +629,38 @@ export function pageHandler(
           loadPage(desiredPage as inlinePageWithoutRefs);
 
           break; // Exit the outer loop after the first match is processed
+        } else if (
+          pagesHistory.value[historyIndex.value - 1].activeObject === null &&
+          pagesHistory.value[historyIndex.value].activeObject?.lineType !==
+            "perforation" &&
+          pagesHistory.value[historyIndex.value + 1].activeObject?.lineType !==
+            "perforation"
+        ) {
+          console.log("history before current one is null");
+
+          historyIndex.value--;
+
+          const desiredPage = reactivePages.value.find((page) => {
+            return (
+              page.pageNumber ===
+              pagesHistory.value[historyIndex.value].pageNumber
+            );
+          });
+
+          const canvas = desiredPage?.canvas;
+
+          JSONLoading.value = true;
+
+          // Wait for the canvas to load and render before continuing
+          await canvas?.loadFromJSON(
+            pagesHistory.value[historyIndex.value].json
+          );
+          canvas && canvas.requestRenderAll();
+          JSONLoading.value = false;
+
+          loadPage(desiredPage as inlinePageWithoutRefs);
+
+          break;
         }
       }
     } else {
@@ -731,10 +768,9 @@ export function pageHandler(
             JSONLoading.value = true;
 
             // Wait for the canvas to load and render before continuing
-            if (canvas)
-              await canvas.loadFromJSON(
-                pagesHistory.value[historyIndex.value - 2].json
-              );
+            await canvas?.loadFromJSON(
+              pagesHistory.value[historyIndex.value - 2].json
+            );
             canvas && canvas.requestRenderAll();
             JSONLoading.value = false;
             historyIndex.value--;
@@ -779,8 +815,7 @@ export function pageHandler(
                   JSONLoading.value = true;
 
                   // Wait for the canvas to load and render before continuing
-                  if (canvas)
-                    await canvas.loadFromJSON(pagesHistory.value[i].json);
+                  await canvas?.loadFromJSON(pagesHistory.value[i].json);
                   canvas && canvas.requestRenderAll();
                   JSONLoading.value = false;
 
@@ -798,7 +833,7 @@ export function pageHandler(
                       pagesHistory.value[indexToStartFrom].pageNumber
                     ) {
                       console.log(
-                        "page number not matched j loop",
+                        "side not matched j loop",
                         pagesHistory.value[j]
                       );
                       console.log(
@@ -817,8 +852,7 @@ export function pageHandler(
                       JSONLoading.value = true;
 
                       // Wait for the canvas to load and render before breaking
-                      if (canvas)
-                        await canvas.loadFromJSON(pagesHistory.value[j].json);
+                      await canvas?.loadFromJSON(pagesHistory.value[j].json);
                       canvas && canvas.requestRenderAll();
                       JSONLoading.value = false;
 

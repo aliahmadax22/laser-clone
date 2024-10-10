@@ -235,9 +235,13 @@ export const cardsHandler = function (
         } else if (
           cardHistory.value[cardHistoryIndex.value - 1].activeObject === null &&
           cardHistory.value[cardHistoryIndex.value].activeObject?.lineType !==
-            "perforation"
+            "perforation" &&
+          cardHistory.value[cardHistoryIndex.value + 1].activeObject
+            ?.lineType !== "perforation"
         ) {
-          console.log("history before current one is null");
+          console.log(
+            "history before current index is null and there are no perforation lines in current and latest indexes"
+          );
 
           cardHistoryIndex.value--;
           const canvas =
@@ -504,19 +508,15 @@ export const cardsHandler = function (
               cardHistory.value[cardHistoryIndex.value + 1].activeObject
                 ?.lineType === "perforation"
             ) {
-              console.log("object of latest index is perforation line ");
+              console.log(
+                "object of latest index is perforation line. working on removing the lines "
+              );
 
               for (let i = indexToStartFrom - 1; i >= 0; i--) {
                 if (
                   cardHistory.value[i].cardSide ===
                   cardHistory.value[indexToStartFrom].cardSide
                 ) {
-                  console.log("desired history chunk", cardHistory.value[i]);
-                  console.log(
-                    "index of desired chunk",
-                    cardHistory.value.indexOf(cardHistory.value[i])
-                  );
-
                   const canvas =
                     cardHistory.value[i].cardSide === "Front"
                       ? cardsData.value[0].canvas
@@ -531,26 +531,10 @@ export const cardsHandler = function (
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
-                    console.log(
-                      "j loop condition ",
-                      cardHistory.value[j].cardSide !==
-                        cardHistory.value[indexToStartFrom].cardSide,
-                      i - 1
-                    );
-
                     if (
                       cardHistory.value[j].cardSide !==
                       cardHistory.value[indexToStartFrom].cardSide
                     ) {
-                      console.log(
-                        "side not matched j loop",
-                        cardHistory.value[j]
-                      );
-                      console.log(
-                        "history index in j loop",
-                        cardHistory.value.indexOf(cardHistory.value[j])
-                      );
-
                       const canvas =
                         cardHistory.value[j].cardSide === "Front"
                           ? cardsData.value[0].canvas
