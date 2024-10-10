@@ -1,4 +1,4 @@
-import WebFont from "webfontloader";
+import WebFont from "~/components/plugins/webfontloader.js";
 
 export default function () {
   WebFont.load({
