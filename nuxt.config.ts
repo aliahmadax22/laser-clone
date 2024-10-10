@@ -5,6 +5,14 @@ export default defineNuxtConfig({
 
   plugins: [{ src: "~/components/plugins/webfontloader.ts", mode: "client" }],
 
+  build: {
+    rollupOptions: {
+      external: [
+        '~/components/plugins/webFontLoader.ts'
+      ]
+    }
+  }
+
   modules: [
     "@nuxt/eslint",
     ["@pinia/nuxt", { autoImports: ["defineStore", "acceptHMRUpdate"] }],
