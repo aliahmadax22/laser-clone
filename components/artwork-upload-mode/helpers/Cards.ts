@@ -135,7 +135,7 @@ class Card {
         if (
           canvasObjects &&
           canvasObjects.length <= 7 &&
-          this.loading.value === false &&
+          !this.loading.value &&
           emptyJSON
         ) {
           this.cardHistory.value.push({
@@ -264,7 +264,7 @@ class Card {
           obj.type === "line" &&
           obj.lineType === "perforation" &&
           obj.linePosition === "vertical" &&
-          this.loading.value === false
+          !this.loading.value
         ) {
           if (this.cardSide === "Front") {
             const mirrorLine = cardsData.value[1].canvas

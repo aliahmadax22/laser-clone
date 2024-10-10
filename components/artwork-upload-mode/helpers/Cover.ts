@@ -173,7 +173,7 @@ class Cover {
           if (
             canvasObjects &&
             canvasObjects.length <= 3 &&
-            this.loading.value === false
+            !this.loading.value
           ) {
             this.coverHistory.value.push({
               coverSide: this.coverSide,

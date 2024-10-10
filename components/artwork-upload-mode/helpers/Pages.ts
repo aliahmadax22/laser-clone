@@ -181,7 +181,7 @@ class Page {
             canvasObjects &&
             canvasObjects.length <= 3 &&
             canvasObjects[2].type !== "rect" &&
-            this.loading.value === false &&
+            !this.loading.value &&
             emptyJSON
           ) {
             this.history.value.push({
@@ -282,7 +282,7 @@ class Page {
           this.thumbnail &&
           this.canvas &&
           this.allCanvasesRef.value &&
-          this.loading.value === false
+          !this.loading.value
         )
           this.allCanvasesRef.value.thumbnail[this.pageNumber - 1] =
             this.canvas.toDataURL();

@@ -84,10 +84,6 @@ const canvasDimensionsRef = ref<canvasDimensions | null>(null);
 
 const isLoadingFromJSONRef = ref<boolean>(false);
 
-const debounceSaveState = _.debounce(() => {
-  saveState();
-}, 300);
-
 const initializeCanvas = (
   canvasRef: HTMLCanvasElement,
   productInfo: prodInfo
@@ -170,7 +166,7 @@ const initializeCanvas = (
   fabricCanvas.on("object:added", (e) => {
     if (modeTypeRef.value !== "page") {
       if (isLoadingFromJSONRef.value === false) {
-        debounceSaveState();
+        saveState();
       }
       const obj: CustomLineOptions = e.target;
 
@@ -202,7 +198,7 @@ const initializeCanvas = (
   fabricCanvas.on("object:modified", () => {
     if (modeTypeRef.value === "cover") {
       if (!isLoadingFromJSONRef.value) {
-        debounceSaveState();
+        saveState();
       }
     }
   });
@@ -210,7 +206,7 @@ const initializeCanvas = (
   fabricCanvas.on("object:removed", () => {
     if (modeTypeRef.value === "cover") {
       if (!isLoadingFromJSONRef.value) {
-        debounceSaveState();
+        saveState();
       }
     }
   });

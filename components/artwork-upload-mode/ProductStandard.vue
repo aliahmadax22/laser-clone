@@ -685,7 +685,6 @@ import {
   cardRef,
   activeObjectRef,
 } from "./helpers/canvasInstance";
-import type PerforationLinesHelper from "./helpers/perforationLines";
 import type CustomTextbox from "./helpers/addText";
 import ModifyObjectHelper from "./helpers/modifyObject";
 import type CustomLine from "./helpers/customPerforationLine";
@@ -894,7 +893,6 @@ const coverSideRef = ref<string>("");
 
 let LineHelper: CustomLine;
 let objectModifier: ModifyObjectHelper;
-let perforationLinesHelper: PerforationLinesHelper;
 const allPagesCanvasesRef = ref<allPagesCanvasesRef>({
   canvas: [],
   thumbnail: [],
@@ -1744,19 +1742,6 @@ watch(selectedLine, (newVal) => {
     lineProps.value.left = newVal.left || 0;
   }
 });
-
-watch(
-  () => lineProps.value.top,
-  () => {
-    perforationLinesHelper.updateLineCoordinates();
-  }
-);
-watch(
-  () => lineProps.value.left,
-  () => {
-    perforationLinesHelper.updateLineCoordinates();
-  }
-);
 </script>
 
 <style lang="scss" scoped>
