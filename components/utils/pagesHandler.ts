@@ -550,7 +550,7 @@ export function pageHandler(
             (latestHistoryObject &&
               latestHistoryObject.lineType !== "perforation"))
         ) {
-          historyIndex.value--;
+          historyIndex.value -= 1;
 
           const desiredPage = reactivePages.value.find((page) => {
             return (
@@ -598,7 +598,7 @@ export function pageHandler(
 
   const undoPagesHistory = async () => {
     if (pagesHistory.value && historyIndex.value > 0) {
-      historyIndex.value--;
+      historyIndex.value -= 1;
 
       const currentHistoryObject =
         pagesHistory.value[historyIndex.value] &&
@@ -653,7 +653,7 @@ export function pageHandler(
             }
           }
 
-          historyIndex.value--;
+          historyIndex.value -= 1;
         } else if (currentHistoryObject.lineType === "perforation") {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
@@ -677,7 +677,7 @@ export function pageHandler(
               );
               canvas && canvas.requestRenderAll();
               JSONLoading.value = false;
-              historyIndex.value--;
+              historyIndex.value -= 1;
             }
           } else {
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
@@ -741,7 +741,7 @@ export function pageHandler(
                   break; // Exit the outer loop after the first match is processed
                 }
               }
-              historyIndex.value--;
+              historyIndex.value -= 1;
             }
           }
           // CONDITION 1 PHASE 3 ENDS
@@ -774,7 +774,7 @@ export function pageHandler(
               }
             }
 
-            historyIndex.value--;
+            historyIndex.value -= 1;
           } else {
             const indexToStartFrom = pagesHistory.value.indexOf(
               pagesHistory.value[historyIndex.value]
@@ -835,7 +835,7 @@ export function pageHandler(
                   break; // Exit the outer loop after the first match is processed
                 }
               }
-              historyIndex.value--;
+              historyIndex.value -= 1;
             }
           }
         }
@@ -869,8 +869,8 @@ export function pageHandler(
               );
               canvas && canvas.requestRenderAll();
               JSONLoading.value = false;
-              historyIndex.value--;
-              historyIndex.value--;
+              historyIndex.value -= 1;
+              historyIndex.value -= 1;
             }
           }
         }
@@ -883,7 +883,7 @@ export function pageHandler(
         .json as jsonObject;
 
       if (currentJson.objects.length < 3 && upperJson.objects.length < 3) {
-        historyIndex.value++;
+        historyIndex.value += 1;
       } else {
         loadFromJson("undo");
       }
@@ -896,7 +896,7 @@ export function pageHandler(
       pagesHistory.value &&
       historyIndex.value < pagesHistory.value.length - 1
     ) {
-      historyIndex.value++;
+      historyIndex.value += 1;
 
       await loadFromJson("redo");
 
@@ -917,8 +917,8 @@ export function pageHandler(
           twoRedosObject &&
           twoRedosObject.lineType === "perforation"
         ) {
-          historyIndex.value++;
-          historyIndex.value++;
+          historyIndex.value += 1;
+          historyIndex.value += 1;
 
           JSONLoading.value = true;
 
@@ -939,7 +939,7 @@ export function pageHandler(
             canvas && canvas.requestRenderAll();
           }
         } else {
-          historyIndex.value++;
+          historyIndex.value += 1;
 
           JSONLoading.value = true;
 

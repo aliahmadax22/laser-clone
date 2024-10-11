@@ -193,7 +193,12 @@ export const coverHandler = function (
   const loadFromJson = async (action: string) => {
     const latestIndex = coverHistoryIndex.value + 1;
     const currentHistoryObject =
+      coverHistory.value[coverHistoryIndex.value] &&
       coverHistory.value[coverHistoryIndex.value].activeObject;
+
+    const latestHistoryObject =
+      coverHistory.value[coverHistoryIndex.value + 1] &&
+      coverHistory.value[coverHistoryIndex.value + 1].activeObject;
 
     if (action === "undo") {
       for (let i = coverHistoryIndex.value; i >= 0; i--) {
@@ -224,9 +229,11 @@ export const coverHandler = function (
 
           break;
         } else if (
-          coverHistory.value[coverHistoryIndex.value - 1].activeObject === null
+          coverHistory.value[coverHistoryIndex.value - 1].activeObject ===
+            null &&
+          latestHistoryObject === null
         ) {
-          coverHistoryIndex.value--;
+          coverHistoryIndex.value -= 1;
 
           const desiredCover = coversData.value.find((c) => {
             return (
@@ -264,10 +271,13 @@ export const coverHandler = function (
         return p.coverSide === historyToLoad.coverSide;
       });
 
+      if (desiredCover) activeCoverRef.value = desiredCover.coverSide;
+
       jsonLoadingRef.value = true;
 
       if (desiredCover)
         await desiredCover.canvas.loadFromJSON(historyToLoad.json).then(() => {
+          desiredCover && desiredCover.canvas.requestRenderAll();
           jsonLoadingRef.value = false;
         });
     }
@@ -275,7 +285,7 @@ export const coverHandler = function (
 
   const undoCoverHistory = async () => {
     if (coverHistory.value && coverHistoryIndex.value > 0) {
-      coverHistoryIndex.value--;
+      coverHistoryIndex.value -= 1;
 
       const upperJson = coverHistory.value[coverHistoryIndex.value + 1]
         .json as jsonObject;
@@ -288,14 +298,8 @@ export const coverHandler = function (
         currentJson.objects.length < 3 &&
         upperJson.objects.length < 3
       ) {
-        coverHistoryIndex.value++;
+        coverHistoryIndex.value += 1;
       } else {
-        if (
-          coverHistory.value[coverHistoryIndex.value - 1].activeObject === null
-        ) {
-          coverHistoryIndex.value--;
-        }
-
         loadFromJson("undo");
       }
     }
@@ -307,9 +311,9 @@ export const coverHandler = function (
       coverHistory.value &&
       coverHistoryIndex.value < coverHistory.value.length - 1
     ) {
-      coverHistoryIndex.value++;
+      coverHistoryIndex.value += 1;
 
-      await loadFromJson("redo");
+      loadFromJson("redo");
     }
   };
 

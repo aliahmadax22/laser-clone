@@ -228,7 +228,7 @@ export const cardsHandler = function (
             (latestHistoryObject &&
               latestHistoryObject.lineType !== "perforation"))
         ) {
-          cardHistoryIndex.value--;
+          cardHistoryIndex.value -= 1;
 
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
@@ -282,7 +282,7 @@ export const cardsHandler = function (
 
   const undoCardHistory = async () => {
     if (cardHistory.value && cardHistoryIndex.value > 0) {
-      cardHistoryIndex.value--;
+      cardHistoryIndex.value -= 1;
 
       const currentHistoryObject =
         cardHistory.value[cardHistoryIndex.value] &&
@@ -335,7 +335,7 @@ export const cardsHandler = function (
             }
           }
 
-          cardHistoryIndex.value--;
+          cardHistoryIndex.value -= 1;
         } else if (
           nextUndoObject &&
           nextUndoObject.lineType === "perforation"
@@ -357,7 +357,7 @@ export const cardsHandler = function (
             );
             canvas && canvas.requestRenderAll();
             jsonLoadingRef.value = false;
-            cardHistoryIndex.value--;
+            cardHistoryIndex.value -= 1;
           } else {
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
             if (
@@ -412,7 +412,7 @@ export const cardsHandler = function (
                   break; // Exit the outer loop after the first match is processed
                 }
               }
-              cardHistoryIndex.value--;
+              cardHistoryIndex.value -= 1;
             }
           }
           // CONDITION 1 PHASE 3 ENDS
@@ -442,7 +442,7 @@ export const cardsHandler = function (
               }
             }
 
-            cardHistoryIndex.value--;
+            cardHistoryIndex.value -= 1;
           } else {
             const indexToStartFrom = cardHistory.value.indexOf(
               cardHistory.value[cardHistoryIndex.value]
@@ -494,7 +494,7 @@ export const cardsHandler = function (
                   break; // Exit the outer loop after the first match is processed
                 }
               }
-              cardHistoryIndex.value--;
+              cardHistoryIndex.value -= 1;
             }
           }
         }
@@ -523,8 +523,7 @@ export const cardsHandler = function (
             );
             canvas && canvas.requestRenderAll();
             jsonLoadingRef.value = false;
-            cardHistoryIndex.value--;
-            cardHistoryIndex.value--;
+            cardHistoryIndex.value -= 2;
           }
         }
       }
@@ -536,7 +535,7 @@ export const cardsHandler = function (
         .json as jsonObject;
 
       if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
-        cardHistoryIndex.value++;
+        cardHistoryIndex.value += 1;
       } else {
         loadFromJson("undo");
       }
@@ -548,7 +547,7 @@ export const cardsHandler = function (
       cardHistory.value &&
       cardHistoryIndex.value < cardHistory.value.length - 1
     ) {
-      cardHistoryIndex.value++;
+      cardHistoryIndex.value += 1;
 
       await loadFromJson("redo");
 
@@ -568,8 +567,8 @@ export const cardsHandler = function (
           twoRedosObject &&
           twoRedosObject.lineType === "perforation"
         ) {
-          cardHistoryIndex.value++;
-          cardHistoryIndex.value++;
+          cardHistoryIndex.value += 1;
+          cardHistoryIndex.value += 1;
 
           jsonLoadingRef.value = true;
 
@@ -584,7 +583,7 @@ export const cardsHandler = function (
           );
           canvas && canvas.requestRenderAll();
         } else {
-          cardHistoryIndex.value++;
+          cardHistoryIndex.value += 1;
 
           jsonLoadingRef.value = true;
 

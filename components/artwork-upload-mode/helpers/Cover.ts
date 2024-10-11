@@ -114,7 +114,13 @@ class Cover {
               hasControls: false,
             });
 
-            loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
+            if (this.coverSide === "Middle") {
+              loadedImg.scaleToHeight(
+                this.canvas.height / this.canvas.getZoom()
+              );
+            } else {
+              loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
+            }
             loadedImg.setCoords();
 
             setTimeout(() => {
@@ -128,7 +134,7 @@ class Cover {
             });
 
             setTimeout(() => {
-              if (this.canvas) {
+              if (this.canvas && coverData.value[1].canvas) {
                 this.LeftThumbnail.value = this.canvas.toDataURL();
                 this.RightThumbnail.value = this.canvas.toDataURL();
                 this.MiddleThumbnail.value =
