@@ -594,12 +594,16 @@ export function pageHandler(
 
   const undoPagesHistory = async () => {
     const currentHistoryObject =
+      pagesHistory.value[historyIndex.value] &&
       pagesHistory.value[historyIndex.value].activeObject;
     const latestHistoryObject =
+      pagesHistory.value[historyIndex.value + 1] &&
       pagesHistory.value[historyIndex.value + 1].activeObject;
     const latestHistoryActionType =
+      pagesHistory.value[historyIndex.value + 1] &&
       pagesHistory.value[historyIndex.value + 1].actionType;
     const twoUndosObject =
+      pagesHistory.value[historyIndex.value - 2] &&
       pagesHistory.value[historyIndex.value - 2].activeObject;
 
     if (pagesHistory.value && historyIndex.value > 0) {
@@ -879,12 +883,6 @@ export function pageHandler(
 
   //Redo - still notworking
   const redoPagesHistory = async () => {
-    const currentHistoryObject =
-      pagesHistory.value[historyIndex.value].activeObject;
-
-    const twoRedosObject =
-      pagesHistory.value[historyIndex.value + 2].activeObject;
-
     if (
       pagesHistory.value &&
       historyIndex.value < pagesHistory.value.length - 1
@@ -892,6 +890,14 @@ export function pageHandler(
       historyIndex.value++;
 
       await loadFromJson("redo");
+
+      const currentHistoryObject =
+        pagesHistory.value[historyIndex.value] &&
+        pagesHistory.value[historyIndex.value].activeObject;
+
+      const twoRedosObject =
+        pagesHistory.value[historyIndex.value + 2] &&
+        pagesHistory.value[historyIndex.value + 2].activeObject;
 
       if (
         currentHistoryObject &&

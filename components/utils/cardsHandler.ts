@@ -182,8 +182,10 @@ export const cardsHandler = function (
   const loadFromJson = async (action: string) => {
     const latestIndex = cardHistoryIndex.value + 1;
     const currentHistoryObject =
+      cardHistory.value[cardHistoryIndex.value] &&
       cardHistory.value[cardHistoryIndex.value].activeObject;
     const latestHistoryObject =
+      cardHistory.value[cardHistoryIndex.value + 1] &&
       cardHistory.value[cardHistoryIndex.value + 1].activeObject;
 
     if (action === "undo") {
@@ -257,7 +259,7 @@ export const cardsHandler = function (
       });
 
       const upperHistory = cardHistory.value[cardHistoryIndex.value + 1];
-      const upperHistoryObject = upperHistory.activeObject;
+      const upperHistoryObject = upperHistory && upperHistory.activeObject;
 
       if (upperHistoryObject && upperHistoryObject.lineType === "perforation") {
         activeCardRef.value = upperHistory.cardSide;
@@ -281,18 +283,23 @@ export const cardsHandler = function (
       cardHistoryIndex.value--;
 
       const currentHistoryObject =
+        cardHistory.value[cardHistoryIndex.value] &&
         cardHistory.value[cardHistoryIndex.value].activeObject;
 
       const latestHistoryObject =
+        cardHistory.value[cardHistoryIndex.value + 1] &&
         cardHistory.value[cardHistoryIndex.value + 1].activeObject;
 
       const latestHistoryActionType =
+        cardHistory.value[cardHistoryIndex.value + 1] &&
         cardHistory.value[cardHistoryIndex.value + 1].actionType;
 
       const nextUndoObject =
+        cardHistory.value[cardHistoryIndex.value - 1] &&
         cardHistory.value[cardHistoryIndex.value - 1].activeObject;
 
       const twoUndosObject =
+        cardHistory.value[cardHistoryIndex.value - 2] &&
         cardHistory.value[cardHistoryIndex.value - 2].activeObject;
 
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
@@ -535,10 +542,6 @@ export const cardsHandler = function (
   };
 
   const reDoCardHistory = async () => {
-    const currentHistoryObject =
-      cardHistory.value[cardHistoryIndex.value].activeObject;
-    const twoRedosObject =
-      cardHistory.value[cardHistoryIndex.value + 2].activeObject;
     if (
       cardHistory.value &&
       cardHistoryIndex.value < cardHistory.value.length - 1
@@ -546,6 +549,13 @@ export const cardsHandler = function (
       cardHistoryIndex.value++;
 
       await loadFromJson("redo");
+
+      const currentHistoryObject =
+        cardHistory.value[cardHistoryIndex.value] &&
+        cardHistory.value[cardHistoryIndex.value].activeObject;
+      const twoRedosObject =
+        cardHistory.value[cardHistoryIndex.value + 2] &&
+        cardHistory.value[cardHistoryIndex.value + 2].activeObject;
 
       if (
         currentHistoryObject &&

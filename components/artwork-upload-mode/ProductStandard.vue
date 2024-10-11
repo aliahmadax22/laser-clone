@@ -284,7 +284,6 @@
                       state.currentCNV as currentCanvas[],
                       activePageID,
                       qrText,
-                      state.Card as Sides[],
                       allPages as inlinePageWithoutRefs[],
                       cardsDataRef as CardDataWithoutRef[],
                       state.cardSide as string,
@@ -478,12 +477,7 @@
                     "
                   >
                     <img
-                      :src="
-                        allPagesCanvasesRef.thumbnail[page.pageNumber - 1] ===
-                        ''
-                          ? mockThumbnail
-                          : allPagesCanvasesRef.thumbnail[page.pageNumber - 1]
-                      "
+                      :src="allPagesCanvasesRef.thumbnail[page.pageNumber - 1]"
                       alt="Generated Image"
                       class="w-full h-full"
                       :class="activePage(page as inlinePageWithoutRefs)"
@@ -671,8 +665,6 @@ import {
   type TOriginY,
 } from "fabric";
 import ModifyObjectHelper from "./helpers/modifyObject";
-import type { Sides } from "./helpers/SidesManager";
-import { mockThumbnail } from "../MockData/mockThumbnail";
 import {
   addCustomText,
   addImage,
@@ -814,7 +806,6 @@ interface state {
   error: string | null;
   cardSide: string | null;
   activeCover: CoverData | null;
-  Card: Sides[];
   canvasSize: canvasSize | null;
   cardThumbs: cardThumbnail | null;
   coverThumbs: coverThumbnail | null;
@@ -844,7 +835,6 @@ const state = reactive<state>({
   error: null,
   cardSide: null,
   activeCover: null,
-  Card: [],
   canvasSize: { width: 0, height: 0 },
   cardThumbs: { cardFront: "", cardBack: "" },
   coverThumbs: { coverLeft: "", coverMiddle: "", coverRight: "" },

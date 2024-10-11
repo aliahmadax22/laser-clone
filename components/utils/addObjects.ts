@@ -8,7 +8,6 @@ import {
 import CustomTextbox from "../artwork-upload-mode/helpers/addText";
 import { addToCanvas } from "../artwork-upload-mode/addToCanvas";
 import CustomLine from "../artwork-upload-mode/helpers/customPerforationLine";
-import type { Sides } from "../artwork-upload-mode/helpers/SidesManager";
 import CustomQrCode from "../artwork-upload-mode/helpers/customQrCode";
 
 const svgString = `
@@ -427,8 +426,6 @@ export const addPerforationLineHorizontal = (
         cardsDataRef[1].canvas.add(straightLine);
         cardsDataRef[0].canvas.requestRenderAll();
         cardsDataRef[1].canvas.requestRenderAll();
-
-        // setCardValue(Card as Sides[]);
       } else if (cardSide === "Back" && modeType === "card") {
         const backline = new CustomLine(cardsDataRef[1].canvas, "horizontal");
         const straightLine = backline.straightLine(cardsDataRef[0].canvas);
@@ -499,8 +496,6 @@ export const addPerforationLineVertical = (
 
         cardsDataRef[0].canvas.requestRenderAll();
         cardsDataRef[1].canvas.requestRenderAll();
-
-        // setCardValue(Card as Sides[]);
       } else if (cardSide === "Back") {
         const backLine = new CustomLine(cardsDataRef[1].canvas, "vertical");
         // Card[1].canvasObjects.push(backLine);
@@ -513,8 +508,6 @@ export const addPerforationLineVertical = (
 
         cardsDataRef[1].canvas.requestRenderAll();
         cardsDataRef[0].canvas.requestRenderAll();
-
-        // setCardValue(Card as Sides[]);
       }
     }
   }
@@ -525,7 +518,6 @@ export const generateQRCode = async (
   currentCNV: currentCanvas[],
   activePageID: string | null,
   qrText: string,
-  Card: Sides[],
   inlinePages: inlinePage[],
   cardsDataRef: cardData[],
   cardSide: string,
