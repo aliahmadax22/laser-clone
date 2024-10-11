@@ -506,8 +506,11 @@ export function pageHandler(
   const loadFromJson = async (action: string) => {
     const latestIndex = historyIndex.value + 1;
     const currentHistoryObject =
+      pagesHistory.value[historyIndex.value] &&
       pagesHistory.value[historyIndex.value].activeObject;
+
     const latestHistoryObject =
+      pagesHistory.value[historyIndex.value + 1] &&
       pagesHistory.value[historyIndex.value + 1].activeObject;
 
     if (action === "undo") {
@@ -543,8 +546,9 @@ export function pageHandler(
           pagesHistory.value[historyIndex.value - 1].activeObject === null &&
           currentHistoryObject &&
           currentHistoryObject.lineType !== "perforation" &&
-          latestHistoryObject &&
-          latestHistoryObject.lineType !== "perforation"
+          (latestHistoryObject === null ||
+            (latestHistoryObject &&
+              latestHistoryObject.lineType !== "perforation"))
         ) {
           historyIndex.value--;
 
@@ -593,21 +597,26 @@ export function pageHandler(
   };
 
   const undoPagesHistory = async () => {
-    const currentHistoryObject =
-      pagesHistory.value[historyIndex.value] &&
-      pagesHistory.value[historyIndex.value].activeObject;
-    const latestHistoryObject =
-      pagesHistory.value[historyIndex.value + 1] &&
-      pagesHistory.value[historyIndex.value + 1].activeObject;
-    const latestHistoryActionType =
-      pagesHistory.value[historyIndex.value + 1] &&
-      pagesHistory.value[historyIndex.value + 1].actionType;
-    const twoUndosObject =
-      pagesHistory.value[historyIndex.value - 2] &&
-      pagesHistory.value[historyIndex.value - 2].activeObject;
-
     if (pagesHistory.value && historyIndex.value > 0) {
       historyIndex.value--;
+
+      const currentHistoryObject =
+        pagesHistory.value[historyIndex.value] &&
+        pagesHistory.value[historyIndex.value].activeObject;
+      const latestHistoryObject =
+        pagesHistory.value[historyIndex.value + 1] &&
+        pagesHistory.value[historyIndex.value + 1].activeObject;
+      const latestHistoryActionType =
+        pagesHistory.value[historyIndex.value + 1] &&
+        pagesHistory.value[historyIndex.value + 1].actionType;
+
+      const nextUndoObject =
+        pagesHistory.value[historyIndex.value - 1] &&
+        pagesHistory.value[historyIndex.value - 1].activeObject;
+
+      const twoUndosObject =
+        pagesHistory.value[historyIndex.value - 2] &&
+        pagesHistory.value[historyIndex.value - 2].activeObject;
 
       // CONDITION 1: IF PERFORATION LINE IS PRESENT AFTER UNDO OR THE OBJECT IS NULL
       if (
@@ -832,11 +841,15 @@ export function pageHandler(
         }
         // CONDITION 1 PHASE 2 ENDS
       } else if (!pagesHistory.value[historyIndex.value].activeObject) {
+        console.log(
+          "next history object is not null && current object is perforation",
+          currentHistoryObject
+        );
         if (
           pagesHistory.value[historyIndex.value - 1] &&
           pagesHistory.value[historyIndex.value - 1].activeObject !== null &&
-          currentHistoryObject &&
-          currentHistoryObject.lineType === "perforation"
+          nextUndoObject &&
+          nextUndoObject.lineType === "perforation"
         ) {
           if (
             !pagesHistory.value[historyIndex.value - 2].activeObject ||

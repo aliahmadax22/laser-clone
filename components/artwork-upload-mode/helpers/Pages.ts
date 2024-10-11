@@ -180,6 +180,7 @@ class Page {
           if (
             canvasObjects &&
             canvasObjects.length <= 3 &&
+            canvasObjects[2] &&
             canvasObjects[2].type !== "rect" &&
             !this.loading.value &&
             emptyJSON
