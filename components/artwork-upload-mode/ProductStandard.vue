@@ -219,7 +219,6 @@
                       state.modeType,
                       state.currentCNV as currentCanvas[],
                       activePageID,
-                      pageSideRef,
                       allPages as inlinePageWithoutRefs[],
                       cardsDataRef as CardDataWithoutRef[],
                       state.cardSide as string,
@@ -251,7 +250,6 @@
                       state.modeType,
                       state.currentCNV as currentCanvas[],
                       activePageID,
-                      pageSideRef,
                       allPages as inlinePageWithoutRefs[],
                       cardsDataRef as CardDataWithoutRef[],
                       state.cardSide as string,
@@ -286,8 +284,6 @@
                       state.currentCNV as currentCanvas[],
                       activePageID,
                       qrText,
-                      pageSideRef,
-                      currentCanvasRef as inlinePageWithoutRefs[],
                       state.Card as Sides[],
                       allPages as inlinePageWithoutRefs[],
                       cardsDataRef as CardDataWithoutRef[],
@@ -638,7 +634,7 @@
             <div ref="containerRef" :class="pageModeOnly(state.modeType)"></div>
           </div>
 
-          <div>
+          <!-- <div>
             <h2>Perforation Lines</h2>
             <div v-if="LineHelper">
               <label>
@@ -658,7 +654,7 @@
                 />
               </label>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </BaseBox>
@@ -667,7 +663,6 @@
 
 <script setup lang="ts">
 import BaseBox from "@/components/base/BaseBox.vue";
-import type { Product } from "~/types/cart.types";
 import { onMounted, ref, watch, reactive } from "vue";
 import {
   type FabricObject,
@@ -675,19 +670,7 @@ import {
   type TOriginX,
   type TOriginY,
 } from "fabric";
-import {
-  initializeCanvas,
-  fabricCanvas,
-  setModeType,
-  pageSideRef,
-  currentCanvasRef,
-  currentCardSideRef,
-  cardRef,
-  activeObjectRef,
-} from "./helpers/canvasInstance";
-import type CustomTextbox from "./helpers/addText";
 import ModifyObjectHelper from "./helpers/modifyObject";
-import type CustomLine from "./helpers/customPerforationLine";
 import type { Sides } from "./helpers/SidesManager";
 import { mockThumbnail } from "../MockData/mockThumbnail";
 import {
@@ -868,12 +851,6 @@ const state = reactive<state>({
   coverHistory: [],
 });
 
-const props = defineProps<{
-  selectedProduct: Product;
-}>();
-
-const productInfo = props.selectedProduct.artworkData.productInfo;
-const canvasRef = ref<HTMLCanvasElement | null>(null);
 const activePageID = ref<string | null>(null);
 const pageActiveObj = ref<FabricObject | null>(null);
 const history = ref<History[]>([]);
@@ -891,7 +868,6 @@ const coverRightRef = ref<HTMLCanvasElement | null>(null);
 
 const coverSideRef = ref<string>("");
 
-let LineHelper: CustomLine;
 let objectModifier: ModifyObjectHelper;
 const allPagesCanvasesRef = ref<allPagesCanvasesRef>({
   canvas: [],
@@ -1005,8 +981,6 @@ const coverDataRef = ref<CoverData[]>([]);
 // CARD MODE INITIATER AND WATCHERS
 onMounted(() => {
   if (cardFrontRef.value || cardBackRef.value) {
-    const { fabricCanvas } = initializeCanvas(canvasRef.value!, productInfo);
-
     const {
       initiateCards,
       undoCardHistory,
@@ -1091,8 +1065,6 @@ onMounted(() => {
         state.activeObject = newVal;
       }
     });
-
-    fabricCanvas.renderAll();
   }
 });
 
@@ -1242,7 +1214,6 @@ onMounted(() => {
     watch(liveCanvases, (newVal) => {
       if (newVal) {
         state.currentCNV = liveCanvases.value;
-        currentCanvasRef.value = liveCanvases.value;
       }
     });
 
@@ -1427,8 +1398,6 @@ const switchToPage = () => {
   currentSide.value = "Page Mode";
   state.modeType = "page";
 
-  setModeType(state.modeType);
-
   if (pageModeRef.value) {
     pageModeRef.value();
   }
@@ -1437,8 +1406,6 @@ const switchToPage = () => {
 const switchToCard = () => {
   currentSide.value = "Card Mode";
   state.modeType = "card";
-
-  setModeType(state.modeType);
 
   cardsDataRef.value.forEach((card) => {
     card.canvas.dispose();
@@ -1492,6 +1459,7 @@ const swapPage = async () => {
   }
 
   if (
+    activeCanvas &&
     state.pageSwapFrom &&
     state.pageSwapFrom >= 1 &&
     state.pageSwapFrom < allPages.value.length &&
@@ -1499,6 +1467,8 @@ const swapPage = async () => {
     state.pageSwapTo >= 1 &&
     state.pageSwapTo < allPages.value.length
   ) {
+    const fabricCanvas = activeCanvas.canvas;
+
     const pageNumber = state.pageSwapFrom + 1;
     state.error = null;
 
@@ -1689,52 +1659,6 @@ const toggleBleedLines = () => {
     });
   }
 };
-
-const updateLineCoordinatesLeft = (e: Event) => {
-  const value = e.target as HTMLInputElement;
-  LineHelper.set({
-    left: value,
-  });
-
-  if (fabricCanvas) fabricCanvas.requestRenderAll();
-};
-
-const updateLineCoordinatesTop = (e: Event) => {
-  const value = e.target as HTMLInputElement;
-  LineHelper.set({
-    top: value,
-  });
-
-  if (fabricCanvas) fabricCanvas.requestRenderAll();
-};
-
-watch(activeObjectRef, (newValue) => {
-  if (newValue) {
-    if (newValue.type === "textbox" && state.modeType === "card") {
-      state.activeObject = newValue;
-      const textbox = newValue as CustomTextbox;
-      state.fontSize = textbox.fontSize;
-    }
-  }
-});
-
-watch(pageSideRef, (newSide) => {
-  if (newSide) {
-    state.pageSide = newSide;
-  }
-});
-
-watch(currentCardSideRef, (newSide) => {
-  if (newSide) {
-    state.cardSide = newSide;
-  }
-});
-
-watch(cardRef, (newVal) => {
-  if (newVal) {
-    state.Card = newVal;
-  }
-});
 
 watch(selectedLine, (newVal) => {
   if (newVal) {

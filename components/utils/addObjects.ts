@@ -179,7 +179,6 @@ export const addCustomText = (
   modeType: string,
   currentCNV: currentCanvas[],
   activePageID: string | null,
-  pageSideRef: string,
   inlinePages: inlinePage[],
   cardsDataRef: cardData[],
   cardSide: string,
@@ -193,11 +192,7 @@ export const addCustomText = (
     if (activeCanvas) {
       const fabricCanvas = activeCanvas.canvas;
 
-      const text = new CustomTextbox(
-        fabricCanvas as Canvas,
-        "My Text",
-        pageSideRef
-      );
+      const text = new CustomTextbox(fabricCanvas as Canvas, "My Text");
 
       addToCanvas(
         text,
@@ -209,27 +204,15 @@ export const addCustomText = (
     }
   } else {
     if (modeType === "card" && cardSide === "Front") {
-      const text = new CustomTextbox(
-        cardsDataRef[0].canvas,
-        "My Text",
-        pageSideRef
-      );
+      const text = new CustomTextbox(cardsDataRef[0].canvas, "My Text");
 
       addToCanvas(text, null, cardsDataRef[0].canvas, inlinePages, modeType);
     } else if (modeType === "card" && cardSide === "Back") {
-      const text = new CustomTextbox(
-        cardsDataRef[1].canvas,
-        "My Text",
-        pageSideRef
-      );
+      const text = new CustomTextbox(cardsDataRef[1].canvas, "My Text");
 
       addToCanvas(text, null, cardsDataRef[1].canvas, inlinePages, modeType);
     } else {
-      const text = new CustomTextbox(
-        activeCover.canvas,
-        "My Text",
-        pageSideRef
-      );
+      const text = new CustomTextbox(activeCover.canvas, "My Text");
 
       addToCanvas(text, null, activeCover.canvas, inlinePages, modeType);
     }
@@ -240,7 +223,6 @@ export const addSVGText = async (
   modeType: string,
   currentCNV: currentCanvas[],
   activePageID: string | null,
-  pageSideRef: string,
   inlinePages: inlinePage[],
   cardsDataRef: cardData[],
   cardSide: string,
@@ -289,12 +271,7 @@ export const addSVGText = async (
 
       const zoom = canvas.getZoom();
       obj.set({
-        left:
-          pageSideRef === "right"
-            ? canvas.width / 2 / zoom + 150
-            : pageSideRef === "middle"
-            ? canvas.width / 2 / zoom - (obj.width / 2) * 0.1
-            : 150,
+        left: canvas.width / 2 / zoom - (obj.width / 2) * 0.1,
         top: 50,
         scaleX: 0.2,
         scaleY: 0.2,
@@ -548,8 +525,6 @@ export const generateQRCode = async (
   currentCNV: currentCanvas[],
   activePageID: string | null,
   qrText: string,
-  pageSideRef: string,
-  currentCanvasRef: inlinePage[],
   Card: Sides[],
   inlinePages: inlinePage[],
   cardsDataRef: cardData[],
@@ -567,9 +542,8 @@ export const generateQRCode = async (
       new CustomQrCode(
         qrText,
         fabricCanvas as Canvas,
-        pageSideRef,
         inlinePages,
-        currentCanvasRef,
+        currentCNV,
         modeType,
         activePageID
       );
@@ -581,9 +555,8 @@ export const generateQRCode = async (
     new CustomQrCode(
       qrText,
       canvas as Canvas,
-      pageSideRef,
       inlinePages,
-      currentCanvasRef,
+      currentCNV,
       modeType,
       activePageID
     );
@@ -594,9 +567,8 @@ export const generateQRCode = async (
       new CustomQrCode(
         qrText,
         fabricCanvas as Canvas,
-        pageSideRef,
         inlinePages,
-        currentCanvasRef,
+        currentCNV,
         modeType,
         activePageID
       );

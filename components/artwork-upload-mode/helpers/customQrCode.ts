@@ -10,7 +10,6 @@ interface inlinePage {
 
 class CustomQrCode extends Group {
   text: string;
-  side: string;
   inlinePages: inlinePage[];
   currentCanvasRef: inlinePage[];
   modeType: string;
@@ -19,7 +18,6 @@ class CustomQrCode extends Group {
   constructor(
     text: string,
     canvas: Canvas,
-    side: string,
     inlinePages: inlinePage[],
     currentCanvasRef: inlinePage[],
     modeType: string,
@@ -29,7 +27,6 @@ class CustomQrCode extends Group {
 
     this.text = text;
     this.canvas = canvas;
-    this.side = side;
     this.inlinePages = inlinePages;
     this.modeType = modeType;
     this.currentCanvasRef = currentCanvasRef;

@@ -33,8 +33,8 @@ const cardModeText: CustomTextboxOptions = {
 };
 
 class CustomTextbox extends Textbox {
-  constructor(canvas: Canvas | null, text: string, side: string = "left") {
-    const options: object = { ...cardModeText, side: side };
+  constructor(canvas: Canvas | null, text: string) {
+    const options: object = { ...cardModeText };
 
     super(text, options);
 
@@ -42,12 +42,8 @@ class CustomTextbox extends Textbox {
 
     const zoom = this.canvas.getZoom();
     this.set({
-      left:
-        side === "right"
-          ? this.canvas.width / 2 / zoom + 250
-          : side === "middle"
-          ? this.canvas.width / 2 / zoom
-          : 150,
+      left: this.canvas.width / 2 / zoom,
+
       top: this.canvas.height / 2 / zoom,
     });
   }
