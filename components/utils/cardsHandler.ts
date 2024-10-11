@@ -188,8 +188,6 @@ export const cardsHandler = function (
       cardHistory.value[cardHistoryIndex.value + 1] &&
       cardHistory.value[cardHistoryIndex.value + 1].activeObject;
 
-    console.log("card history", cardHistory.value);
-
     if (action === "undo") {
       for (let i = cardHistoryIndex.value; i >= 0; i--) {
         if (
@@ -230,13 +228,6 @@ export const cardsHandler = function (
             (latestHistoryObject &&
               latestHistoryObject.lineType !== "perforation"))
         ) {
-          console.log(
-            "next history object is null & current and latest history object line type is not perforation",
-            cardHistory.value[cardHistoryIndex.value - 1].activeObject,
-            currentHistoryObject,
-            latestHistoryObject
-          );
-
           cardHistoryIndex.value--;
 
           const canvas =

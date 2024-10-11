@@ -841,10 +841,6 @@ export function pageHandler(
         }
         // CONDITION 1 PHASE 2 ENDS
       } else if (!pagesHistory.value[historyIndex.value].activeObject) {
-        console.log(
-          "next history object is not null && current object is perforation",
-          currentHistoryObject
-        );
         if (
           pagesHistory.value[historyIndex.value - 1] &&
           pagesHistory.value[historyIndex.value - 1].activeObject !== null &&
