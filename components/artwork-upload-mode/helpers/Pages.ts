@@ -43,6 +43,14 @@ interface History {
   json: JSON;
 }
 
+enum TargetID {
+  FRAME = "frame",
+  FIRST_PAGE_COVER = "firstPageCover",
+  COVER = "cover",
+}
+
+const excludedIds = [TargetID.FRAME, TargetID.FIRST_PAGE_COVER, TargetID.COVER];
+
 class Page {
   canvas: Canvas | null;
   pageNumber: number;
@@ -57,6 +65,8 @@ class Page {
   history: Ref<History[]>;
   currentActionIndex: Ref<number>;
   loading: Ref<boolean>;
+  emptyJSON: string;
+  jsonObject: object;
 
   constructor(
     actualSize: { width_mm: number; height_mm: number; dpi: number },
@@ -79,6 +89,8 @@ class Page {
     this.history = history;
     this.currentActionIndex = currentActionIndex;
     this.loading = JSONLoading;
+    this.emptyJSON = "";
+    this.jsonObject = {};
 
     const canvasElement = document.createElement("canvas");
     canvasElement.id = this.pageID;
@@ -97,67 +109,83 @@ class Page {
 
     this.canvas = null;
 
-    this.canvas = markRaw(
-      new Canvas(this.canvasElement, {
-        id: this.pageID,
-        width: this.width_px,
-        height: this.height_px,
-        backgroundColor: "white",
-        preserveObjectStacking: true,
-        fill: "white",
-      })
-    );
+    this.init();
 
-    this.canvas.wrapperEl.style.border = "2px solid black";
+    this.overlayCreation();
 
-    let jsonObject = {};
-    let emptyJSON = "";
+    this.handleEvents();
+    this.renderCanvas();
+  }
 
-    const frame = new URL("@/assets/pagesFrame.png", import.meta.url).href;
-    if (frame)
-      FabricImage.fromURL(frame).then((loadedImg) => {
-        if (this.canvas && loadedImg) {
-          loadedImg.set({
-            id: "frame",
-            selectable: false,
-            hasControls: false,
-          });
+  init() {
+    if (this.canvasElement)
+      this.canvas = markRaw(
+        new Canvas(this.canvasElement, {
+          id: this.pageID,
+          width: this.width_px,
+          height: this.height_px,
+          backgroundColor: "white",
+          preserveObjectStacking: true,
+          fill: "white",
+        })
+      );
 
-          loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
-          loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
-          loadedImg.setCoords();
+    if (this.canvas) {
+      this.canvas.wrapperEl.style.border = "2px solid black";
+      new SnapLinesHelper(this.canvas);
+    }
+  }
 
-          setTimeout(() => {
-            jsonObject =
-              this.allCanvasesRef.value.canvas[1].toObject(propertiesToInclude);
-            emptyJSON = JSON.stringify(jsonObject);
-          }, 0);
-
-          if (this.pageNumber === 2) {
-            this.canvas.set({
-              overlayImage: loadedImg,
-            });
-          }
-
-          if (
-            this.pageNumber !== 1 &&
-            this.pageNumber !== this.allCanvasesRef.value.canvas.length
-          )
-            this.canvas.set({
-              overlayImage: loadedImg,
+  overlayCreation() {
+    if (this.canvas) {
+      const frame = new URL("@/assets/pagesFrame.png", import.meta.url).href;
+      if (frame)
+        FabricImage.fromURL(frame).then((loadedImg) => {
+          if (this.canvas && loadedImg) {
+            loadedImg.set({
+              id: "frame",
+              selectable: false,
+              hasControls: false,
             });
 
-          if (this.allCanvasesRef.value) {
-            this.allCanvasesRef.value.thumbnail[this.pageNumber - 1] =
-              this.canvas.toDataURL();
+            loadedImg.scaleToWidth(this.canvas.width / this.canvas.getZoom());
+            loadedImg.scaleToHeight(this.canvas.height / this.canvas.getZoom());
+            loadedImg.setCoords();
+
+            setTimeout(() => {
+              this.jsonObject =
+                this.allCanvasesRef.value.canvas[1].toObject(
+                  propertiesToInclude
+                );
+              this.emptyJSON = JSON.stringify(this.jsonObject);
+            }, 0);
+
+            if (this.pageNumber === 2) {
+              this.canvas.set({
+                overlayImage: loadedImg,
+              });
+            }
+
+            if (
+              this.pageNumber !== 1 &&
+              this.pageNumber !== this.allCanvasesRef.value.canvas.length
+            )
+              this.canvas.set({
+                overlayImage: loadedImg,
+              });
+
+            if (this.allCanvasesRef.value) {
+              this.allCanvasesRef.value.thumbnail[this.pageNumber - 1] =
+                this.canvas.toDataURL();
+            }
+
+            this.canvas.renderAll();
           }
+        });
+    }
+  }
 
-          this.canvas.renderAll();
-        }
-      });
-
-    new SnapLinesHelper(this.canvas);
-
+  handleEvents() {
     if (this.canvas) {
       this.canvas.on("mouse:down", (e) => {
         const obj = e.target as FabricObject;
@@ -184,22 +212,18 @@ class Page {
             canvasObjects[2] &&
             canvasObjects[2].type !== "rect" &&
             !this.loading.value &&
-            emptyJSON
+            this.emptyJSON
           ) {
             this.history.value.push({
               pageNumber: this.pageNumber,
               activeObject: null,
-              json: JSON.parse(emptyJSON),
+              json: JSON.parse(this.emptyJSON),
             });
-            currentActionIndex.value++;
+            this.currentActionIndex.value += 1;
           }
 
-          if (
-            e.target.id !== "frame" &&
-            e.target.id !== "firstPageCover" &&
-            e.target.id !== "cover"
-          ) {
-            saveState(obj);
+          if (!excludedIds.includes(obj.id as TargetID)) {
+            this.saveState(obj);
           }
         }
       });
@@ -274,7 +298,7 @@ class Page {
             this.canvas.toDataURL();
         }
 
-        saveState(obj, "modified");
+        this.saveState(obj, "modified");
       });
 
       this.canvas.on("object:removed", (e) => {
@@ -295,7 +319,7 @@ class Page {
           e.target.id !== "firstPageCover" &&
           e.target.id !== "cover"
         ) {
-          saveState(obj);
+          this.saveState(obj);
         }
 
         if (obj.lineType === "perforation" && this.canvas) {
@@ -304,7 +328,7 @@ class Page {
           });
 
           mirrorLine && this.canvas.remove(mirrorLine);
-          this.canvas.requestRenderAll();
+          this.renderCanvas();
         }
       });
 
@@ -313,68 +337,65 @@ class Page {
           const activeObject = this.canvas.getActiveObject();
           if (activeObject) {
             this.canvas.remove(activeObject);
-            this.canvas.requestRenderAll();
+            this.renderCanvas();
           }
         }
       });
-
-      // this.thumbnail.value = this.canvas.toDataURL();
-
-      this.canvas.requestRenderAll();
     }
+  }
 
-    const saveState = (
-      activeObject: CustomLineOptions,
-      action: string = ""
-    ) => {
-      if (this.canvas && !this.loading.value) {
-        if (this.currentActionIndex.value < this.history.value.length - 1) {
-          this.history.value = this.history.value.slice(
-            0,
-            this.currentActionIndex.value + 1
-          );
-        }
+  renderCanvas() {
+    if (this.canvas) this.canvas.requestRenderAll();
+  }
 
-        this.loading.value = false;
-        if (this.canvas)
-          this.history.value.push({
-            pageNumber: this.pageNumber,
-            activeObject: activeObject,
-            json: this.canvas.toObject(propertiesToInclude),
-          });
-
-        if (activeObject.lineType === "perforation" && action === "modified") {
-          const mirroedPageNumber =
-            this.pageNumber % 2 === 0
-              ? this.pageNumber + 1
-              : this.pageNumber - 1;
-
-          const mirroredCanvas =
-            allCanvasesRef.value.canvas[mirroedPageNumber - 1];
-
-          const modifiedLine = mirroredCanvas.getObjects().find((obj) => {
-            return obj.id === activeObject.id;
-          });
-
-          this.history.value.push({
-            pageNumber: mirroedPageNumber,
-            activeObject: modifiedLine as FabricObject,
-            actionType: "modified",
-            json: mirroredCanvas.toObject(propertiesToInclude),
-          });
-
-          this.currentActionIndex.value++;
-        }
-
-        this.thumbnail.value = this.canvas.toDataURL();
-
-        this.currentActionIndex.value++;
-
-        if (this.history.value.length > 50) {
-          this.history.value.shift();
-        }
+  saveState(activeObject: CustomLineOptions, action: string = "") {
+    if (this.canvas && !this.loading.value) {
+      if (this.currentActionIndex.value < this.history.value.length - 1) {
+        this.history.value = this.history.value.slice(
+          0,
+          this.currentActionIndex.value + 1
+        );
       }
-    };
+
+      this.loading.value = false;
+      if (this.canvas)
+        this.history.value.push({
+          pageNumber: this.pageNumber,
+          activeObject: activeObject,
+          json: this.canvas.toObject(propertiesToInclude),
+        });
+
+      if (activeObject.lineType === "perforation" && action === "modified") {
+        const mirroedPageNumber =
+          this.pageNumber % 2 === 0
+            ? this.pageNumber + 1 // IF PAGE NUMBER IS EVEN THEN MIRRORED PAGE NUMBER WILL BE NEXT PAGE
+            : this.pageNumber - 1; // IF PAGE NUMBER IS ODD THEN MIRRORED PAGE NUMBER WILL BE PREVIOUS PAGE
+
+        const mirroredCanvas =
+          this.allCanvasesRef.value.canvas[mirroedPageNumber - 1];
+
+        const modifiedLine = mirroredCanvas.getObjects().find((obj) => {
+          return obj.id === activeObject.id;
+        });
+
+        this.history.value.push({
+          pageNumber: mirroedPageNumber,
+          activeObject: modifiedLine as FabricObject,
+          actionType: "modified",
+          json: mirroredCanvas.toObject(propertiesToInclude),
+        });
+
+        this.currentActionIndex.value += 1;
+      }
+
+      this.thumbnail.value = this.canvas.toDataURL();
+
+      this.currentActionIndex.value += 1;
+
+      if (this.history.value.length > 50) {
+        this.history.value.shift();
+      }
+    }
   }
 }
 

@@ -58,6 +58,10 @@ class Card {
   loading: Ref<boolean>;
   cardSide: string;
   activeObject: Ref<FabricObject | null>;
+  cardsData: Ref<CardData[]>;
+  jsonObject: object;
+  emptyJSON: string;
+  containerRef: HTMLCanvasElement | null;
 
   constructor(
     actualSize: { width_mm: number; height_mm: number; dpi: number },
@@ -77,19 +81,28 @@ class Card {
     this.objectsArray = [];
     this.frontThumbnail = cardFrontThumbnail;
     this.backThumbnail = cardBackThumbnail;
-
+    this.cardsData = cardsData;
     this.width_px = (actualSize.width_mm / 25.4) * actualSize.dpi;
     this.height_px = (actualSize.height_mm / 25.4) * actualSize.dpi;
     this.cardHistory = cardHistory;
     this.currentActionIndex = currentActionIndex;
     this.loading = JSONLoading;
     this.activeObject = activeObjectRef;
-
+    this.jsonObject = {};
+    this.emptyJSON = "";
+    this.containerRef = containerRef;
     this.canvas = null;
 
-    if (containerRef)
+    this.init();
+    this.handleEvents();
+
+    this.renderCanvas();
+  }
+
+  init() {
+    if (this.containerRef)
       this.canvas = markRaw(
-        new Canvas(containerRef, {
+        new Canvas(this.containerRef, {
           width: this.width_px,
           height: this.height_px,
           backgroundColor: "white",
@@ -100,21 +113,23 @@ class Card {
 
     if (this.canvas) {
       new SnapLinesHelper(this.canvas);
-      let jsonObject = {};
-      let emptyJSON = "";
 
       setTimeout(() => {
-        if (this.canvas) jsonObject = this.canvas.toObject(propertiesToInclude);
-        emptyJSON = JSON.stringify(jsonObject);
+        if (this.canvas)
+          this.jsonObject = this.canvas.toObject(propertiesToInclude);
+        this.emptyJSON = JSON.stringify(this.jsonObject);
       }, 0);
+    }
+  }
 
+  handleEvents() {
+    if (this.canvas) {
       this.canvas.on("mouse:down", (e) => {
-        if (modeType === "card" && this.activeObject && e.target)
-          this.activeObject.value = e.target;
+        if (this.activeObject && e.target) this.activeObject.value = e.target;
       });
 
       this.canvas.on("object:added", (e) => {
-        if (modeType === "card" && this.canvas && e.target) {
+        if (this.canvas && e.target) {
           if (this.cardSide === "Front") {
             this.frontThumbnail.value = this.canvas.toDataURL();
           } else {
@@ -136,18 +151,18 @@ class Card {
           canvasObjects &&
           canvasObjects.length <= 7 &&
           !this.loading.value &&
-          emptyJSON
+          this.emptyJSON
         ) {
           this.cardHistory.value.push({
             cardSide: this.cardSide,
             activeObject: null,
-            json: JSON.parse(emptyJSON),
+            json: JSON.parse(this.emptyJSON),
           });
-          currentActionIndex.value++;
+          this.currentActionIndex.value += 1;
         }
 
         if (e.target.id !== "frame") {
-          saveState(obj);
+          this.saveState(obj);
         }
 
         if (this.canvas) bringBleedlinesToFront(this.canvas);
@@ -163,7 +178,7 @@ class Card {
       });
 
       this.canvas.on("object:modified", (e) => {
-        if (modeType === "card" && this.canvas && e.target) {
+        if (this.canvas && e.target) {
           if (this.cardSide === "Front") {
             this.frontThumbnail.value = this.canvas.toDataURL();
           } else {
@@ -176,7 +191,7 @@ class Card {
           const object = e.target as CustomLineOptions;
           if (object.type === "line") {
             if (this.cardSide === "Front") {
-              const mirroredLine = cardsData.value[1].canvas
+              const mirroredLine = this.cardsData.value[1].canvas
                 .getObjects()
                 .find((line) => {
                   if (this.canvas) {
@@ -204,10 +219,11 @@ class Card {
 
               mirroredLine && mirroredLine.setCoords();
 
-              this.backThumbnail.value = cardsData.value[1].canvas.toDataURL();
-              cardsData.value[1].canvas.requestRenderAll();
+              this.backThumbnail.value =
+                this.cardsData.value[1].canvas.toDataURL();
+              this.cardsData.value[1].canvas.requestRenderAll();
             } else if (this.cardSide === "Back") {
-              const mirroredLine = cardsData.value[0].canvas
+              const mirroredLine = this.cardsData.value[0].canvas
                 .getObjects()
                 .find((line) => {
                   if (this.canvas) {
@@ -234,18 +250,19 @@ class Card {
 
               mirroredLine && mirroredLine.setCoords();
 
-              this.frontThumbnail.value = cardsData.value[0].canvas.toDataURL();
-              cardsData.value[0].canvas.requestRenderAll();
+              this.frontThumbnail.value =
+                this.cardsData.value[0].canvas.toDataURL();
+              this.cardsData.value[0].canvas.requestRenderAll();
             }
           }
         }
 
         const obj = e.target as CustomLineOptions;
-        saveState(obj, "modified");
+        this.saveState(obj, "modified");
       });
 
       this.canvas.on("object:removed", (e) => {
-        if (modeType === "card" && this.canvas && e.target) {
+        if (this.canvas && e.target) {
           if (this.cardSide === "Front") {
             this.frontThumbnail.value = this.canvas.toDataURL();
           } else {
@@ -255,7 +272,7 @@ class Card {
 
         if (e.target.id !== "frame") {
           const object = e.target as CustomLineOptions;
-          saveState(object);
+          this.saveState(object);
         }
 
         const obj = e.target as CustomLineOptions;
@@ -266,28 +283,30 @@ class Card {
           !this.loading.value
         ) {
           if (this.cardSide === "Front") {
-            const mirrorLine = cardsData.value[1].canvas
+            const mirrorLine = this.cardsData.value[1].canvas
               .getObjects()
               .find((obj) => {
                 return e.target.id === obj.id;
               });
 
-            mirrorLine && cardsData.value[1].canvas.remove(mirrorLine);
-            this.backThumbnail.value = cardsData.value[1].canvas.toDataURL();
-            cardsData.value[1].canvas.requestRenderAll();
+            mirrorLine && this.cardsData.value[1].canvas.remove(mirrorLine);
+            this.backThumbnail.value =
+              this.cardsData.value[1].canvas.toDataURL();
+            this.cardsData.value[1].canvas.requestRenderAll();
           } else if (
             this.cardSide === "Back" &&
             obj.lineType === "perforation"
           ) {
-            const mirrorLine = cardsData.value[0].canvas
+            const mirrorLine = this.cardsData.value[0].canvas
               .getObjects()
               .find((obj) => {
                 return e.target.id === obj.id;
               });
 
-            mirrorLine && cardsData.value[0].canvas.remove(mirrorLine);
-            this.backThumbnail.value = cardsData.value[0].canvas.toDataURL();
-            cardsData.value[0].canvas.requestRenderAll();
+            mirrorLine && this.cardsData.value[0].canvas.remove(mirrorLine);
+            this.backThumbnail.value =
+              this.cardsData.value[0].canvas.toDataURL();
+            this.cardsData.value[0].canvas.requestRenderAll();
           }
         }
       });
@@ -300,65 +319,64 @@ class Card {
           }
         }
       });
-
-      this.canvas.requestRenderAll();
     }
+  }
 
-    const saveState = (
-      activeObject: CustomLineOptions,
-      action: string = ""
-    ) => {
-      if (this.canvas && !this.loading.value) {
-        if (this.currentActionIndex.value < this.cardHistory.value.length - 1) {
-          this.cardHistory.value = this.cardHistory.value.slice(
-            0,
-            this.currentActionIndex.value + 1
-          );
-        }
-
-        this.loading.value = false;
-        if (this.canvas)
-          this.cardHistory.value.push({
-            cardSide: this.cardSide,
-            activeObject: activeObject,
-            json: this.canvas.toObject(propertiesToInclude),
-          });
-
-        if (activeObject.lineType === "perforation" && action === "modified") {
-          const mirroedCardSide = this.cardSide === "Front" ? "Back" : "Front";
-          const card =
-            mirroedCardSide === "Front"
-              ? cardsData.value[0]
-              : cardsData.value[1];
-
-          const modifiedLine = card.canvas.getObjects().find((obj) => {
-            return obj.id === activeObject.id;
-          });
-
-          if (card.canvas)
-            this.cardHistory.value.push({
-              cardSide: card.cardSide,
-              activeObject: modifiedLine as FabricObject,
-              actionType: "modified",
-              json: card.canvas.toObject(propertiesToInclude),
-            });
-
-          this.currentActionIndex.value++;
-        }
-
-        if (this.cardSide === "Front") {
-          this.frontThumbnail.value = this.canvas.toDataURL();
-        } else {
-          this.backThumbnail.value = this.canvas.toDataURL();
-        }
-
-        this.currentActionIndex.value++;
-
-        if (this.cardHistory.value.length > 50) {
-          this.cardHistory.value.shift();
-        }
+  saveState(activeObject: CustomLineOptions, action: string = "") {
+    if (this.canvas && !this.loading.value) {
+      if (this.currentActionIndex.value < this.cardHistory.value.length - 1) {
+        this.cardHistory.value = this.cardHistory.value.slice(
+          0,
+          this.currentActionIndex.value + 1
+        );
       }
-    };
+
+      this.loading.value = false;
+      if (this.canvas)
+        this.cardHistory.value.push({
+          cardSide: this.cardSide,
+          activeObject: activeObject,
+          json: this.canvas.toObject(propertiesToInclude),
+        });
+
+      if (activeObject.lineType === "perforation" && action === "modified") {
+        const mirroedCardSide = this.cardSide === "Front" ? "Back" : "Front";
+        const card =
+          mirroedCardSide === "Front"
+            ? this.cardsData.value[0]
+            : this.cardsData.value[1];
+
+        const modifiedLine = card.canvas.getObjects().find((obj) => {
+          return obj.id === activeObject.id;
+        });
+
+        if (card.canvas)
+          this.cardHistory.value.push({
+            cardSide: card.cardSide,
+            activeObject: modifiedLine as FabricObject,
+            actionType: "modified",
+            json: card.canvas.toObject(propertiesToInclude),
+          });
+
+        this.currentActionIndex.value += 1;
+      }
+
+      if (this.cardSide === "Front") {
+        this.frontThumbnail.value = this.canvas.toDataURL();
+      } else {
+        this.backThumbnail.value = this.canvas.toDataURL();
+      }
+
+      this.currentActionIndex.value += 1;
+
+      if (this.cardHistory.value.length > 50) {
+        this.cardHistory.value.shift();
+      }
+    }
+  }
+
+  renderCanvas() {
+    if (this.canvas) this.canvas.requestRenderAll();
   }
 }
 

@@ -187,6 +187,8 @@ export function pageHandler(
           list.forEach((child) => {
             containerRef.removeChild(child);
           });
+
+        reactivePages.value = [];
       }
 
       pgCounter.value = 0;
@@ -456,7 +458,7 @@ export function pageHandler(
         canvas.requestRenderAll();
       }
 
-      apID.value = pageInstance2.pageID;
+      apID.value = pageInstance1.pageID;
     }
 
     reactivePages.value.map((page) => {

@@ -57,6 +57,11 @@ class Cover {
   loading: Ref<boolean>;
   coverSide: string;
   activeObject: Ref<FabricObject | null>;
+  activeCoverRef: Ref<string>;
+  jsonObject: object;
+  emptyJSON: string;
+  coverData: Ref<coverData[]>;
+  containerRef: HTMLCanvasElement | null;
 
   constructor(
     actualSize: { width_mm: number; height_mm: number; dpi: number },
@@ -79,19 +84,30 @@ class Cover {
     this.LeftThumbnail = cardLeftThumbnail;
     this.MiddleThumbnail = cardMiddleThumbnail;
     this.RightThumbnail = cardRightThumbnail;
-
+    this.activeCoverRef = activeCoverRef;
     this.width_px = (actualSize.width_mm / 25.4) * actualSize.dpi;
     this.height_px = (actualSize.height_mm / 25.4) * actualSize.dpi;
     this.coverHistory = coverHistory;
     this.currentActionIndex = currentActionIndex;
     this.loading = JSONLoading;
     this.activeObject = activeObjectRef;
+    this.coverData = coverData;
+    this.containerRef = containerRef;
+    this.jsonObject = {};
+    this.emptyJSON = "";
 
     this.canvas = null;
 
-    if (containerRef)
+    this.init();
+    this.overlayCreation();
+    this.handleEvents();
+    this.renderCanvas();
+  }
+
+  init() {
+    if (this.containerRef)
       this.canvas = markRaw(
-        new Canvas(containerRef, {
+        new Canvas(this.containerRef, {
           width: this.width_px,
           height: this.height_px,
           backgroundColor: "white",
@@ -100,10 +116,11 @@ class Cover {
         })
       );
 
-    if (this.canvas) {
-      let jsonObject = {};
-      let emptyJSON = "";
+    if (this.canvas) new SnapLinesHelper(this.canvas);
+  }
 
+  overlayCreation() {
+    if (this.canvas) {
       const frame = new URL("@/assets/pagesFrame.png", import.meta.url).href;
       if (frame)
         FabricImage.fromURL(frame).then((loadedImg) => {
@@ -125,8 +142,8 @@ class Cover {
 
             setTimeout(() => {
               if (this.canvas)
-                jsonObject = this.canvas.toObject(propertiesToInclude);
-              emptyJSON = JSON.stringify(jsonObject);
+                this.jsonObject = this.canvas.toObject(propertiesToInclude);
+              this.emptyJSON = JSON.stringify(this.jsonObject);
             }, 0);
 
             this.canvas.set({
@@ -134,24 +151,26 @@ class Cover {
             });
 
             setTimeout(() => {
-              if (this.canvas && coverData.value[1].canvas) {
+              if (this.canvas && this.coverData.value[1].canvas) {
                 this.LeftThumbnail.value = this.canvas.toDataURL();
                 this.RightThumbnail.value = this.canvas.toDataURL();
                 this.MiddleThumbnail.value =
-                  coverData.value[1].canvas.toDataURL();
+                  this.coverData.value[1].canvas.toDataURL();
               }
             }, 0);
 
-            this.canvas.renderAll();
+            this.renderCanvas();
           }
         });
+    }
+  }
 
-      new SnapLinesHelper(this.canvas);
-
+  handleEvents() {
+    if (this.canvas) {
       this.canvas.on("mouse:down", (e) => {
         if (e.target) this.activeObject.value = e.target;
 
-        activeCoverRef.value = this.coverSide;
+        this.activeCoverRef.value = this.coverSide;
       });
 
       this.canvas.on("object:added", (e) => {
@@ -184,16 +203,16 @@ class Cover {
             this.coverHistory.value.push({
               coverSide: this.coverSide,
               activeObject: null,
-              json: JSON.parse(emptyJSON),
+              json: JSON.parse(this.emptyJSON),
             });
-            currentActionIndex.value++;
+            this.currentActionIndex.value += 1;
           }
         }
 
         const obj = e.target as CustomLineOptions;
 
         if (e.target.id !== "frame") {
-          saveState(obj);
+          this.saveState(obj);
         }
       });
 
@@ -208,11 +227,11 @@ class Cover {
 
         const obj = e.target as CustomLineOptions;
 
-        saveState(obj);
+        this.saveState(obj);
       });
 
       this.canvas.on("object:removed", (e) => {
-        if (modeType === "cover" && this.canvas && e.target) {
+        if (this.canvas && e.target) {
           if (this.coverSide === "Left") {
             this.LeftThumbnail.value = this.canvas.toDataURL();
           } else if (this.coverSide === "Middle") {
@@ -225,7 +244,7 @@ class Cover {
         const obj = e.target as CustomLineOptions;
 
         if (e.target.id !== "frame") {
-          saveState(obj);
+          this.saveState(obj);
         }
       });
 
@@ -237,45 +256,44 @@ class Cover {
           }
         }
       });
-
-      this.canvas.requestRenderAll();
     }
+  }
 
-    const saveState = (activeObject: CustomLineOptions) => {
-      if (this.canvas && !this.loading.value) {
-        if (
-          this.currentActionIndex.value <
-          this.coverHistory.value.length - 1
-        ) {
-          this.coverHistory.value = this.coverHistory.value.slice(
-            0,
-            this.currentActionIndex.value + 1
-          );
-        }
+  renderCanvas() {
+    if (this.canvas) this.canvas.requestRenderAll();
+  }
 
-        this.loading.value = false;
-        if (this.canvas)
-          this.coverHistory.value.push({
-            coverSide: this.coverSide,
-            activeObject: activeObject,
-            json: this.canvas.toObject(),
-          });
-
-        if (this.coverSide === "Left") {
-          this.LeftThumbnail.value = this.canvas.toDataURL();
-        } else if (this.coverSide === "Right") {
-          this.RightThumbnail.value = this.canvas.toDataURL();
-        } else {
-          this.MiddleThumbnail.value = this.canvas.toDataURL();
-        }
-
-        this.currentActionIndex.value++;
-
-        if (this.coverHistory.value.length > 50) {
-          this.coverHistory.value.shift();
-        }
+  saveState(activeObject: CustomLineOptions) {
+    if (this.canvas && !this.loading.value) {
+      if (this.currentActionIndex.value < this.coverHistory.value.length - 1) {
+        this.coverHistory.value = this.coverHistory.value.slice(
+          0,
+          this.currentActionIndex.value + 1
+        );
       }
-    };
+
+      this.loading.value = false;
+      if (this.canvas)
+        this.coverHistory.value.push({
+          coverSide: this.coverSide,
+          activeObject: activeObject,
+          json: this.canvas.toObject(),
+        });
+
+      if (this.coverSide === "Left") {
+        this.LeftThumbnail.value = this.canvas.toDataURL();
+      } else if (this.coverSide === "Right") {
+        this.RightThumbnail.value = this.canvas.toDataURL();
+      } else {
+        this.MiddleThumbnail.value = this.canvas.toDataURL();
+      }
+
+      this.currentActionIndex.value += 1;
+
+      if (this.coverHistory.value.length > 50) {
+        this.coverHistory.value.shift();
+      }
+    }
   }
 }
 
