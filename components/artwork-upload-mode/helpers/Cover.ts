@@ -10,7 +10,7 @@ import { v4 as uuid } from "uuid";
 import { type Ref } from "vue";
 import SnapLinesHelper from "./snapLines";
 
-const propertiesToInclude = ["id", "linePosition", "lineType"];
+const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;

@@ -818,7 +818,7 @@ interface allPagesCanvasesRef {
 }
 // INTERFACES END
 
-const propertiesToInclude = ["id", "linePosition", "lineType"];
+const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
 
 // REACTIVE STATES
 const state = reactive<state>({
@@ -1209,7 +1209,7 @@ onMounted(() => {
 
     watch(pgActiveObj, (newVal) => {
       if (newVal) {
-        pageActiveObj.value = pgActiveObj.value;
+        pageActiveObj.value = newVal;
       }
     });
 
@@ -1236,11 +1236,16 @@ onMounted(() => {
     });
 
     watch(reactivePages, (newVal) => {
-      if (newVal && allThumbnailsRef.value) {
+      if (newVal) {
         allPages.value = newVal;
-        allPagesCanvasesRef.value = allThumbnailsRef.value;
         state.canvasSize = canvasSize.value;
         pageCounter.value = pgCounter.value;
+      }
+    });
+
+    watch(allThumbnailsRef, (newVal) => {
+      if (newVal) {
+        allPagesCanvasesRef.value = newVal;
       }
     });
 

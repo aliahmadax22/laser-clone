@@ -570,28 +570,28 @@ export const cardsHandler = function (
           cardHistoryIndex.value += 1;
           cardHistoryIndex.value += 1;
 
-          jsonLoadingRef.value = true;
-
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
               ? cardsData.value[0].canvas
               : cardsData.value[1].canvas;
+
+          jsonLoadingRef.value = true;
 
           // Wait for the canvas to load and render before breaking
           await canvas.loadFromJSON(
             cardHistory.value[cardHistoryIndex.value].json
           );
           canvas && canvas.requestRenderAll();
+          jsonLoadingRef.value = false;
         } else {
           cardHistoryIndex.value += 1;
-
-          jsonLoadingRef.value = true;
 
           const canvas =
             cardHistory.value[cardHistoryIndex.value].cardSide === "Front"
               ? cardsData.value[0].canvas
               : cardsData.value[1].canvas;
 
+          jsonLoadingRef.value = true;
           // Wait for the canvas to load and render before breaking
           await canvas.loadFromJSON(
             cardHistory.value[cardHistoryIndex.value].json

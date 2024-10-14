@@ -10,7 +10,7 @@ import { v4 as uuid } from "uuid";
 import { type Ref } from "vue";
 import SnapLinesHelper from "./snapLines";
 
-const propertiesToInclude = ["id", "linePosition", "lineType"];
+const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
@@ -52,7 +52,7 @@ class Page {
   thumbnail: Ref<string>;
   width_px: number;
   height_px: number;
-  activeObjectRef: FabricObject | null;
+  activeObjectRef: Ref<FabricObject | null>;
   allCanvasesRef: Ref<allPagesCanvasesRef>;
   history: Ref<History[]>;
   currentActionIndex: Ref<number>;
@@ -62,7 +62,7 @@ class Page {
     actualSize: { width_mm: number; height_mm: number; dpi: number },
     pageNumber: number,
     containerRef: HTMLElement | null,
-    activeObjectRef: FabricObject | null,
+    activeObjectRef: Ref<FabricObject | null>,
     allCanvasesRef: Ref<allPagesCanvasesRef>,
     history: Ref<History[]>,
     currentActionIndex: Ref<number>,
@@ -99,6 +99,7 @@ class Page {
 
     this.canvas = markRaw(
       new Canvas(this.canvasElement, {
+        id: this.pageID,
         width: this.width_px,
         height: this.height_px,
         backgroundColor: "white",
@@ -161,7 +162,7 @@ class Page {
       this.canvas.on("mouse:down", (e) => {
         const obj = e.target as FabricObject;
 
-        this.activeObjectRef = obj;
+        this.activeObjectRef.value = obj;
       });
 
       this.canvas.on("object:added", (e) => {
@@ -205,6 +206,7 @@ class Page {
 
       this.canvas.on("object:modified", (e) => {
         const obj = e.target as CustomLineOptions;
+
         if (obj.lineType === "perforation") {
           if (this.pageNumber % 2 === 0 && this.canvas) {
             const zoom = this.canvas.getZoom();

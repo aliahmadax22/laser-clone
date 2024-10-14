@@ -4,8 +4,28 @@ export class ModifyObjectHelper {
     if (activeObject) {
       const canvasWidth = cWidth;
       const canvasHeight = cHeight;
-      activeObject.scaleToWidth(canvasWidth);
-      activeObject.scaleToHeight(canvasHeight);
+
+      if (
+        activeObject &&
+        activeObject.type !== "textbox" &&
+        (activeObject.angle === 270 || activeObject.angle === 90)
+      ) {
+        activeObject.scaleToWidth(canvasWidth);
+      } else if (
+        activeObject &&
+        activeObject.type !== "textbox" &&
+        (activeObject.angle === 0 || activeObject.angle === 360)
+      ) {
+        activeObject.scaleToHeight(canvasHeight);
+      } else if (
+        activeObject &&
+        activeObject.type === "textbox" &&
+        (activeObject.angle === 270 || activeObject.angle === 90)
+      ) {
+        activeObject.scaleToHeight(canvasHeight);
+      } else {
+        activeObject.scaleToWidth(canvasWidth);
+      }
 
       activeObject.set({
         left: canvasWidth / 2,

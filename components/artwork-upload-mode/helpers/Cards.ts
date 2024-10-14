@@ -10,7 +10,7 @@ import { type Ref } from "vue";
 import SnapLinesHelper from "./snapLines";
 import { bringBleedlinesToFront } from "./bringBleedlinesToFront";
 
-const propertiesToInclude = ["id", "linePosition", "lineType"];
+const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
 
 interface cardHistory {
   cardSide: string;
@@ -263,7 +263,6 @@ class Card {
         if (
           obj.type === "line" &&
           obj.lineType === "perforation" &&
-          obj.linePosition === "vertical" &&
           !this.loading.value
         ) {
           if (this.cardSide === "Front") {
@@ -278,7 +277,7 @@ class Card {
             cardsData.value[1].canvas.requestRenderAll();
           } else if (
             this.cardSide === "Back" &&
-            obj.linePosition === "vertical"
+            obj.lineType === "perforation"
           ) {
             const mirrorLine = cardsData.value[0].canvas
               .getObjects()

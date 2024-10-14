@@ -127,7 +127,7 @@ export function pageHandler(
               actualSize,
               i,
               containerRef,
-              pgActiveObj.value as FabricObject | null,
+              pgActiveObj as Ref<FabricObject | null>,
               allThumbnailsRef as Ref<allThumbnailsRef>,
               pagesHistory as Ref<pagesHistory[]>,
               historyIndex,
@@ -199,86 +199,91 @@ export function pageHandler(
         height: height_px,
       };
 
-      pgCounter.value++;
-      const pageInstance1 = new Page(
-        actualSize,
-        pgCounter.value,
-        containerRef,
-        pgActiveObj.value as FabricObject,
-        allThumbnailsRef as Ref<allThumbnailsRef>,
-        pagesHistory as Ref<pagesHistory[]>,
-        historyIndex,
-        JSONLoading
-      );
+      const pageInstancesToCreate = 4;
+      const pageInstances = [];
+      for (let i = 1; i <= pageInstancesToCreate; i++) {
+        pageInstances.push(
+          new Page(
+            actualSize,
+            i,
+            containerRef,
+            pgActiveObj as Ref<FabricObject | null>,
+            allThumbnailsRef as Ref<allThumbnailsRef>,
+            pagesHistory as Ref<pagesHistory[]>,
+            historyIndex,
+            JSONLoading
+          )
+        );
+      }
 
-      pgCounter.value++;
-      const pageInstance2 = new Page(
-        actualSize,
-        pgCounter.value,
-        containerRef,
-        pgActiveObj.value as FabricObject,
-        allThumbnailsRef as Ref<allThumbnailsRef>,
-        pagesHistory as Ref<pagesHistory[]>,
-        historyIndex,
-        JSONLoading
-      );
+      pageInstances.map((page, index) => {
+        if (page) {
+          if (page.canvas)
+            reactivePages.value.push({
+              pageNumber: index + 1,
+              pageID: page.pageID,
+              thumbnail: page.canvas.toDataURL(),
+              canvas: page.canvas,
+              loading: page.loading.value,
+            });
+        }
+      });
 
-      if (pageInstance1.canvas && pageInstance2.canvas)
-        reactivePages.value = [
-          {
-            pageNumber: 1,
-            pageID: pageInstance1.pageID,
-            thumbnail: pageInstance1.thumbnail.value,
-            canvas: pageInstance1.canvas,
-            loading: pageInstance1.loading.value,
-          },
-          {
-            pageNumber: 2,
-            pageID: pageInstance2.pageID,
-            thumbnail: pageInstance2.thumbnail.value,
-            canvas: pageInstance2.canvas,
-            loading: pageInstance2.loading.value,
-          },
-        ];
+      const allCanvasesList = reactivePages.value.map((page) => {
+        return page.canvas;
+      });
 
-      if (pageInstance1.canvas && pageInstance2.canvas)
-        allThumbnailsRef.value = {
-          canvas: [pageInstance1.canvas, pageInstance2.canvas],
-          thumbnail: [
-            pageInstance1.thumbnail.value,
-            pageInstance2.thumbnail.value,
-          ],
-        };
+      const allThumbnailsList = reactivePages.value.map((page) => {
+        return page.thumbnail;
+      });
+
+      allThumbnailsRef.value = {
+        canvas: allCanvasesList,
+        thumbnail: allThumbnailsList,
+      };
+
+      pgCounter.value = 4;
 
       liveCanvases.value = [reactivePages.value[0], reactivePages.value[1]];
 
-      if (pageInstance1.pageNumber === 1) {
-        const canvas = pageInstance1.canvas;
-        if (canvas) {
-          const zoom = canvas.getZoom();
+      const canvas = pageInstances[0].canvas;
+      const canvas2 = pageInstances[pageInstances.length - 1].canvas;
+      if (canvas) {
+        const zoom = canvas.getZoom();
 
-          const CoverPage = new Rect({
-            id: "firstPageCover",
-            side: "left",
-            left: zoom,
-            top: 0,
-            width: canvas.width / zoom,
-            height: canvas.height / zoom,
-            fill: "darkgray",
-            selectable: false,
-            hasBorders: false,
-            hasControls: false,
-          });
+        const CoverPage = new Rect({
+          id: "firstPageCover",
+          left: zoom,
+          top: 0,
+          width: canvas.width / zoom,
+          height: canvas.height / zoom,
+          fill: "darkgray",
+          selectable: false,
+          hasBorders: false,
+          hasControls: false,
+        });
 
-          canvas.add(CoverPage);
-        }
+        const CoverPageEnd = new Rect({
+          id: "cover",
+          width: canvas.width / zoom,
+          height: canvas.height / zoom,
+          fill: "darkgray",
+          selectable: false,
+          hasBorders: false,
+          hasControls: false,
+        });
 
-        if (canvas) canvas.requestRenderAll();
-        setTimeout(() => {
-          resizeElement();
-        }, 0);
+        canvas.add(CoverPage);
+        canvas2?.add(CoverPageEnd);
       }
-      apID.value = pageInstance2.pageID;
+
+      if (canvas) canvas.requestRenderAll();
+      if (canvas2) canvas2.requestRenderAll();
+
+      setTimeout(() => {
+        resizeElement();
+      }, 0);
+      apID.value = pageInstances[1].pageID;
     }
   };
 
@@ -370,7 +375,7 @@ export function pageHandler(
       actualSize,
       pgCounter.value,
       containerRef,
-      pgActiveObj.value as FabricObject,
+      pgActiveObj as Ref<FabricObject | null>,
       allThumbnailsRef as Ref<allThumbnailsRef>,
       pagesHistory as Ref<pagesHistory[]>,
       historyIndex,
@@ -382,7 +387,7 @@ export function pageHandler(
       actualSize,
       pgCounter.value,
       containerRef,
-      pgActiveObj.value as FabricObject,
+      pgActiveObj as Ref<FabricObject | null>,
       allThumbnailsRef as Ref<allThumbnailsRef>,
       pagesHistory as Ref<pagesHistory[]>,
       historyIndex,
@@ -535,7 +540,9 @@ export function pageHandler(
                   ? pagesHistory.value[historyIndex.value].json
                   : pagesHistory.value[i].json
               );
+
             canvas && canvas.requestRenderAll();
+
             JSONLoading.value = false;
 
             loadPage(desiredPage as inlinePageWithoutRefs);
@@ -546,6 +553,7 @@ export function pageHandler(
           pagesHistory.value[historyIndex.value - 1].activeObject === null &&
           currentHistoryObject &&
           currentHistoryObject.lineType !== "perforation" &&
+          historyIndex.value <= 2 &&
           (latestHistoryObject === null ||
             (latestHistoryObject &&
               latestHistoryObject.lineType !== "perforation"))
@@ -568,6 +576,7 @@ export function pageHandler(
             await canvas.loadFromJSON(
               pagesHistory.value[historyIndex.value].json
             );
+
             canvas && canvas.requestRenderAll();
             JSONLoading.value = false;
 
@@ -917,10 +926,7 @@ export function pageHandler(
           twoRedosObject &&
           twoRedosObject.lineType === "perforation"
         ) {
-          historyIndex.value += 1;
-          historyIndex.value += 1;
-
-          JSONLoading.value = true;
+          historyIndex.value += 2;
 
           const desiredPage = reactivePages.value.find((page) => {
             return (
@@ -931,17 +937,19 @@ export function pageHandler(
 
           if (desiredPage) {
             const canvas = desiredPage.canvas;
+
+            JSONLoading.value = true;
 
             // Wait for the canvas to load and render before breaking
             await canvas.loadFromJSON(
               pagesHistory.value[historyIndex.value].json
             );
             canvas && canvas.requestRenderAll();
+
+            JSONLoading.value = false;
           }
         } else {
           historyIndex.value += 1;
-
-          JSONLoading.value = true;
 
           const desiredPage = reactivePages.value.find((page) => {
             return (
@@ -952,6 +960,7 @@ export function pageHandler(
 
           if (desiredPage) {
             const canvas = desiredPage.canvas;
+            JSONLoading.value = true;
 
             // Wait for the canvas to load and render before breaking
             await canvas.loadFromJSON(
