@@ -337,6 +337,7 @@ export const cardsHandler = function (
 
           cardHistoryIndex.value -= 1;
         } else if (
+          currentHistoryObject.lineType !== "perforation" &&
           nextUndoObject &&
           nextUndoObject.lineType === "perforation"
         ) {
@@ -415,6 +416,7 @@ export const cardsHandler = function (
               cardHistoryIndex.value -= 1;
             }
           }
+
           // CONDITION 1 PHASE 3 ENDS
         } else {
           if (

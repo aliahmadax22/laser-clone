@@ -665,7 +665,11 @@ export function pageHandler(
           }
 
           historyIndex.value -= 1;
-        } else if (currentHistoryObject.lineType === "perforation") {
+        } else if (
+          currentHistoryObject.lineType !== "perforation" &&
+          nextUndoObject &&
+          nextUndoObject.lineType === "perforation"
+        ) {
           // IF COND 1 IS true, PHASE 2: IF PERFORATION LINE IS PRESENT 2 INDEXES BELOW LATEST OR NOT
 
           // IF COND 1 PHASE 2 IS true, PHASE 3: IF PERFORATION LINE IS PRESENT 3 INDEXES BELOW LATEST OR NOT

@@ -110,9 +110,7 @@ class Page {
     this.canvas = null;
 
     this.init();
-
     this.overlayCreation();
-
     this.handleEvents();
     this.renderCanvas();
   }
