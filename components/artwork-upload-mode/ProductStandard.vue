@@ -1557,39 +1557,72 @@ const handleZoom = (e: Event) => {
   const zoom = newValue / 100;
 
   if (state.modeType === "page") {
-    if (state.currentCNV && state.canvasSize) {
+    if (state.canvasSize) {
       const width = state.canvasSize.width;
       const height = width;
 
-      state.currentCNV.map((activePages) => {
-        activePages.canvas.setDimensions({
+      allPages.value.map((page) => {
+        page.canvas.setDimensions({
           width: (width / 100) * newValue,
           height: (height / 100) * newValue,
         });
 
-        activePages.canvas.setZoom(zoom);
+        page.canvas.setZoom(zoom);
 
-        activePages.canvas.renderAll();
+        page.canvas.requestRenderAll();
       });
     }
-  } else if (state.modeType === "card") {
-    const activeCard = cardsDataRef.value.find((card) => {
-      return state.cardSide === card.cardSide;
-    });
+    // THE CODE BELOW IS FOR SEPARATE PAGE ZOOM
+    // if (state.currentCNV && state.canvasSize) {
+    //   const width = state.canvasSize.width;
+    //   const height = width;
 
-    if (activeCard && state.canvasSize) {
+    //   state.currentCNV.map((activePages) => {
+    //     activePages.canvas.setDimensions({
+    //       width: (width / 100) * newValue,
+    //       height: (height / 100) * newValue,
+    //     });
+
+    //     activePages.canvas.setZoom(zoom);
+
+    //     activePages.canvas.renderAll();
+    //   });
+    // }
+  } else if (state.modeType === "card") {
+    if (state.canvasSize) {
       const width = state.canvasSize.width;
       const height = width;
 
-      activeCard.canvas.setDimensions({
-        width: (width / 100) * newValue,
-        height: (height / 100) * newValue,
+      cardsDataRef.value.map((card) => {
+        card.canvas.setDimensions({
+          width: (width / 100) * newValue,
+          height: (height / 100) * newValue,
+        });
+
+        card.canvas.setZoom(zoom);
+
+        card.canvas.requestRenderAll();
       });
-
-      activeCard.canvas.setZoom(zoom);
-
-      activeCard.canvas.renderAll();
     }
+
+    // THE CODE BELOW IS FOR SEPARATE CARD ZOOM
+    // const activeCard = cardsDataRef.value.find((card) => {
+    //   return state.cardSide === card.cardSide;
+    // });
+
+    // if (activeCard && state.canvasSize) {
+    //   const width = state.canvasSize.width;
+    //   const height = width;
+
+    //   activeCard.canvas.setDimensions({
+    //     width: (width / 100) * newValue,
+    //     height: (height / 100) * newValue,
+    //   });
+
+    //   activeCard.canvas.setZoom(zoom);
+
+    //   activeCard.canvas.renderAll();
+    // }
   } else {
     coverDataRef.value.map((cover) => {
       if (state.canvasSize && cover.canvas) {
