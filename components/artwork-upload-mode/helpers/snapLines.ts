@@ -216,13 +216,15 @@ export class SnapLinesHelper {
     }
 
     //Bottom Snap
+    const actualHeight = this.canvas.height / zoom;
+
     if (
-      objectBotVertical > this.canvas.height - snapZone &&
-      objectBotVertical < this.canvas.height + snapZone
+      objectBotVertical > actualHeight - snapZone &&
+      objectBotVertical < actualHeight + snapZone
     ) {
       options.target
         .set({
-          top: this.canvas.height - objectTopCoord,
+          top: actualHeight - objectTopCoord,
           originY: "center",
         })
         .setCoords();
@@ -241,14 +243,16 @@ export class SnapLinesHelper {
         .setCoords();
     }
 
+    const actualWidth = this.canvas.width / zoom;
+
     //Right Snap
     if (
-      objectRightHorizontal > this.canvas.width - snapZone &&
-      objectRightHorizontal < this.canvas.width + snapZone
+      objectRightHorizontal > actualWidth - snapZone &&
+      objectRightHorizontal < actualWidth + snapZone
     ) {
       options.target
         .set({
-          left: this.canvas.width - objectLeftCoord,
+          left: actualWidth - objectLeftCoord,
           originX: "center",
         })
         .setCoords();

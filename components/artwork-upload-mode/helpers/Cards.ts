@@ -327,8 +327,14 @@ class Card {
       if (this.currentActionIndex.value < this.cardHistory.value.length - 1) {
         this.cardHistory.value = this.cardHistory.value.slice(
           0,
-          this.currentActionIndex.value + 1
+          this.currentActionIndex.value <= 1
+            ? this.currentActionIndex.value
+            : this.currentActionIndex.value + 1
         );
+
+        if (this.currentActionIndex.value === 1) {
+          this.currentActionIndex.value = 0;
+        }
       }
 
       this.loading.value = false;

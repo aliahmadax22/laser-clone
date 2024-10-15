@@ -351,8 +351,14 @@ class Page {
       if (this.currentActionIndex.value < this.history.value.length - 1) {
         this.history.value = this.history.value.slice(
           0,
-          this.currentActionIndex.value + 1
+          this.currentActionIndex.value <= 1
+            ? this.currentActionIndex.value
+            : this.currentActionIndex.value + 1
         );
+
+        if (this.currentActionIndex.value === 1) {
+          this.currentActionIndex.value = 0;
+        }
       }
 
       this.loading.value = false;

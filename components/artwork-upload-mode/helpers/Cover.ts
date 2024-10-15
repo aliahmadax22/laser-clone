@@ -268,8 +268,14 @@ class Cover {
       if (this.currentActionIndex.value < this.coverHistory.value.length - 1) {
         this.coverHistory.value = this.coverHistory.value.slice(
           0,
-          this.currentActionIndex.value + 1
+          this.currentActionIndex.value <= 1
+            ? this.currentActionIndex.value
+            : this.currentActionIndex.value + 1
         );
+
+        if (this.currentActionIndex.value === 1) {
+          this.currentActionIndex.value = 0;
+        }
       }
 
       this.loading.value = false;
