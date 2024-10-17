@@ -45,6 +45,9 @@ interface CardData {
   loading: boolean;
 }
 
+let emptyJsonFront: string;
+let emptyJsonBack: string;
+
 class Card {
   canvas: Canvas | null;
   cardID: string;
@@ -118,24 +121,33 @@ class Card {
         if (this.canvas)
           this.jsonObject = this.canvas.toObject(propertiesToInclude);
         this.emptyJSON = JSON.stringify(this.jsonObject);
-      }, 0);
+
+        if (this.cardSide === "Front" && this.canvas) {
+          const jsonObject = this.canvas.toObject(propertiesToInclude);
+          emptyJsonFront = JSON.stringify(jsonObject);
+        } else if (this.cardSide === "Back" && this.canvas) {
+          const jsonObject = this.canvas.toObject(propertiesToInclude);
+          emptyJsonBack = JSON.stringify(jsonObject);
+        }
+      }, 300);
     }
   }
 
   handleEvents() {
     if (this.canvas) {
+      const dataString = localStorage.getItem("cardsInfo");
+      const localCardsData: {
+        cardSide: string;
+        cardID: string;
+        cardJSON: JSON;
+      }[] = JSON.parse(dataString!);
+
       this.canvas.on("mouse:down", (e) => {
         if (this.activeObject && e.target) this.activeObject.value = e.target;
       });
 
       this.canvas.on("object:added", (e) => {
-        if (this.canvas && e.target) {
-          if (this.cardSide === "Front") {
-            this.frontThumbnail.value = this.canvas.toDataURL();
-          } else {
-            this.backThumbnail.value = this.canvas.toDataURL();
-          }
-        }
+        this.refreshThumbnails();
 
         const canvasObjects = this.canvas && this.canvas.getObjects();
         const obj = e.target as CustomLineOptions;
@@ -158,8 +170,11 @@ class Card {
             activeObject: null,
             json: JSON.parse(this.emptyJSON),
           });
+
           this.currentActionIndex.value += 1;
         }
+
+        this.handleEmptyHistory();
 
         if (e.target.id !== "frame") {
           this.saveState(obj);
@@ -178,13 +193,24 @@ class Card {
       });
 
       this.canvas.on("object:modified", (e) => {
-        if (this.canvas && e.target) {
-          if (this.cardSide === "Front") {
-            this.frontThumbnail.value = this.canvas.toDataURL();
-          } else {
-            this.backThumbnail.value = this.canvas.toDataURL();
-          }
+        this.refreshThumbnails();
+
+        const obj = e.target as CustomLineOptions;
+
+        if (
+          localCardsData &&
+          !this.loading.value &&
+          this.cardHistory.value.length === 0
+        ) {
+          this.cardHistory.value.push({
+            cardSide: this.cardSide,
+            activeObject: null,
+            json: JSON.parse(this.emptyJSON),
+          });
+          this.currentActionIndex.value += 1;
         }
+
+        this.handleEmptyHistory();
 
         if (e.target && this.canvas) {
           const zoom = this.canvas.getZoom();
@@ -257,18 +283,13 @@ class Card {
           }
         }
 
-        const obj = e.target as CustomLineOptions;
         this.saveState(obj, "modified");
       });
 
       this.canvas.on("object:removed", (e) => {
-        if (this.canvas && e.target) {
-          if (this.cardSide === "Front") {
-            this.frontThumbnail.value = this.canvas.toDataURL();
-          } else {
-            this.backThumbnail.value = this.canvas.toDataURL();
-          }
-        }
+        this.refreshThumbnails();
+
+        this.handleEmptyHistory();
 
         if (e.target.id !== "frame") {
           const object = e.target as CustomLineOptions;
@@ -322,15 +343,64 @@ class Card {
     }
   }
 
+  handleEmptyHistory() {
+    if (this.cardHistory.value && !this.loading.value) {
+      const empty = this.cardHistory.value.some(
+        (obj) => obj.cardSide === this.cardSide
+      );
+
+      if (empty === false) {
+        this.cardHistory.value.push({
+          cardSide: this.cardSide,
+          activeObject: null,
+          json: JSON.parse(
+            this.cardSide === "Front" ? emptyJsonFront : emptyJsonBack
+          ),
+        });
+        this.currentActionIndex.value += 1;
+      }
+    }
+  }
+
+  refreshThumbnails() {
+    if (this.cardSide === "Front" && this.canvas) {
+      this.frontThumbnail.value = this.canvas.toDataURL();
+    } else {
+      if (this.canvas) this.backThumbnail.value = this.canvas.toDataURL();
+    }
+  }
+
   saveState(activeObject: CustomLineOptions, action: string = "") {
+    const dataString = localStorage.getItem("cardsInfo");
+    const localCardsData: {
+      cardSide: string;
+      cardID: string;
+      cardJSON: JSON;
+    }[] = JSON.parse(dataString!);
+
+    const currHistory = this.cardHistory.value[this.currentActionIndex.value];
+
+    const currentHistoryObject =
+      currHistory &&
+      this.cardHistory.value[this.currentActionIndex.value].activeObject;
+
     if (this.canvas && !this.loading.value) {
       if (this.currentActionIndex.value < this.cardHistory.value.length - 1) {
         this.cardHistory.value = this.cardHistory.value.slice(
           0,
-          this.currentActionIndex.value <= 1
+          this.currentActionIndex.value <= 1 &&
+            currentHistoryObject &&
+            activeObject.lineType !== "perforation"
             ? this.currentActionIndex.value
             : this.currentActionIndex.value + 1
         );
+
+        setTimeout(() => {
+          if (this.currentActionIndex.value <= 1) {
+            this.cardHistory.value[0].cardSide =
+              this.cardHistory.value[this.currentActionIndex.value].cardSide;
+          }
+        }, 0);
 
         if (this.currentActionIndex.value === 1) {
           this.currentActionIndex.value = 0;
@@ -367,13 +437,42 @@ class Card {
         this.currentActionIndex.value += 1;
       }
 
-      if (this.cardSide === "Front") {
-        this.frontThumbnail.value = this.canvas.toDataURL();
-      } else {
-        this.backThumbnail.value = this.canvas.toDataURL();
-      }
+      this.refreshThumbnails();
 
       this.currentActionIndex.value += 1;
+
+      const otherSide = this.cardSide === "Front" ? "Back" : "Front";
+
+      const otherSideList: number[] = [];
+
+      this.cardHistory.value.map((card, index) => {
+        if (card.cardSide === otherSide) {
+          otherSideList.push(index);
+        }
+      });
+
+      if (
+        otherSideList.length === 1 &&
+        action === "modified" &&
+        localCardsData
+      ) {
+        const otherSideJson =
+          otherSide === "Front" ? emptyJsonFront : emptyJsonBack;
+
+        const emptyHistory = {
+          cardSide: otherSide,
+          activeObject: null,
+          json: JSON.parse(otherSideJson),
+        };
+
+        this.cardHistory.value.splice(
+          this.cardHistory.value.length - 1,
+          0,
+          emptyHistory
+        );
+
+        this.currentActionIndex.value += 1;
+      }
 
       if (this.cardHistory.value.length > 50) {
         this.cardHistory.value.shift();

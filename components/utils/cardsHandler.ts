@@ -140,17 +140,20 @@ export const cardsHandler = function (
       };
 
     if (localCardsData) {
-      cardsData.value.map(async (card, index) => {
-        jsonLoadingRef.value = true;
+      jsonLoadingRef.value = true;
 
-        await card.canvas
-          .loadFromJSON(localCardsData[index].cardJSON)
-          .then(() => {
-            card.canvas && card.canvas.requestRenderAll();
-
-            jsonLoadingRef.value = false;
-          });
-      });
+      await Promise.all(
+        cardsData.value.map(async (card, index) => {
+          await card.canvas
+            .loadFromJSON(localCardsData[index].cardJSON)
+            .then(() => {
+              if (card.canvas) {
+                card.canvas.requestRenderAll();
+              }
+            });
+        })
+      );
+      jsonLoadingRef.value = false;
     } else {
       jsonLoadingRef.value = true;
       cardsData.value.map((card) => {
@@ -246,9 +249,12 @@ export const cardsHandler = function (
 
           const desiredHistory = cardHistory.value[cardHistoryIndex.value];
           const desiredObject = desiredHistory.activeObject;
-          if (desiredObject && desiredObject.lineType !== "perforation")
-            activeCardRef.value =
-              cardHistory.value[cardHistoryIndex.value].cardSide;
+
+          if (
+            !desiredObject ||
+            (desiredObject && desiredObject.lineType !== "perforation")
+          )
+            activeCardRef.value = desiredHistory.cardSide;
 
           break;
         }
@@ -539,6 +545,12 @@ export const cardsHandler = function (
       if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         cardHistoryIndex.value += 1;
       } else {
+        console.log(
+          "history on undo",
+          cardHistory.value,
+          cardHistoryIndex.value
+        );
+
         loadFromJson("undo");
       }
     }

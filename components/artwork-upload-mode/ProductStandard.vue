@@ -1029,6 +1029,8 @@ onMounted(() => {
         });
 
         localStorage.removeItem("cardsInfo");
+        // const historyString = JSON.stringify(cardsInfo);
+        // localStorage.setItem("cardsInfo", historyString);
       }
     });
 
