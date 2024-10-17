@@ -347,14 +347,29 @@ class Page {
   }
 
   saveState(activeObject: CustomLineOptions, action: string = "") {
+    const currHistory = this.history.value[this.currentActionIndex.value];
+
+    const currentHistoryObject =
+      currHistory &&
+      this.history.value[this.currentActionIndex.value].activeObject;
+
     if (this.canvas && !this.loading.value) {
       if (this.currentActionIndex.value < this.history.value.length - 1) {
         this.history.value = this.history.value.slice(
           0,
-          this.currentActionIndex.value <= 1
+          this.currentActionIndex.value <= 1 &&
+            currentHistoryObject &&
+            activeObject.lineType !== "perforation"
             ? this.currentActionIndex.value
             : this.currentActionIndex.value + 1
         );
+
+        setTimeout(() => {
+          if (this.currentActionIndex.value <= 1) {
+            this.history.value[0].pageNumber =
+              this.history.value[this.currentActionIndex.value].pageNumber;
+          }
+        }, 0);
 
         if (this.currentActionIndex.value === 1) {
           this.currentActionIndex.value = 0;

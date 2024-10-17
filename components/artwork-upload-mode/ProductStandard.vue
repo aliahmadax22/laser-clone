@@ -129,6 +129,7 @@
               </button>
 
               <button
+                v-if="state.modeType !== 'cover'"
                 @click="
                   addPerforationLineHorizontal(
                     state.modeType,
@@ -143,6 +144,7 @@
                 Add Perforation Line Horizontal
               </button>
               <button
+                v-if="state.modeType !== 'cover'"
                 @click="
                   addPerforationLineVertical(
                     state.modeType,
@@ -293,41 +295,14 @@
                 >
                   Generate QR Code
                 </button>
-                <!-- <button
-                  @click="
-                    handlePageMode(
-                      state.currentCNV as inlinePage[],
-                      activePageID,
-                      allPagesCanvasesRef as allPagesCanvasesRef,
-                      inlinePages,
-                      containerRef,
-                      actualSize,
-                      state.canvasSize,
-                      pageCounter,
-                      pageActiveObj as FabricObject | null,
-                      history,
-                      currentActionIndex
-                    );
-                    switchToPage();
-                  "
-                >
-                  Page Mode
-                </button> -->
 
                 <button @click="switchToPage()">Page Mode</button>
-
-                <!-- <button
-                  v-if="state.modeType === 'page'"
-                  @click="handlePageCover"
-                >
-                  Page Cover
-                </button> -->
 
                 <button @click="switchToCard()">Card Mode</button>
 
                 <button @click="switchToCover()">Cover Mode</button>
 
-                <div>
+                <div v-if="state.modeType === 'page'">
                   Move Page From:
                   <input
                     v-model="state.pageSwapFrom"

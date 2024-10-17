@@ -273,6 +273,13 @@ class Cover {
             : this.currentActionIndex.value + 1
         );
 
+        setTimeout(() => {
+          if (this.currentActionIndex.value <= 1) {
+            this.coverHistory.value[0].coverSide =
+              this.coverHistory.value[this.currentActionIndex.value].coverSide;
+          }
+        }, 0);
+
         if (this.currentActionIndex.value === 1) {
           this.currentActionIndex.value = 0;
         }
