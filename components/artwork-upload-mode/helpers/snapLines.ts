@@ -17,7 +17,9 @@ export class SnapLinesHelper {
   private init() {
     this.fabricHelper = new FabricHelper(this.canvas);
     this.declareLines();
-    this.canvas.on("object:moving", this.showSnapLines.bind(this));
+    this.canvas.on("object:moving", (e) => {
+      this.showSnapLines(e);
+    });
   }
 
   private declareLines() {

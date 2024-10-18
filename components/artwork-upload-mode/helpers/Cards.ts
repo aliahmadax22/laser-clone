@@ -7,10 +7,17 @@ import {
 } from "fabric";
 import { v4 as uuid } from "uuid";
 import { type Ref } from "vue";
-import SnapLinesHelper from "./snapLines";
+// import SnapLinesHelper from "./snapLines";
 import { bringBleedlinesToFront } from "./bringBleedlinesToFront";
+import SnaplinesBeta from "./snapsbeta";
 
-const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
+const propertiesToInclude = [
+  "id",
+  "linePosition",
+  "lineType",
+  "padding",
+  "visible",
+];
 
 interface cardHistory {
   cardSide: string;
@@ -115,7 +122,8 @@ class Card {
       );
 
     if (this.canvas) {
-      new SnapLinesHelper(this.canvas);
+      // new SnapLinesHelper(this.canvas);
+      new SnaplinesBeta(this.canvas);
 
       setTimeout(() => {
         if (this.canvas)

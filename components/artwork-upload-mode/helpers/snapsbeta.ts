@@ -12,7 +12,7 @@ class SnaplinesBeta {
 
   constructor(canvas: Canvas) {
     this.canvas = canvas;
-    this.snapTolerance = 10; // Pixels within which snaplines appear
+    this.snapTolerance = 3; // Pixels within which snaplines appear
     const zoom = this.canvas.getZoom();
 
     // Create the snaplines (invisible by default)
@@ -25,7 +25,8 @@ class SnaplinesBeta {
       ],
       {
         stroke: "red",
-        strokeWidth: 4,
+        lineType: "snap",
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         visible: false,
@@ -37,11 +38,12 @@ class SnaplinesBeta {
         this.canvas.width / 2 / zoom,
         0,
         this.canvas.width / 2 / zoom,
-        this.canvas.width / zoom,
+        this.canvas.height / zoom,
       ],
       {
         stroke: "red",
-        strokeWidth: 4,
+        lineType: "snap",
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         visible: false,
@@ -50,7 +52,8 @@ class SnaplinesBeta {
 
     this.topLine = new Line([0, 0, this.canvas.width! / zoom, 0], {
       stroke: "red",
-      strokeWidth: 4,
+      lineType: "snap",
+      strokeWidth: 1,
       selectable: false,
       evented: false,
       visible: false,
@@ -65,7 +68,8 @@ class SnaplinesBeta {
       ],
       {
         stroke: "red",
-        strokeWidth: 4,
+        lineType: "snap",
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         visible: false,
@@ -74,7 +78,8 @@ class SnaplinesBeta {
 
     this.leftLine = new Line([0, 0, 0, this.canvas.height! / zoom], {
       stroke: "red",
-      strokeWidth: 4,
+      lineType: "snap",
+      strokeWidth: 1,
       selectable: false,
       evented: false,
       visible: false,
@@ -84,7 +89,8 @@ class SnaplinesBeta {
       [canvas.width! / zoom, 0, canvas.width! / zoom, canvas.height! / zoom],
       {
         stroke: "red",
-        strokeWidth: 4,
+        lineType: "snap",
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         visible: false,
@@ -119,8 +125,8 @@ class SnaplinesBeta {
   // Show or hide the snaplines based on object position
   updateSnaplines(object: FabricObject) {
     const zoom = this.canvas.getZoom();
-    const canvasCenterX = this.canvas.width! / 2 / zoom;
-    const canvasCenterY = this.canvas.height! / 2 / zoom;
+    const canvasCenterX = this.canvas.width / 2 / zoom;
+    const canvasCenterY = this.canvas.height / 2 / zoom;
 
     // const objectCenterX = object.left! + object.width! / 2;
 
@@ -136,6 +142,37 @@ class SnaplinesBeta {
         ? object.top
         : (object.height * object.scaleY) / 2 + object.top;
 
+    const objectTop = Math.abs(
+      object.type !== "textbox"
+        ? object.top * object.scaleY
+        : object.top - (object.height * object.scaleY) / 2
+    );
+
+    const objectBottom = Math.abs(
+      object.type !== "textbox"
+        ? object.top + object.height * object.scaleY - this.canvas.height / zoom
+        : object.top +
+            (object.height * object.scaleY) / 2 -
+            this.canvas.height / zoom
+    );
+
+    const objectLeft = Math.abs(
+      object.type !== "textbox"
+        ? object.left * object.scaleX
+        : object.left - (object.width * object.scaleX) / 2
+    );
+
+    const objectRight = Math.abs(
+      object.type !== "textbox"
+        ? object.left + object.width * object.scaleX - this.canvas.width / zoom
+        : object.left +
+            (object.width * object.scaleX) / 2 -
+            this.canvas.width / zoom
+    );
+
+    const actualHeight = this.canvas.height / zoom;
+    const actualWidth = this.canvas.width / zoom;
+
     // Show horizontal center line if object is close to horizontal center
     this.horizontalCenterLine.set({
       visible:
@@ -144,9 +181,15 @@ class SnaplinesBeta {
           : false,
     });
 
-    if (objectCenterY - canvasCenterY < this.snapTolerance) {
+    if (
+      objectCenterY > canvasCenterY - this.snapTolerance &&
+      objectCenterY < canvasCenterY + this.snapTolerance
+    ) {
       object.set({
-        top: canvasCenterY - object.height! / 2,
+        top:
+          object.type !== "image" && object.type !== "group"
+            ? canvasCenterY
+            : canvasCenterY - (object.height * object.scaleY) / 2,
       });
     }
 
@@ -156,29 +199,45 @@ class SnaplinesBeta {
       Math.abs(objectCenterX - canvasCenterX) < this.snapTolerance
     );
 
+    if (
+      objectCenterX > canvasCenterX - this.snapTolerance &&
+      objectCenterX < canvasCenterX + this.snapTolerance
+    ) {
+      object.set({
+        left:
+          object.type !== "image" && object.type !== "group"
+            ? canvasCenterX
+            : canvasCenterX - (object.width * object.scaleX) / 2,
+      });
+    }
+
     // Show top line if object is close to the top
     this.topLine.set(
       "visible",
-      Math.abs(
-        object.type !== "textbox"
-          ? object.top * object.scaleY
-          : object.top - (object.height * object.scaleY) / 2
-      ) < this.snapTolerance
+      objectTop > 0 - this.snapTolerance && objectTop < 0 + this.snapTolerance
     );
 
+    if (
+      objectTop > 0 - this.snapTolerance &&
+      objectTop < 0 + this.snapTolerance
+    ) {
+      object.set({
+        top: Math.abs(object.type !== "textbox" ? 0 : 0 + object.height / 2),
+      });
+    }
+
     // Show bottom line if object is close to the bottom
-    this.bottomLine.set(
-      "visible",
-      Math.abs(
-        object.type !== "textbox"
-          ? object.top +
-              object.height * object.scaleY -
-              this.canvas.height / zoom
-          : object.top +
-              (object.height * object.scaleY) / 2 -
-              this.canvas.height / zoom
-      ) < this.snapTolerance
-    );
+    this.bottomLine.set("visible", objectBottom < this.snapTolerance);
+
+    if (objectBottom < this.snapTolerance) {
+      object.set({
+        top:
+          actualHeight -
+          (object.type !== "textbox"
+            ? object.height * object.scaleY
+            : (object.height / 2) * object.scaleY),
+      });
+    }
 
     // Show left line if object is close to the left edge
     this.leftLine.set(
@@ -189,6 +248,15 @@ class SnaplinesBeta {
           : object.left - (object.width * object.scaleX) / 2
       ) < this.snapTolerance
     );
+
+    if (
+      objectLeft > 0 - this.snapTolerance &&
+      objectLeft < 0 + this.snapTolerance
+    ) {
+      object.set({
+        left: Math.abs(object.type !== "textbox" ? 0 : 0 + object.width / 2),
+      });
+    }
 
     // Show right line if object is close to the right edge
     this.rightLine.set(
@@ -203,6 +271,16 @@ class SnaplinesBeta {
               this.canvas.width / zoom
       ) < this.snapTolerance
     );
+
+    if (objectRight < this.snapTolerance) {
+      object.set({
+        left:
+          actualWidth -
+          (object.type !== "textbox"
+            ? object.width * object.scaleX
+            : (object.width / 2) * object.scaleX),
+      });
+    }
 
     // Render canvas to reflect changes
     this.canvas.renderAll();

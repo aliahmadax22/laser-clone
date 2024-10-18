@@ -8,9 +8,16 @@ import {
 } from "fabric";
 import { v4 as uuid } from "uuid";
 import { type Ref } from "vue";
-import SnapLinesHelper from "./snapLines";
+// import SnapLinesHelper from "./snapLines";
+import SnaplinesBeta from "./snapsbeta";
 
-const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
+const propertiesToInclude = [
+  "id",
+  "linePosition",
+  "lineType",
+  "padding",
+  "visible",
+];
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
@@ -130,7 +137,8 @@ class Page {
 
     if (this.canvas) {
       this.canvas.wrapperEl.style.border = "2px solid black";
-      new SnapLinesHelper(this.canvas);
+      // new SnapLinesHelper(this.canvas);
+      new SnaplinesBeta(this.canvas);
     }
   }
 

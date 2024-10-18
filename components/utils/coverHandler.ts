@@ -5,6 +5,7 @@ import {
   type TOriginY,
 } from "fabric";
 import Cover from "../artwork-upload-mode/helpers/Cover";
+import SnaplinesBeta from "../artwork-upload-mode/helpers/snapsbeta";
 
 export const coverHandler = function (
   coverLeftRef: Ref<HTMLCanvasElement | null>,
@@ -58,13 +59,13 @@ export const coverHandler = function (
 
   const actualSize = {
     width_mm: 120,
-    height_mm: 150,
+    height_mm: 120,
     dpi: 120,
   };
 
   const middleSize = {
-    width_mm: 20,
-    height_mm: 150,
+    width_mm: 40,
+    height_mm: 120,
     dpi: 120,
   };
 
@@ -216,13 +217,25 @@ export const coverHandler = function (
             jsonLoadingRef.value = true;
 
             if (canvas)
-              await canvas.loadFromJSON(
-                coverHistoryIndex.value <= 1
-                  ? coverHistory.value[coverHistoryIndex.value].json
-                  : coverHistory.value[i].json
-              );
+              await canvas
+                .loadFromJSON(
+                  coverHistoryIndex.value <= 1
+                    ? coverHistory.value[coverHistoryIndex.value].json
+                    : coverHistory.value[i].json
+                )
+                .then(() => {
+                  canvas.getObjects().map((obj) => {
+                    const object = obj as CustomLineOptions;
+
+                    if (object.lineType === "snap") {
+                      canvas.remove(object);
+                    }
+                  });
+
+                  new SnaplinesBeta(canvas as Canvas);
+                  jsonLoadingRef.value = false;
+                });
             canvas && canvas.requestRenderAll();
-            jsonLoadingRef.value = false;
           }
 
           activeCoverRef.value = coverHistory.value[i].coverSide;
@@ -247,11 +260,21 @@ export const coverHandler = function (
             jsonLoadingRef.value = true;
 
             // Wait for the canvas to load and render before continuing
-            await canvas.loadFromJSON(
-              coverHistory.value[coverHistoryIndex.value].json
-            );
+            await canvas
+              .loadFromJSON(coverHistory.value[coverHistoryIndex.value].json)
+              .then(() => {
+                canvas.getObjects().map((obj) => {
+                  const object = obj as CustomLineOptions;
+
+                  if (object.lineType === "snap") {
+                    canvas.remove(object);
+                  }
+                });
+
+                new SnaplinesBeta(canvas as Canvas);
+                jsonLoadingRef.value = false;
+              });
             canvas && canvas.requestRenderAll();
-            jsonLoadingRef.value = false;
           }
 
           if (
@@ -277,8 +300,21 @@ export const coverHandler = function (
 
       if (desiredCover)
         await desiredCover.canvas.loadFromJSON(historyToLoad.json).then(() => {
-          desiredCover && desiredCover.canvas.requestRenderAll();
-          jsonLoadingRef.value = false;
+          const canvas = desiredCover.canvas;
+          if (canvas) {
+            canvas.getObjects().map((obj) => {
+              const object = obj as CustomLineOptions;
+
+              if (object.lineType === "snap") {
+                canvas.remove(object);
+              }
+            });
+
+            new SnaplinesBeta(canvas as Canvas);
+
+            canvas.requestRenderAll();
+            jsonLoadingRef.value = false;
+          }
         });
     }
   };

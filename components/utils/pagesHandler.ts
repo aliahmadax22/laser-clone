@@ -7,6 +7,7 @@ import {
   type TOriginY,
 } from "fabric";
 import Page from "../artwork-upload-mode/helpers/Pages";
+import SnaplinesBeta from "../artwork-upload-mode/helpers/snapsbeta";
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
@@ -537,15 +538,27 @@ export function pageHandler(
 
             // Wait for the canvas to load and render before continuing
             if (canvas)
-              await canvas.loadFromJSON(
-                historyIndex.value <= 1
-                  ? pagesHistory.value[historyIndex.value].json
-                  : pagesHistory.value[i].json
-              );
+              await canvas
+                .loadFromJSON(
+                  historyIndex.value <= 1
+                    ? pagesHistory.value[historyIndex.value].json
+                    : pagesHistory.value[i].json
+                )
+                .then(() => {
+                  canvas.getObjects().map((obj) => {
+                    const object = obj as CustomLineOptions;
 
-            canvas && canvas.requestRenderAll();
+                    if (object.lineType === "snap") {
+                      canvas.remove(object);
+                    }
+                  });
 
-            JSONLoading.value = false;
+                  new SnaplinesBeta(canvas as Canvas);
+
+                  canvas && canvas.requestRenderAll();
+
+                  JSONLoading.value = false;
+                });
 
             loadPage(desiredPage as inlinePageWithoutRefs);
           }
@@ -575,12 +588,23 @@ export function pageHandler(
             JSONLoading.value = true;
 
             // Wait for the canvas to load and render before continuing
-            await canvas.loadFromJSON(
-              pagesHistory.value[historyIndex.value].json
-            );
+            await canvas
+              .loadFromJSON(pagesHistory.value[historyIndex.value].json)
+              .then(() => {
+                canvas.getObjects().map((obj) => {
+                  const object = obj as CustomLineOptions;
 
-            canvas && canvas.requestRenderAll();
-            JSONLoading.value = false;
+                  if (object.lineType === "snap") {
+                    canvas.remove(object);
+                  }
+                });
+
+                new SnaplinesBeta(canvas as Canvas);
+
+                canvas && canvas.requestRenderAll();
+
+                JSONLoading.value = false;
+              });
 
             loadPage(desiredPage as inlinePageWithoutRefs);
           }
@@ -601,8 +625,21 @@ export function pageHandler(
 
       if (desiredPage)
         await desiredPage.canvas.loadFromJSON(historyToLoad.json).then(() => {
-          desiredPage.canvas && desiredPage.canvas.requestRenderAll();
-          JSONLoading.value = false;
+          const canvas = desiredPage.canvas;
+          if (canvas) {
+            canvas.getObjects().map((obj) => {
+              const object = obj as CustomLineOptions;
+
+              if (object.lineType === "snap") {
+                canvas.remove(object);
+              }
+            });
+
+            new SnaplinesBeta(canvas as Canvas);
+
+            canvas.requestRenderAll();
+            JSONLoading.value = false;
+          }
         });
     }
   };

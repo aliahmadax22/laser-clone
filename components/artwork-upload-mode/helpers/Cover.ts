@@ -8,9 +8,16 @@ import {
 } from "fabric";
 import { v4 as uuid } from "uuid";
 import { type Ref } from "vue";
-import SnapLinesHelper from "./snapLines";
+// import SnapLinesHelper from "./snapLines";
+import SnaplinesBeta from "./snapsbeta";
 
-const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
+const propertiesToInclude = [
+  "id",
+  "linePosition",
+  "lineType",
+  "padding",
+  "visible",
+];
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
@@ -116,7 +123,8 @@ class Cover {
         })
       );
 
-    if (this.canvas) new SnapLinesHelper(this.canvas);
+    // if (this.canvas) new SnapLinesHelper(this.canvas);
+    if (this.canvas) new SnaplinesBeta(this.canvas);
   }
 
   overlayCreation() {

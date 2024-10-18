@@ -6,6 +6,7 @@ import {
 } from "fabric";
 import Card from "../artwork-upload-mode/helpers/Cards";
 import CustomBleedLine from "../artwork-upload-mode/helpers/customBleedLines";
+import SnaplinesBeta from "../artwork-upload-mode/helpers/snapsbeta";
 
 export const cardsHandler = function (
   cardFrontRef: Ref<HTMLCanvasElement | null>,
@@ -215,6 +216,16 @@ export const cardsHandler = function (
                 : cardHistory.value[i].json
             )
             .then(() => {
+              canvas.getObjects().map((obj) => {
+                const object = obj as CustomLineOptions;
+
+                if (object.lineType === "snap") {
+                  canvas.remove(object);
+                }
+              });
+
+              new SnaplinesBeta(canvas as Canvas);
+
               jsonLoadingRef.value = false;
             });
           canvas && canvas.requestRenderAll();
@@ -249,6 +260,15 @@ export const cardsHandler = function (
           await canvas
             .loadFromJSON(cardHistory.value[cardHistoryIndex.value].json)
             .then(() => {
+              canvas.getObjects().map((obj) => {
+                const object = obj as CustomLineOptions;
+
+                if (object.lineType === "snap") {
+                  canvas.remove(object);
+                }
+              });
+
+              new SnaplinesBeta(canvas as Canvas);
               jsonLoadingRef.value = false;
             });
           canvas && canvas.requestRenderAll();
@@ -285,9 +305,21 @@ export const cardsHandler = function (
 
       if (desiredCard)
         await desiredCard.canvas.loadFromJSON(historyToLoad.json).then(() => {
-          desiredCard.canvas && desiredCard.canvas.requestRenderAll();
+          const canvas = desiredCard.canvas;
+          if (canvas) {
+            canvas.getObjects().map((obj) => {
+              const object = obj as CustomLineOptions;
 
-          jsonLoadingRef.value = false;
+              if (object.lineType === "snap") {
+                canvas.remove(object);
+              }
+            });
+
+            new SnaplinesBeta(canvas as Canvas);
+
+            canvas.requestRenderAll();
+            jsonLoadingRef.value = false;
+          }
         });
     }
   };
