@@ -123,7 +123,7 @@ class Card {
 
     if (this.canvas) {
       // new SnapLinesHelper(this.canvas);
-      new SnaplinesBeta(this.canvas);
+      if (!this.loading.value) new SnaplinesBeta(this.canvas);
 
       setTimeout(() => {
         if (this.canvas)
@@ -170,7 +170,7 @@ class Card {
 
         // if (
         //   canvasObjects &&
-        //   canvasObjects.length <= 7 &&
+        //   canvasObjects.length <= 11 &&
         //   !this.loading.value &&
         //   this.emptyJSON
         // ) {
@@ -364,7 +364,7 @@ class Card {
 
     if (
       canvasObjects &&
-      canvasObjects.length <= 7 &&
+      canvasObjects.length <= 11 &&
       action === "add" &&
       !this.loading.value &&
       this.emptyJSON
@@ -389,7 +389,7 @@ class Card {
       this.cardHistory.value &&
       !this.loading.value &&
       canvasObjects &&
-      canvasObjects.length >= 7 &&
+      canvasObjects.length >= 11 &&
       localCardsData
     ) {
       const empty = this.cardHistory.value.some(

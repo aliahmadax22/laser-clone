@@ -203,7 +203,7 @@ class Page {
 
     if (
       canvasObjects &&
-      canvasObjects.length <= 3 &&
+      canvasObjects.length <= 7 &&
       action === "add" &&
       canvasObjects[2] &&
       canvasObjects[2].type !== "rect" &&
@@ -230,7 +230,7 @@ class Page {
       this.history.value &&
       !this.loading.value &&
       canvasObjects &&
-      canvasObjects.length >= 3 &&
+      canvasObjects.length >= 7 &&
       localCardsData
     ) {
       const empty = this.history.value.some(
@@ -271,7 +271,7 @@ class Page {
 
           // if (
           //   canvasObjects &&
-          //   canvasObjects.length <= 3 &&
+          //   canvasObjects.length <= 7 &&
           //   canvasObjects[2] &&
           //   canvasObjects[2].type !== "rect" &&
           //   !this.loading.value &&
