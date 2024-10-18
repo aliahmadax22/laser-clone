@@ -205,7 +205,7 @@ class Cover {
 
           if (
             canvasObjects &&
-            canvasObjects.length <= 3 &&
+            canvasObjects.length <= 7 &&
             !this.loading.value
           ) {
             this.coverHistory.value.push({
