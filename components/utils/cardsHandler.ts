@@ -149,6 +149,7 @@ export const cardsHandler = function (
             .then(() => {
               if (card.canvas) {
                 card.canvas.requestRenderAll();
+                jsonLoadingRef.value = false;
               }
             });
         })
@@ -207,13 +208,17 @@ export const cardsHandler = function (
           jsonLoadingRef.value = true;
 
           // Wait for the canvas to load and render before continuing
-          await canvas.loadFromJSON(
-            cardHistoryIndex.value <= 1
-              ? cardHistory.value[cardHistoryIndex.value].json
-              : cardHistory.value[i].json
-          );
+          await canvas
+            .loadFromJSON(
+              cardHistoryIndex.value <= 1
+                ? cardHistory.value[cardHistoryIndex.value].json
+                : cardHistory.value[i].json
+            )
+            .then(() => {
+              jsonLoadingRef.value = false;
+            });
           canvas && canvas.requestRenderAll();
-          jsonLoadingRef.value = false;
+
           const desiredHistoryObject = cardHistory.value[i].activeObject;
 
           if (
@@ -241,11 +246,12 @@ export const cardsHandler = function (
           jsonLoadingRef.value = true;
 
           // Wait for the canvas to load and render before continuing
-          await canvas.loadFromJSON(
-            cardHistory.value[cardHistoryIndex.value].json
-          );
+          await canvas
+            .loadFromJSON(cardHistory.value[cardHistoryIndex.value].json)
+            .then(() => {
+              jsonLoadingRef.value = false;
+            });
           canvas && canvas.requestRenderAll();
-          jsonLoadingRef.value = false;
 
           const desiredHistory = cardHistory.value[cardHistoryIndex.value];
           const desiredObject = desiredHistory.activeObject;
@@ -333,9 +339,10 @@ export const cardsHandler = function (
 
               jsonLoadingRef.value = true;
 
-              await canvas.loadFromJSON(cardHistory.value[i].json);
+              await canvas.loadFromJSON(cardHistory.value[i].json).then(() => {
+                jsonLoadingRef.value = false;
+              });
               canvas && canvas.requestRenderAll();
-              jsonLoadingRef.value = false;
 
               break;
             }
@@ -359,11 +366,13 @@ export const cardsHandler = function (
             jsonLoadingRef.value = true;
 
             // Wait for the canvas to load and render before continuing
-            await canvas.loadFromJSON(
-              cardHistory.value[cardHistoryIndex.value - 2].json
-            );
+            await canvas
+              .loadFromJSON(cardHistory.value[cardHistoryIndex.value - 2].json)
+              .then(() => {
+                jsonLoadingRef.value = false;
+              });
             canvas && canvas.requestRenderAll();
-            jsonLoadingRef.value = false;
+
             cardHistoryIndex.value -= 1;
           } else {
             // IF OBJECT IS NULL 4 INDEXES BELOW LATEST THEN RUN LOOPS ELSE DO NOTHING
@@ -390,9 +399,12 @@ export const cardsHandler = function (
                   jsonLoadingRef.value = true;
 
                   // Wait for the canvas to load and render before continuing
-                  await canvas.loadFromJSON(cardHistory.value[i].json);
+                  await canvas
+                    .loadFromJSON(cardHistory.value[i].json)
+                    .then(() => {
+                      jsonLoadingRef.value = false;
+                    });
                   canvas && canvas.requestRenderAll();
-                  jsonLoadingRef.value = false;
 
                   // Now that the canvas loading is done, we can safely start the inner loop
                   for (let j = indexToStartFrom - 1; j >= 0; j--) {
@@ -408,9 +420,12 @@ export const cardsHandler = function (
                       jsonLoadingRef.value = true;
 
                       // Wait for the canvas to load and render before breaking
-                      await canvas.loadFromJSON(cardHistory.value[j].json);
+                      await canvas
+                        .loadFromJSON(cardHistory.value[j].json)
+                        .then(() => {
+                          jsonLoadingRef.value = false;
+                        });
                       canvas && canvas.requestRenderAll();
-                      jsonLoadingRef.value = false;
 
                       break; // Exit the inner loop after loading from the JSON
                     }
@@ -442,9 +457,12 @@ export const cardsHandler = function (
                 jsonLoadingRef.value = true;
 
                 // Wait for the canvas to load and render before continuing
-                await canvas.loadFromJSON(cardHistory.value[i].json);
+                await canvas
+                  .loadFromJSON(cardHistory.value[i].json)
+                  .then(() => {
+                    jsonLoadingRef.value = false;
+                  });
                 canvas && canvas.requestRenderAll();
-                jsonLoadingRef.value = false;
 
                 break; // Exit the outer loop after the first match is processed
               }
@@ -473,7 +491,7 @@ export const cardsHandler = function (
                   jsonLoadingRef.value = true;
 
                   // Wait for the canvas to load and render before continuing
-                  await canvas.loadFromJSON(cardHistory.value[i].json);
+                  await canvas.loadFromJSON(cardHistory.value[i].json).then;
                   canvas && canvas.requestRenderAll();
                   jsonLoadingRef.value = false;
 
@@ -545,12 +563,6 @@ export const cardsHandler = function (
       if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         cardHistoryIndex.value += 1;
       } else {
-        console.log(
-          "history on undo",
-          cardHistory.value,
-          cardHistoryIndex.value
-        );
-
         loadFromJson("undo");
       }
     }

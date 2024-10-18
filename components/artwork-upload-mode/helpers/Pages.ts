@@ -183,6 +183,63 @@ class Page {
     }
   }
 
+  handleEmptyHistory(action: string = "") {
+    const dataString = localStorage.getItem("pagesInfo");
+    const localCardsData: {
+      pageNumber: string;
+      cardID: string;
+      cardJSON: JSON;
+    }[] = JSON.parse(dataString!);
+
+    const canvasObjects = this.canvas && this.canvas.getObjects();
+
+    if (
+      canvasObjects &&
+      canvasObjects.length <= 3 &&
+      action === "add" &&
+      canvasObjects[2] &&
+      canvasObjects[2].type !== "rect" &&
+      !this.loading.value &&
+      this.emptyJSON
+    ) {
+      this.history.value.push({
+        pageNumber: this.pageNumber,
+        activeObject: null,
+        json: JSON.parse(this.emptyJSON),
+      });
+
+      if (this.currentActionIndex.value === 0) {
+        const historyHighestIndex = this.history.value.length - 1;
+
+        const historyCopy = [...this.history.value];
+        const slicedHistory = historyCopy.slice(historyHighestIndex);
+
+        this.history.value = slicedHistory;
+      }
+
+      this.currentActionIndex.value += 1;
+    } else if (
+      this.history.value &&
+      !this.loading.value &&
+      canvasObjects &&
+      canvasObjects.length >= 3 &&
+      localCardsData
+    ) {
+      const empty = this.history.value.some(
+        (obj) => obj.pageNumber === this.pageNumber
+      );
+
+      if (empty === false) {
+        this.history.value.push({
+          pageNumber: this.pageNumber,
+          activeObject: null,
+          json: JSON.parse(this.emptyJSON),
+        });
+        this.currentActionIndex.value += 1;
+      }
+    }
+  }
+
   handleEvents() {
     if (this.canvas) {
       this.canvas.on("mouse:down", (e) => {
@@ -200,25 +257,27 @@ class Page {
         }, 0);
 
         if (this.canvas) {
-          const canvasObjects = this.canvas.getObjects();
+          // const canvasObjects = this.canvas.getObjects();
 
           const obj = e.target as CustomLineOptions;
 
-          if (
-            canvasObjects &&
-            canvasObjects.length <= 3 &&
-            canvasObjects[2] &&
-            canvasObjects[2].type !== "rect" &&
-            !this.loading.value &&
-            this.emptyJSON
-          ) {
-            this.history.value.push({
-              pageNumber: this.pageNumber,
-              activeObject: null,
-              json: JSON.parse(this.emptyJSON),
-            });
-            this.currentActionIndex.value += 1;
-          }
+          // if (
+          //   canvasObjects &&
+          //   canvasObjects.length <= 3 &&
+          //   canvasObjects[2] &&
+          //   canvasObjects[2].type !== "rect" &&
+          //   !this.loading.value &&
+          //   this.emptyJSON
+          // ) {
+          //   this.history.value.push({
+          //     pageNumber: this.pageNumber,
+          //     activeObject: null,
+          //     json: JSON.parse(this.emptyJSON),
+          //   });
+          //   this.currentActionIndex.value += 1;
+          // }
+
+          this.handleEmptyHistory("add");
 
           if (!excludedIds.includes(obj.id as TargetID)) {
             this.saveState(obj);
@@ -291,6 +350,8 @@ class Page {
           }
         }
 
+        this.handleEmptyHistory();
+
         if (e.target && this.thumbnail && this.canvas) {
           this.allCanvasesRef.value.thumbnail[this.pageNumber - 1] =
             this.canvas.toDataURL();
@@ -301,6 +362,8 @@ class Page {
 
       this.canvas.on("object:removed", (e) => {
         const obj = e.target as CustomLineOptions;
+
+        this.handleEmptyHistory();
 
         if (
           e.target &&
@@ -364,13 +427,6 @@ class Page {
             : this.currentActionIndex.value + 1
         );
 
-        setTimeout(() => {
-          if (this.currentActionIndex.value <= 1) {
-            this.history.value[0].pageNumber =
-              this.history.value[this.currentActionIndex.value].pageNumber;
-          }
-        }, 0);
-
         if (this.currentActionIndex.value === 1) {
           this.currentActionIndex.value = 0;
         }
@@ -409,7 +465,11 @@ class Page {
 
       this.thumbnail.value = this.canvas.toDataURL();
 
-      this.currentActionIndex.value += 1;
+      if (this.currentActionIndex.value >= this.history.value.length - 1) {
+        this.currentActionIndex.value = this.history.value.length - 1;
+      } else {
+        this.currentActionIndex.value += 1;
+      }
 
       if (this.history.value.length > 50) {
         this.history.value.shift();

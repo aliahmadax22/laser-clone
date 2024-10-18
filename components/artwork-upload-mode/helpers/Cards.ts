@@ -135,12 +135,12 @@ class Card {
 
   handleEvents() {
     if (this.canvas) {
-      const dataString = localStorage.getItem("cardsInfo");
-      const localCardsData: {
-        cardSide: string;
-        cardID: string;
-        cardJSON: JSON;
-      }[] = JSON.parse(dataString!);
+      // const dataString = localStorage.getItem("cardsInfo");
+      // const localCardsData: {
+      //   cardSide: string;
+      //   cardID: string;
+      //   cardJSON: JSON;
+      // }[] = JSON.parse(dataString!);
 
       this.canvas.on("mouse:down", (e) => {
         if (this.activeObject && e.target) this.activeObject.value = e.target;
@@ -149,7 +149,6 @@ class Card {
       this.canvas.on("object:added", (e) => {
         this.refreshThumbnails();
 
-        const canvasObjects = this.canvas && this.canvas.getObjects();
         const obj = e.target as CustomLineOptions;
 
         if (obj && obj.lineType && obj.lineType === "bleedline") {
@@ -159,22 +158,24 @@ class Card {
           });
         }
 
-        if (
-          canvasObjects &&
-          canvasObjects.length <= 7 &&
-          !this.loading.value &&
-          this.emptyJSON
-        ) {
-          this.cardHistory.value.push({
-            cardSide: this.cardSide,
-            activeObject: null,
-            json: JSON.parse(this.emptyJSON),
-          });
+        // const canvasObjects = this.canvas && this.canvas.getObjects();
 
-          this.currentActionIndex.value += 1;
-        }
+        // if (
+        //   canvasObjects &&
+        //   canvasObjects.length <= 7 &&
+        //   !this.loading.value &&
+        //   this.emptyJSON
+        // ) {
+        //   this.cardHistory.value.push({
+        //     cardSide: this.cardSide,
+        //     activeObject: null,
+        //     json: JSON.parse(this.emptyJSON),
+        //   });
 
-        this.handleEmptyHistory();
+        //   this.currentActionIndex.value += 1;
+        // }
+
+        !this.loading.value && this.handleEmptyHistory("add");
 
         if (e.target.id !== "frame") {
           this.saveState(obj);
@@ -197,18 +198,18 @@ class Card {
 
         const obj = e.target as CustomLineOptions;
 
-        if (
-          localCardsData &&
-          !this.loading.value &&
-          this.cardHistory.value.length === 0
-        ) {
-          this.cardHistory.value.push({
-            cardSide: this.cardSide,
-            activeObject: null,
-            json: JSON.parse(this.emptyJSON),
-          });
-          this.currentActionIndex.value += 1;
-        }
+        // if (
+        //   localCardsData &&
+        //   !this.loading.value &&
+        //   this.cardHistory.value.length === 0
+        // ) {
+        //   this.cardHistory.value.push({
+        //     cardSide: this.cardSide,
+        //     activeObject: null,
+        //     json: JSON.parse(this.emptyJSON),
+        //   });
+        //   this.currentActionIndex.value += 1;
+        // }
 
         this.handleEmptyHistory();
 
@@ -343,8 +344,46 @@ class Card {
     }
   }
 
-  handleEmptyHistory() {
-    if (this.cardHistory.value && !this.loading.value) {
+  handleEmptyHistory(action: string = "") {
+    const dataString = localStorage.getItem("cardsInfo");
+    const localCardsData: {
+      cardSide: string;
+      cardID: string;
+      cardJSON: JSON;
+    }[] = JSON.parse(dataString!);
+
+    const canvasObjects = this.canvas && this.canvas.getObjects();
+
+    if (
+      canvasObjects &&
+      canvasObjects.length <= 7 &&
+      action === "add" &&
+      !this.loading.value &&
+      this.emptyJSON
+    ) {
+      this.cardHistory.value.push({
+        cardSide: this.cardSide,
+        activeObject: null,
+        json: JSON.parse(this.emptyJSON),
+      });
+
+      if (this.currentActionIndex.value === 0) {
+        const historyHighestIndex = this.cardHistory.value.length - 1;
+
+        const historyCopy = [...this.cardHistory.value];
+        const slicedHistory = historyCopy.slice(historyHighestIndex);
+
+        this.cardHistory.value = slicedHistory;
+      }
+
+      this.currentActionIndex.value += 1;
+    } else if (
+      this.cardHistory.value &&
+      !this.loading.value &&
+      canvasObjects &&
+      canvasObjects.length >= 7 &&
+      localCardsData
+    ) {
       const empty = this.cardHistory.value.some(
         (obj) => obj.cardSide === this.cardSide
       );
@@ -395,13 +434,6 @@ class Card {
             : this.currentActionIndex.value + 1
         );
 
-        setTimeout(() => {
-          if (this.currentActionIndex.value <= 1) {
-            this.cardHistory.value[0].cardSide =
-              this.cardHistory.value[this.currentActionIndex.value].cardSide;
-          }
-        }, 0);
-
         if (this.currentActionIndex.value === 1) {
           this.currentActionIndex.value = 0;
         }
@@ -439,7 +471,11 @@ class Card {
 
       this.refreshThumbnails();
 
-      this.currentActionIndex.value += 1;
+      if (this.currentActionIndex.value >= this.cardHistory.value.length - 1) {
+        this.currentActionIndex.value = this.cardHistory.value.length - 1;
+      } else {
+        this.currentActionIndex.value += 1;
+      }
 
       const otherSide = this.cardSide === "Front" ? "Back" : "Front";
 
