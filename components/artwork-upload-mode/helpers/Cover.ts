@@ -219,7 +219,7 @@ class Cover {
 
         const obj = e.target as CustomLineOptions;
 
-        if (e.target.id !== "frame") {
+        if (e.target.id !== "frame" && obj.lineType !== "snap") {
           this.saveState(obj);
         }
       });
@@ -251,7 +251,7 @@ class Cover {
 
         const obj = e.target as CustomLineOptions;
 
-        if (e.target.id !== "frame") {
+        if (e.target.id !== "frame" && obj.lineType !== "snap") {
           this.saveState(obj);
         }
       });

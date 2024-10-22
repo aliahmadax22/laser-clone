@@ -287,7 +287,10 @@ class Page {
 
           this.handleEmptyHistory("add");
 
-          if (!excludedIds.includes(obj.id as TargetID)) {
+          if (
+            !excludedIds.includes(obj.id as TargetID) &&
+            obj.lineType !== "snap"
+          ) {
             this.saveState(obj);
           }
         }
@@ -386,7 +389,8 @@ class Page {
         if (
           e.target.id !== "frame" &&
           e.target.id !== "firstPageCover" &&
-          e.target.id !== "cover"
+          e.target.id !== "cover" &&
+          obj.lineType !== "snap"
         ) {
           this.saveState(obj);
         }

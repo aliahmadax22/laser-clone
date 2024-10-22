@@ -164,7 +164,7 @@ class Card {
 
         !this.loading.value && this.handleEmptyHistory("add");
 
-        if (e.target.id !== "frame") {
+        if (e.target.id !== "frame" && obj.lineType !== "snap") {
           this.saveState(obj);
         }
 
@@ -278,9 +278,9 @@ class Card {
         this.refreshThumbnails();
 
         this.handleEmptyHistory();
+        const object = e.target as CustomLineOptions;
 
-        if (e.target.id !== "frame") {
-          const object = e.target as CustomLineOptions;
+        if (e.target.id !== "frame" && object.lineType !== "snap") {
           this.saveState(object);
         }
 

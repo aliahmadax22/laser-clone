@@ -16,86 +16,32 @@ class SnaplinesBeta {
     const zoom = this.canvas.getZoom();
 
     // Create the snaplines (invisible by default)
-    this.horizontalCenterLine = new Line(
-      [
-        0,
-        this.canvas.height / 2 / zoom,
-        this.canvas.width / zoom,
-        this.canvas.height / 2 / zoom,
-      ],
-      {
-        stroke: "red",
-        lineType: "snap",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        visible: false,
-      }
-    );
-
-    this.verticalCenterLine = new Line(
-      [
-        this.canvas.width / 2 / zoom,
-        0,
-        this.canvas.width / 2 / zoom,
-        this.canvas.height / zoom,
-      ],
-      {
-        stroke: "red",
-        lineType: "snap",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        visible: false,
-      }
-    );
-
-    this.topLine = new Line([0, 0, this.canvas.width! / zoom, 0], {
-      stroke: "red",
-      lineType: "snap",
-      strokeWidth: 1,
-      selectable: false,
-      evented: false,
-      visible: false,
-    });
-
-    this.bottomLine = new Line(
-      [
-        0,
-        this.canvas.height! / zoom,
-        this.canvas.width! / zoom,
-        this.canvas.height! / zoom,
-      ],
-      {
-        stroke: "red",
-        lineType: "snap",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        visible: false,
-      }
-    );
-
-    this.leftLine = new Line([0, 0, 0, this.canvas.height! / zoom], {
-      stroke: "red",
-      lineType: "snap",
-      strokeWidth: 1,
-      selectable: false,
-      evented: false,
-      visible: false,
-    });
-
-    this.rightLine = new Line(
-      [canvas.width! / zoom, 0, canvas.width! / zoom, canvas.height! / zoom],
-      {
-        stroke: "red",
-        lineType: "snap",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        visible: false,
-      }
-    );
+    this.horizontalCenterLine = this.createLine([
+      0,
+      this.canvas.height / 2 / zoom,
+      this.canvas.width / zoom,
+      this.canvas.height / 2 / zoom,
+    ]);
+    this.verticalCenterLine = this.createLine([
+      this.canvas.width / 2 / zoom,
+      0,
+      this.canvas.width / 2 / zoom,
+      this.canvas.height / zoom,
+    ]);
+    this.topLine = this.createLine([0, 0, this.canvas.width / zoom, 0]);
+    this.bottomLine = this.createLine([
+      0,
+      this.canvas.height / zoom,
+      this.canvas.width / zoom,
+      this.canvas.height / zoom,
+    ]);
+    this.leftLine = this.createLine([0, 0, 0, this.canvas.height / zoom]);
+    this.rightLine = this.createLine([
+      canvas.width / zoom,
+      0,
+      canvas.width / zoom,
+      canvas.height / zoom,
+    ]);
 
     // Add lines to the canvas
     canvas.add(
@@ -107,10 +53,24 @@ class SnaplinesBeta {
       this.rightLine
     );
 
-    // Register the event listener for object movement
+    // Register event listeners for object movement and JSON loading
     this.registerListeners();
   }
 
+  // Utility function to create lines
+  createLine(coordinates: [number, number, number, number]): Line {
+    return new Line(
+      [coordinates[0], coordinates[1], coordinates[2], coordinates[3]],
+      {
+        stroke: "red",
+        lineType: "snap",
+        strokeWidth: 1,
+        selectable: false,
+        evented: false,
+        visible: false,
+      }
+    );
+  }
   // Register js object:moving event listener
   registerListeners() {
     this.canvas.on("object:moving", (e) => {
@@ -120,6 +80,24 @@ class SnaplinesBeta {
     this.canvas.on("object:modified", () => {
       this.hideSnaplines();
     });
+
+    this.canvas.on("mouse:down", () => {
+      this.reinitializeSnaplines();
+    });
+  }
+
+  reinitializeSnaplines() {
+    // Check if snaplines are missing canvas
+    if (!this.horizontalCenterLine.canvas || !this.verticalCenterLine.canvas) {
+      this.canvas.add(
+        this.horizontalCenterLine,
+        this.verticalCenterLine,
+        this.topLine,
+        this.bottomLine,
+        this.leftLine,
+        this.rightLine
+      );
+    }
   }
 
   // Show or hide the snaplines based on object position

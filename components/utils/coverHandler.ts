@@ -5,7 +5,6 @@ import {
   type TOriginY,
 } from "fabric";
 import Cover from "../artwork-upload-mode/helpers/Cover";
-import SnaplinesBeta from "../artwork-upload-mode/helpers/snapsbeta";
 
 export const coverHandler = function (
   coverLeftRef: Ref<HTMLCanvasElement | null>,
@@ -224,18 +223,9 @@ export const coverHandler = function (
                     : coverHistory.value[i].json
                 )
                 .then(() => {
-                  canvas.getObjects().map((obj) => {
-                    const object = obj as CustomLineOptions;
-
-                    if (object.lineType === "snap") {
-                      canvas.remove(object);
-                    }
-                  });
-
-                  new SnaplinesBeta(canvas as Canvas);
                   jsonLoadingRef.value = false;
+                  canvas && canvas.requestRenderAll();
                 });
-            canvas && canvas.requestRenderAll();
           }
 
           activeCoverRef.value = coverHistory.value[i].coverSide;
@@ -263,18 +253,9 @@ export const coverHandler = function (
             await canvas
               .loadFromJSON(coverHistory.value[coverHistoryIndex.value].json)
               .then(() => {
-                canvas.getObjects().map((obj) => {
-                  const object = obj as CustomLineOptions;
-
-                  if (object.lineType === "snap") {
-                    canvas.remove(object);
-                  }
-                });
-
-                new SnaplinesBeta(canvas as Canvas);
                 jsonLoadingRef.value = false;
+                canvas && canvas.requestRenderAll();
               });
-            canvas && canvas.requestRenderAll();
           }
 
           if (
@@ -302,16 +283,6 @@ export const coverHandler = function (
         await desiredCover.canvas.loadFromJSON(historyToLoad.json).then(() => {
           const canvas = desiredCover.canvas;
           if (canvas) {
-            canvas.getObjects().map((obj) => {
-              const object = obj as CustomLineOptions;
-
-              if (object.lineType === "snap") {
-                canvas.remove(object);
-              }
-            });
-
-            new SnaplinesBeta(canvas as Canvas);
-
             canvas.requestRenderAll();
             jsonLoadingRef.value = false;
           }
@@ -331,11 +302,7 @@ export const coverHandler = function (
       const currentJson = coverHistory.value[coverHistoryIndex.value]
         .json as jsonObject;
 
-      if (
-        // upcomingJson.objects.length < 3 &&
-        currentJson.objects.length < 3 &&
-        upperJson.objects.length < 3
-      ) {
+      if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         coverHistoryIndex.value += 1;
       } else {
         await loadFromJson("undo");

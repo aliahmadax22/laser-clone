@@ -7,7 +7,6 @@ import {
   type TOriginY,
 } from "fabric";
 import Page from "../artwork-upload-mode/helpers/Pages";
-import SnaplinesBeta from "../artwork-upload-mode/helpers/snapsbeta";
 
 interface CustomLineOptions extends FabricObject {
   linePosition?: string;
@@ -545,16 +544,6 @@ export function pageHandler(
                     : pagesHistory.value[i].json
                 )
                 .then(() => {
-                  canvas.getObjects().map((obj) => {
-                    const object = obj as CustomLineOptions;
-
-                    if (object.lineType === "snap") {
-                      canvas.remove(object);
-                    }
-                  });
-
-                  new SnaplinesBeta(canvas as Canvas);
-
                   canvas && canvas.requestRenderAll();
 
                   JSONLoading.value = false;
@@ -595,16 +584,6 @@ export function pageHandler(
             await canvas
               .loadFromJSON(pagesHistory.value[historyIndex.value].json)
               .then(() => {
-                canvas.getObjects().map((obj) => {
-                  const object = obj as CustomLineOptions;
-
-                  if (object.lineType === "snap") {
-                    canvas.remove(object);
-                  }
-                });
-
-                new SnaplinesBeta(canvas as Canvas);
-
                 canvas && canvas.requestRenderAll();
 
                 JSONLoading.value = false;
@@ -639,16 +618,6 @@ export function pageHandler(
         await desiredPage.canvas.loadFromJSON(historyToLoad.json).then(() => {
           const canvas = desiredPage.canvas;
           if (canvas) {
-            canvas.getObjects().map((obj) => {
-              const object = obj as CustomLineOptions;
-
-              if (object.lineType === "snap") {
-                canvas.remove(object);
-              }
-            });
-
-            new SnaplinesBeta(canvas as Canvas);
-
             canvas.requestRenderAll();
             JSONLoading.value = false;
           }
@@ -948,7 +917,7 @@ export function pageHandler(
       const currentJson = pagesHistory.value[historyIndex.value]
         .json as jsonObject;
 
-      if (currentJson.objects.length < 3 && upperJson.objects.length < 3) {
+      if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         historyIndex.value += 1;
       } else {
         await loadFromJson("undo");
