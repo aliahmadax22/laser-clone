@@ -793,7 +793,13 @@ interface allPagesCanvasesRef {
 }
 // INTERFACES END
 
-const propertiesToInclude = ["id", "linePosition", "lineType", "padding"];
+const propertiesToInclude = [
+  "id",
+  "linePosition",
+  "lineType",
+  "padding",
+  "visible",
+];
 
 // REACTIVE STATES
 const state = reactive<state>({

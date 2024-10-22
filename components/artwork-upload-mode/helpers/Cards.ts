@@ -125,31 +125,27 @@ class Card {
       // new SnapLinesHelper(this.canvas);
       if (!this.loading.value) new SnaplinesBeta(this.canvas);
 
-      setTimeout(() => {
-        if (this.canvas)
+      const saveJsonData = () => {
+        if (this.canvas) {
           this.jsonObject = this.canvas.toObject(propertiesToInclude);
-        this.emptyJSON = JSON.stringify(this.jsonObject);
+          this.emptyJSON = JSON.stringify(this.jsonObject);
 
-        if (this.cardSide === "Front" && this.canvas) {
-          const jsonObject = this.canvas.toObject(propertiesToInclude);
-          emptyJsonFront = JSON.stringify(jsonObject);
-        } else if (this.cardSide === "Back" && this.canvas) {
-          const jsonObject = this.canvas.toObject(propertiesToInclude);
-          emptyJsonBack = JSON.stringify(jsonObject);
+          if (this.cardSide === "Front") {
+            const jsonObject = this.canvas.toObject(propertiesToInclude);
+            emptyJsonFront = JSON.stringify(jsonObject);
+          } else if (this.cardSide === "Back") {
+            const jsonObject = this.canvas.toObject(propertiesToInclude);
+            emptyJsonBack = JSON.stringify(jsonObject);
+          }
         }
-      }, 300);
+      };
+
+      requestAnimationFrame(saveJsonData);
     }
   }
 
   handleEvents() {
     if (this.canvas) {
-      // const dataString = localStorage.getItem("cardsInfo");
-      // const localCardsData: {
-      //   cardSide: string;
-      //   cardID: string;
-      //   cardJSON: JSON;
-      // }[] = JSON.parse(dataString!);
-
       this.canvas.on("mouse:down", (e) => {
         if (this.activeObject && e.target) this.activeObject.value = e.target;
       });
@@ -165,23 +161,6 @@ class Card {
             hasControls: false,
           });
         }
-
-        // const canvasObjects = this.canvas && this.canvas.getObjects();
-
-        // if (
-        //   canvasObjects &&
-        //   canvasObjects.length <= 11 &&
-        //   !this.loading.value &&
-        //   this.emptyJSON
-        // ) {
-        //   this.cardHistory.value.push({
-        //     cardSide: this.cardSide,
-        //     activeObject: null,
-        //     json: JSON.parse(this.emptyJSON),
-        //   });
-
-        //   this.currentActionIndex.value += 1;
-        // }
 
         !this.loading.value && this.handleEmptyHistory("add");
 

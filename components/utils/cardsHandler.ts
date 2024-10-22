@@ -61,8 +61,8 @@ export const cardsHandler = function (
   }
 
   const actualSize = {
-    width_mm: 150,
-    height_mm: 150,
+    width_mm: 120,
+    height_mm: 120,
     dpi: 120,
   };
 
@@ -295,11 +295,16 @@ export const cardsHandler = function (
       const upperHistory = cardHistory.value[cardHistoryIndex.value + 1];
       const upperHistoryObject = upperHistory && upperHistory.activeObject;
 
-      if (upperHistoryObject && upperHistoryObject.lineType === "perforation") {
-        activeCardRef.value = upperHistory.cardSide;
-      } else {
-        if (desiredCard) activeCardRef.value = desiredCard.cardSide;
-      }
+      if (
+        desiredCard &&
+        upperHistoryObject &&
+        upperHistoryObject.lineType !== "perforation" &&
+        latestHistoryObject &&
+        latestHistoryObject.lineType !== "perforation" &&
+        currentHistoryObject &&
+        currentHistoryObject.lineType !== "perforation"
+      )
+        activeCardRef.value = desiredCard.cardSide;
 
       jsonLoadingRef.value = true;
 
@@ -325,6 +330,7 @@ export const cardsHandler = function (
   };
 
   const undoCardHistory = async () => {
+    if (jsonLoadingRef.value) return;
     if (cardHistory.value && cardHistoryIndex.value > 0) {
       cardHistoryIndex.value -= 1;
 
@@ -595,12 +601,14 @@ export const cardsHandler = function (
       if (currentJson.objects.length < 7 && upperJson.objects.length < 7) {
         cardHistoryIndex.value += 1;
       } else {
-        loadFromJson("undo");
+        await loadFromJson("undo");
       }
     }
   };
 
   const reDoCardHistory = async () => {
+    if (jsonLoadingRef.value) return;
+
     if (
       cardHistory.value &&
       cardHistoryIndex.value < cardHistory.value.length - 1

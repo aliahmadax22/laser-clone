@@ -58,14 +58,14 @@ export const coverHandler = function (
   }
 
   const actualSize = {
-    width_mm: 120,
-    height_mm: 120,
+    width_mm: 100,
+    height_mm: 100,
     dpi: 120,
   };
 
   const middleSize = {
     width_mm: 40,
-    height_mm: 120,
+    height_mm: 100,
     dpi: 120,
   };
 
@@ -320,6 +320,8 @@ export const coverHandler = function (
   };
 
   const undoCoverHistory = async () => {
+    if (jsonLoadingRef.value) return;
+
     if (coverHistory.value && coverHistoryIndex.value > 0) {
       coverHistoryIndex.value -= 1;
 
@@ -336,20 +338,22 @@ export const coverHandler = function (
       ) {
         coverHistoryIndex.value += 1;
       } else {
-        loadFromJson("undo");
+        await loadFromJson("undo");
       }
     }
   };
 
   //Redo - still notworking
   const redoCoverHistory = async () => {
+    if (jsonLoadingRef.value) return;
+
     if (
       coverHistory.value &&
       coverHistoryIndex.value < coverHistory.value.length - 1
     ) {
       coverHistoryIndex.value += 1;
 
-      loadFromJson("redo");
+      await loadFromJson("redo");
     }
   };
 

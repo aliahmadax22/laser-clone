@@ -78,8 +78,8 @@ export function pageHandler(
   resizeElement: () => void
 ) {
   const actualSize = {
-    width_mm: 150,
-    height_mm: 150,
+    width_mm: 120,
+    height_mm: 120,
     dpi: 120,
   };
 
@@ -560,7 +560,11 @@ export function pageHandler(
                   JSONLoading.value = false;
                 });
 
-            loadPage(desiredPage as inlinePageWithoutRefs);
+            if (
+              currentHistoryObject?.lineType !== "perforation" &&
+              latestHistoryObject?.lineType !== "perforation"
+            )
+              loadPage(desiredPage as inlinePageWithoutRefs);
           }
 
           break; // Exit the outer loop after the first match is processed
@@ -606,7 +610,11 @@ export function pageHandler(
                 JSONLoading.value = false;
               });
 
-            loadPage(desiredPage as inlinePageWithoutRefs);
+            if (
+              currentHistoryObject?.lineType !== "perforation" &&
+              latestHistoryObject?.lineType !== "perforation"
+            )
+              loadPage(desiredPage as inlinePageWithoutRefs);
           }
 
           break;
@@ -619,7 +627,11 @@ export function pageHandler(
         return p.pageNumber === historyToLoad.pageNumber;
       });
 
-      loadPage(desiredPage as inlinePageWithoutRefs);
+      if (
+        currentHistoryObject?.lineType !== "perforation" &&
+        latestHistoryObject?.lineType !== "perforation"
+      )
+        loadPage(desiredPage as inlinePageWithoutRefs);
 
       JSONLoading.value = true;
 
@@ -645,6 +657,8 @@ export function pageHandler(
   };
 
   const undoPagesHistory = async () => {
+    if (JSONLoading.value) return;
+
     if (pagesHistory.value && historyIndex.value > 0) {
       historyIndex.value -= 1;
 
@@ -937,13 +951,14 @@ export function pageHandler(
       if (currentJson.objects.length < 3 && upperJson.objects.length < 3) {
         historyIndex.value += 1;
       } else {
-        loadFromJson("undo");
+        await loadFromJson("undo");
       }
     }
   };
 
   //Redo - still notworking
   const redoPagesHistory = async () => {
+    if (JSONLoading.value) return;
     if (
       pagesHistory.value &&
       historyIndex.value < pagesHistory.value.length - 1
