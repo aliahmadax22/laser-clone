@@ -520,7 +520,7 @@
                     class="w-full h-full"
                   />
 
-                  Cover: Left
+                  Cover: Front
                 </div>
 
                 <div
@@ -548,7 +548,7 @@
                     class="w-full h-full"
                   />
 
-                  Cover: Right
+                  Cover: Back
                 </div>
               </div>
             </div>
@@ -1168,6 +1168,7 @@ onMounted(() => {
       pgActiveObj,
       pagesHistory,
       historyIndex,
+      modeTypeRef,
     } = pageHandler(containerRef.value, resizeElement);
 
     pageModeRef.value = PageMode;
@@ -1177,6 +1178,20 @@ onMounted(() => {
     reDoRef.value = redoPagesHistory;
 
     allPages.value = reactivePages.value;
+
+    watch(modeTypeRef, (newVal) => {
+      if (newVal) {
+        switchToCover();
+
+        setTimeout(() => {
+          if (newVal === "coverFront") {
+            coverSideRef.value = "Left";
+          } else {
+            coverSideRef.value = "Right";
+          }
+        }, 0);
+      }
+    });
 
     watch(apID, (newVal) => {
       if (newVal) {

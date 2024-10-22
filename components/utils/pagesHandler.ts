@@ -92,6 +92,7 @@ export function pageHandler(
   const pagesHistory = ref<pagesHistory[]>([]);
   const historyIndex = ref<number>(-1);
   const JSONLoading = ref<boolean>(false);
+  const modeTypeRef = ref<string>("");
 
   const PageMode = async () => {
     const dataString = localStorage.getItem("pagesInfo");
@@ -290,80 +291,88 @@ export function pageHandler(
   };
 
   const loadPage = (page: inlinePageWithoutRefs) => {
-    apID.value = page.pageID;
+    const pageIndex = reactivePages.value.indexOf(page);
 
-    if (reactivePages.value && apID.value === page.pageID) {
-      reactivePages.value.forEach(
-        (c) => (c.canvas.wrapperEl.style.border = "2px solid black")
-      );
-      page.canvas.wrapperEl.style.border = "2px solid lightgreen";
-    }
+    if (pageIndex === 0) {
+      modeTypeRef.value = "coverFront";
+    } else if (pageIndex === reactivePages.value.length - 1) {
+      modeTypeRef.value = "coverBack";
+    } else {
+      apID.value = page.pageID;
 
-    if (reactivePages.value.length >= 2 && liveCanvases.value) {
-      const currentPageIndex = reactivePages.value.findIndex((p) => {
-        return p.pageID === page.pageID;
-      });
-
-      const nextPage =
-        page.pageNumber % 2 === 0
-          ? reactivePages.value[currentPageIndex - 1]
-          : reactivePages.value[currentPageIndex + 1];
-      const pagesToLoad = [page, nextPage];
-
-      liveCanvases.value = pagesToLoad;
-
-      pagesToLoad.forEach((page) => {
-        page.canvas.getObjects().forEach((obj) => {
-          obj.setCoords();
-        });
-
-        page.canvas.requestRenderAll();
-      });
-
-      if (liveCanvases.value[1].pageNumber !== reactivePages.value.length) {
-        const canvas = liveCanvases.value[1].canvas;
-
-        canvas &&
-          canvas.getObjects().forEach((obj) => {
-            if (
-              (canvas && obj.id && obj.id === "cover") ||
-              (canvas && obj.id && obj.id === "frame")
-            ) {
-              canvas.remove(obj);
-              canvas.requestRenderAll();
-            }
-          });
-      } else {
-        // last page
+      if (reactivePages.value && apID.value === page.pageID) {
+        reactivePages.value.forEach(
+          (c) => (c.canvas.wrapperEl.style.border = "2px solid black")
+        );
+        page.canvas.wrapperEl.style.border = "2px solid lightgreen";
       }
 
-      if (liveCanvases.value[0].pageNumber === 1) {
-        const cover = liveCanvases.value[0].canvas._objects.find((obj) => {
-          return obj.id === "firstPageCover";
+      if (reactivePages.value.length >= 2 && liveCanvases.value) {
+        const currentPageIndex = reactivePages.value.findIndex((p) => {
+          return p.pageID === page.pageID;
         });
 
-        if (cover && liveCanvases.value[0].canvas._objects.includes(cover)) {
-          // cover is present
-        } else {
+        const nextPage =
+          page.pageNumber % 2 === 0
+            ? reactivePages.value[currentPageIndex - 1]
+            : reactivePages.value[currentPageIndex + 1];
+        const pagesToLoad = [page, nextPage];
+
+        liveCanvases.value = pagesToLoad;
+
+        pagesToLoad.forEach((page) => {
+          page.canvas.getObjects().forEach((obj) => {
+            obj.setCoords();
+          });
+
+          page.canvas.requestRenderAll();
+        });
+
+        if (liveCanvases.value[1].pageNumber !== reactivePages.value.length) {
           const canvas = liveCanvases.value[1].canvas;
-          if (canvas) {
-            const zoom = canvas.getZoom();
 
-            const CoverPage = new Rect({
-              id: "firstPageCover",
-              side: "left",
-              left: zoom,
-              top: 0,
-              width: canvas.width / 2 / zoom,
-              height: canvas.height / zoom,
-              fill: "darkgray",
-              selectable: false,
-              hasBorders: false,
-              hasControls: false,
+          canvas &&
+            canvas.getObjects().forEach((obj) => {
+              if (
+                (canvas && obj.id && obj.id === "cover") ||
+                (canvas && obj.id && obj.id === "frame")
+              ) {
+                canvas.remove(obj);
+                canvas.requestRenderAll();
+              }
             });
-            canvas.add(CoverPage);
+        } else {
+          // last page
+        }
 
-            canvas.requestRenderAll();
+        if (liveCanvases.value[0].pageNumber === 1) {
+          const cover = liveCanvases.value[0].canvas._objects.find((obj) => {
+            return obj.id === "firstPageCover";
+          });
+
+          if (cover && liveCanvases.value[0].canvas._objects.includes(cover)) {
+            // cover is present
+          } else {
+            const canvas = liveCanvases.value[1].canvas;
+            if (canvas) {
+              const zoom = canvas.getZoom();
+
+              const CoverPage = new Rect({
+                id: "firstPageCover",
+                side: "left",
+                left: zoom,
+                top: 0,
+                width: canvas.width / 2 / zoom,
+                height: canvas.height / zoom,
+                fill: "darkgray",
+                selectable: false,
+                hasBorders: false,
+                hasControls: false,
+              });
+              canvas.add(CoverPage);
+
+              canvas.requestRenderAll();
+            }
           }
         }
       }
@@ -1017,5 +1026,6 @@ export function pageHandler(
     pagesHistory,
     historyIndex,
     JSONLoading,
+    modeTypeRef,
   };
 }
