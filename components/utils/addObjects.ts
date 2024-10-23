@@ -243,9 +243,11 @@ export const addSVGText = async (
         if (fabricCanvas) {
           obj.set({
             left: 150,
-            top: 50,
+            top: 100,
             scaleX: 0.2,
             scaleY: 0.2,
+            originX: "center",
+            originY: "center",
           });
 
           addToCanvas(
@@ -270,10 +272,12 @@ export const addSVGText = async (
 
       const zoom = canvas.getZoom();
       obj.set({
-        left: canvas.width / 2 / zoom - (obj.width / 2) * 0.1,
-        top: 50,
+        left: canvas.width / 2 / zoom,
+        top: 100,
         scaleX: 0.2,
         scaleY: 0.2,
+        originX: "center",
+        originY: "center",
       });
 
       addToCanvas(obj, null, canvas, inlinePages, modeType);
@@ -289,11 +293,12 @@ export const addSVGText = async (
 
       const zoom = fabricCanvas.getZoom();
       obj.set({
-        left: fabricCanvas.width / 2 / zoom - (obj.width / 2) * 0.1,
-
-        top: 50,
+        left: fabricCanvas.width / 2 / zoom,
+        top: 100,
         scaleX: 0.1,
         scaleY: 0.1,
+        originX: "center",
+        originY: "center",
       });
 
       addToCanvas(obj, null, fabricCanvas, inlinePages, modeType);
@@ -323,10 +328,12 @@ export const addImage = async (
 
       FabricImage.fromURL(fruits).then((img) => {
         img.set({
-          left: fabricCanvas.width / 2 / zoom - (img.width / 2) * imgScale,
-          top: fabricCanvas.height / 2 / zoom - (img.height / 2) * imgScale,
+          left: fabricCanvas.width / 2 / zoom,
+          top: fabricCanvas.height / 2 / zoom,
           scaleX: imgScale,
           scaleY: imgScale,
+          originX: "center",
+          originY: "center",
         });
 
         addToCanvas(
@@ -346,11 +353,13 @@ export const addImage = async (
         cardSide === "Front" ? cardsDataRef[0].canvas : cardsDataRef[1].canvas;
 
       img.set({
-        left: canvas.width / 2 / canvas.getZoom() - (img.width / 2) * imgScale,
+        left: canvas.width / 2 / canvas.getZoom(),
 
-        top: canvas.height / 2 / canvas.getZoom() - (img.height / 2) * imgScale,
+        top: canvas.height / 2 / canvas.getZoom(),
         scaleX: imgScale,
         scaleY: imgScale,
+        originX: "center",
+        originY: "center",
       });
       addToCanvas(img, null, canvas, inlinePages, modeType);
     });
@@ -361,14 +370,12 @@ export const addImage = async (
       const fabricCanvas = activeCover.canvas;
 
       img.set({
-        left:
-          fabricCanvas.width / 2 / fabricCanvas.getZoom() -
-          (img.width / 2) * imgScale,
-        top:
-          fabricCanvas.height / 2 / fabricCanvas.getZoom() -
-          (img.height / 2) * imgScale,
+        left: fabricCanvas.width / 2 / fabricCanvas.getZoom(),
+        top: fabricCanvas.height / 2 / fabricCanvas.getZoom(),
         scaleX: imgScale,
         scaleY: imgScale,
+        originX: "center",
+        originY: "center",
       });
       addToCanvas(img, null, fabricCanvas, inlinePages, modeType);
     });

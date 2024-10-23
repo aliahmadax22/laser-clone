@@ -12,7 +12,7 @@ class SnaplinesBeta {
 
   constructor(canvas: Canvas) {
     this.canvas = canvas;
-    this.snapTolerance = 3; // Pixels within which snaplines appear
+    this.snapTolerance = 10; // Pixels within which snaplines appear
     const zoom = this.canvas.getZoom();
 
     // Create the snaplines (invisible by default)
@@ -108,44 +108,30 @@ class SnaplinesBeta {
 
     // const objectCenterX = object.left! + object.width! / 2;
 
-    const objectCenterX =
-      object.type !== "image" && object.type !== "group"
-        ? object.left
-        : (object.width * object.scaleX) / 2 + object.left;
+    const objectCenterX = object.left;
 
     // const objectCenterY = object.top! + object.height! / 2
 
-    const objectCenterY =
-      object.type !== "image" && object.type !== "group"
-        ? object.top
-        : (object.height * object.scaleY) / 2 + object.top;
+    const objectCenterY = object.top;
 
     const objectTop = Math.abs(
-      object.type !== "textbox"
-        ? object.top * object.scaleY
-        : object.top - (object.height * object.scaleY) / 2
+      object.top - (object.height * object.scaleY) / 2
     );
 
     const objectBottom = Math.abs(
-      object.type !== "textbox"
-        ? object.top + object.height * object.scaleY - this.canvas.height / zoom
-        : object.top +
-            (object.height * object.scaleY) / 2 -
-            this.canvas.height / zoom
+      object.top +
+        (object.height * object.scaleY) / 2 -
+        this.canvas.height / zoom
     );
 
     const objectLeft = Math.abs(
-      object.type !== "textbox"
-        ? object.left * object.scaleX
-        : object.left - (object.width * object.scaleX) / 2
+      object.left - (object.width * object.scaleX) / 2
     );
 
     const objectRight = Math.abs(
-      object.type !== "textbox"
-        ? object.left + object.width * object.scaleX - this.canvas.width / zoom
-        : object.left +
-            (object.width * object.scaleX) / 2 -
-            this.canvas.width / zoom
+      object.left +
+        (object.width * object.scaleX) / 2 -
+        this.canvas.width / zoom
     );
 
     const actualHeight = this.canvas.height / zoom;
@@ -164,10 +150,7 @@ class SnaplinesBeta {
       objectCenterY < canvasCenterY + this.snapTolerance
     ) {
       object.set({
-        top:
-          object.type !== "image" && object.type !== "group"
-            ? canvasCenterY
-            : canvasCenterY - (object.height * object.scaleY) / 2,
+        top: canvasCenterY,
       });
     }
 
@@ -182,10 +165,7 @@ class SnaplinesBeta {
       objectCenterX < canvasCenterX + this.snapTolerance
     ) {
       object.set({
-        left:
-          object.type !== "image" && object.type !== "group"
-            ? canvasCenterX
-            : canvasCenterX - (object.width * object.scaleX) / 2,
+        left: canvasCenterX,
       });
     }
 
@@ -200,7 +180,7 @@ class SnaplinesBeta {
       objectTop < 0 + this.snapTolerance
     ) {
       object.set({
-        top: Math.abs(object.type !== "textbox" ? 0 : 0 + object.height / 2),
+        top: Math.abs(0 + (object.height * object.scaleY) / 2),
       });
     }
 
@@ -209,22 +189,15 @@ class SnaplinesBeta {
 
     if (objectBottom < this.snapTolerance) {
       object.set({
-        top:
-          actualHeight -
-          (object.type !== "textbox"
-            ? object.height * object.scaleY
-            : (object.height / 2) * object.scaleY),
+        top: actualHeight - (object.height / 2) * object.scaleY,
       });
     }
 
     // Show left line if object is close to the left edge
     this.leftLine.set(
       "visible",
-      Math.abs(
-        object.type !== "textbox"
-          ? object.left * object.scaleX
-          : object.left - (object.width * object.scaleX) / 2
-      ) < this.snapTolerance
+      Math.abs(object.left - (object.width * object.scaleX) / 2) <
+        this.snapTolerance
     );
 
     if (
@@ -232,7 +205,7 @@ class SnaplinesBeta {
       objectLeft < 0 + this.snapTolerance
     ) {
       object.set({
-        left: Math.abs(object.type !== "textbox" ? 0 : 0 + object.width / 2),
+        left: Math.abs(0 + (object.width * object.scaleX) / 2),
       });
     }
 
@@ -240,23 +213,15 @@ class SnaplinesBeta {
     this.rightLine.set(
       "visible",
       Math.abs(
-        object.type !== "textbox"
-          ? object.left +
-              object.width * object.scaleX -
-              this.canvas.width / zoom
-          : object.left +
-              (object.width * object.scaleX) / 2 -
-              this.canvas.width / zoom
+        object.left +
+          (object.width * object.scaleX) / 2 -
+          this.canvas.width / zoom
       ) < this.snapTolerance
     );
 
     if (objectRight < this.snapTolerance) {
       object.set({
-        left:
-          actualWidth -
-          (object.type !== "textbox"
-            ? object.width * object.scaleX
-            : (object.width / 2) * object.scaleX),
+        left: actualWidth - (object.width / 2) * object.scaleX,
       });
     }
 
